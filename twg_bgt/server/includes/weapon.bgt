@@ -1,0 +1,2592 @@
+weapon@[] weapons(0);
+class weapon
+{
+double x, y, z;
+int hitsounds, stuntime, dir, ddir, speed, range, distance, damage, spread;
+string type;
+bool wall=false, hitsound=false, stunning;
+mapdata@map;
+player@owner;
+timer speedtimer;
+weapon(double wx, double wy, double wz, double wdir, double wddir, string wtype, player@p, mapdata@m)
+{
+x=wx;
+y=wy;
+z=wz;
+dir=wdir;
+ddir=wddir;
+type=wtype;
+@owner=p;
+@map=m;
+if(type=="light_punch")
+{
+speed=30;
+range=5;
+damage=random(200,400);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="punch")
+{
+speed=30;
+range=5;
+damage=random(200,400);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="heavy_punch")
+{
+speed=30;
+range=5;
+damage=random(200,400);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="light_kick")
+{
+speed=30;
+range=7;
+damage=random(50,105);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="kick")
+{
+speed=30;
+range=7;
+damage=random(50,105);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="heavy_kick")
+{
+speed=30;
+range=7;
+damage=random(240,410);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="grab")
+{
+speed=30;
+range=7;
+damage=random(150,250);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="throw")
+{
+speed=30;
+range=7;
+damage=random(100,140);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="slam")
+{
+speed=30;
+range=10;
+damage=random(200,500);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="fists")
+{
+speed=30;
+range=2;
+damage=random(200,300);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=34;
+}
+else if(type=="feet")
+{
+speed=30;
+range=4;
+damage=random(300,500);
+spread=5;
+wall=false;
+hitsound=true;
+hitsounds=13;
+}
+else if(type=="axe")
+{
+speed=30;
+range=15;
+damage=random(300,800);
+wall=true;
+hitsound=true;
+}
+else if(type=="axe2")
+{
+speed=30;
+range=23;
+damage=random(380,910);
+wall=true;
+hitsound=true;
+}
+else if(type=="knife")
+{
+speed=30;
+range=5;
+damage=random(100,500);
+wall=false;
+hitsound=true;
+hitsounds=4;
+}
+else if(type=="spear")
+{
+speed=30;
+range=30;
+damage=random(500,900);
+wall=false;
+hitsound=true;
+}
+else if(type=="hammer")
+{
+speed=30;
+range=18;
+damage=random(300,450);
+wall=false;
+hitsound=true;
+}
+else if(type=="long_knife")
+{
+speed=75;
+range=9;
+damage=random(200,600);
+wall=false;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="a90sniper_rifle")
+{
+speed=30;
+range=100;
+damage=random(2000,3600);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="ak47assault_rifle")
+{
+speed=30;
+range=23;
+damage=random(300,400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="ak48")
+{
+speed=30;
+range=35;
+damage=random(300,400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="arrow_gun")
+{
+speed=30;
+range=35;
+damage=random(400,600);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="bow")
+{
+speed=30;
+range=30;
+damage=random(80,125);
+wall=false;
+hitsound=true;
+}
+else if(type=="long_bow")
+{
+speed=30;
+range=52;
+damage=random(85,115);
+wall=false;
+hitsound=true;
+}
+else if(type=="blue_assault_rifle")
+{
+speed=30;
+range=135;
+damage=random(1500,3500);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="blue_bolt_action_sniper")
+{
+speed=30;
+range=115;
+damage=random(2000,3600);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="blue_burst_assault_rifle")
+	{
+speed=30;
+range=101;
+damage=random(300,400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="blue_heavy_assault_rifle")
+{
+speed=30;
+range=90;
+damage=random(1500,3500);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="artillery")
+{
+speed=5;
+range=250;
+damage=random(500,700);
+spread=5;
+wall=false;
+hitsound=false;
+}
+else if(type=="blue_hunting_rifle")
+{
+speed=30;
+range=105;
+damage=random(1500,3500);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="blue_infintry_rifle")
+{
+speed=30;
+range=125;
+damage=random(1500,3500);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="blue_tacticle_shotgun")
+{
+speed=30;
+range=55;
+damage=random(700,1400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="drum_shotgun")
+{
+speed=30;
+range=45;
+damage=random(700,1400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="gold_burst_assault_rifle")
+	{
+speed=30;
+range=103;
+damage=random(300,400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="gold__drum_gun")
+	{
+speed=30;
+range=45;
+damage=random(90,180);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="gold_heavy_assault_rifle")
+	{
+speed=30;
+range=145;
+damage=random(1500,3500);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="gold_scar")
+	{
+speed=30;
+range=42;
+damage=random(300,430);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="gold_tacticle_shotgun")
+	{
+speed=30;
+range=50;
+damage=random(700,1400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="heavy_sniper")
+	{
+speed=30;
+range=160;
+damage=random(2000,3600);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="colt_m9")
+{
+speed=30;
+range=35;
+damage=random(400,450);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="colt_m19")
+{
+speed=30;
+range=42;
+damage=random(400,450);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="e9pistol")
+{
+speed=30;
+range=38;
+damage=random(530,580);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="e20shotgun")
+{
+speed=30;
+range=7;
+damage=random(700,1400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="e235shotgun")
+{
+speed=30;
+range=10;
+damage=random(700,1400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="mb3shotgun")
+{
+speed=30;
+range=8;
+damage=random(700,1400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="mb5shotgun")
+{
+speed=30;
+range=12;
+damage=random(700,1400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="mpt_special_shotgun")
+{
+speed=30;
+range=18;
+damage=random(800,1700);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="mp5machinegun")
+{
+speed=30;
+range=28;
+damage=random(300,400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="tranquilizer_gun")
+{
+speed=30;
+range=10;
+damage=random(50,90);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="famas_g2")
+{
+speed=30;
+range=25;
+damage=random(300,400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="k222rifle")
+{
+speed=30;
+range=70;
+damage=random(1500,3500);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="p3hunting_shotgun")
+{
+speed=30;
+range=9;
+damage=random(700,1400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="tiny_mg")
+{
+speed=30;
+range=25;
+damage=random(300,400);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="wip")
+{
+speed=30;
+range=30;
+damage=random(300,400);
+spread=5;
+hitsound=true;
+}
+else if(type=="sword")
+{
+speed=30;
+range=15;
+damage=random(520,925);
+spread=5;
+hitsound=true;
+hitsounds=6;
+}
+else if(type=="long_sword")
+{
+speed=30;
+range=37;
+damage=random(500,875);
+spread=5;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="short_sword")
+{
+speed=30;
+range=20;
+damage=random(510,908);
+spread=5;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="blake_sword")
+{
+speed=30;
+range=23;
+damage=random(550,920);
+spread=5;
+hitsound=true;
+hitsounds=4;
+}
+else if(type=="iron_shovel")
+{
+speed=30;
+range=10;
+damage=random(400,600);
+spread=5;
+hitsound=true;
+hitsounds=3;
+stunning=true;
+stuntime=1000;
+}
+else if(type=="b96machinegun")
+{
+speed=30;
+range=35;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="ump45machinegun")
+{
+speed=30;
+range=35;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="tac50rifle")
+{
+speed=30;
+range=120;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="uzi_machinegun")
+{
+speed=30;
+range=45;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="kalashnikov_rifle")
+{
+speed=30;
+range=300;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="hook")
+{
+speed=30;
+range=13;
+damage=random(60,65);
+spread=5;
+}
+else if(type=="sp3heavy_machinegun")
+{
+speed=30;
+range=45;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="ak9automatic_machinegun")
+{
+speed=30;
+range=50;
+damage=random(150,180);
+spread=5;
+}
+else if(type=="m28mini_machinegun")
+{
+speed=30;
+range=80;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="m234minigun")
+{
+speed=30;
+range=100;
+damage=random(80,135);
+spread=5;
+}
+else if(type=="missile_launcher")
+{
+speed=30;
+range=200;
+damage=random(3000,6000);
+spread=5;
+}
+else if(type=="tsp_grenade_launcher")
+{
+speed=15;
+range=45;
+damage=random(350,460);
+spread=5;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="stp15rifle")
+{
+speed=30;
+range=100;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="mb93machinegun")
+{
+speed=30;
+range=85;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="sfx12machinegun")
+{
+speed=30;
+range=70;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="qt_machinegun")
+{
+speed=30;
+range=30;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="dagger")
+{
+speed=30;
+range=13;
+damage=random(65,85);
+spread=5;
+hitsound=true;
+}
+else if(type=="d23machete")
+{
+speed=30;
+range=10;
+damage=random(55,85);
+spread=5;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="m90machinegun")
+{
+speed=30;
+range=50;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="pst500shotgun")
+{
+speed=30;
+range=30;
+damage=random(700,1400);
+spread=5;
+}
+else if(type=="small_dagger")
+{
+speed=30;
+range=5;
+damage=random(45,70);
+spread=5;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="stp106_long_barreled_pistol")
+{
+speed=30;
+range=100;
+damage=random(530,580);
+spread=5;
+}
+else if(type=="mkv43machinegun")
+{
+speed=30;
+range=30;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="rpg_launcher")
+{
+speed=30;
+range=230;
+damage=random(350,580);
+spread=5;
+}
+else if(type=="rocket_launcher")
+{
+speed=30;
+range=250;
+damage=random(40,50);
+spread=5;
+}
+else if(type=="rpg7")
+{
+speed=30;
+range=180;
+damage=random(375,560);
+spread=5;
+}
+else if(type=="nak_nk1000_decimater")
+{
+speed=30;
+range=50;
+damage=random(200,400);
+spread=5;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="rpg")
+{
+speed=30;
+range=300;
+damage=random(40,50);
+spread=5;
+}
+else if(type=="rocket")
+{
+speed=30;
+range=1;
+damage=100000;
+spread=5;
+}
+else if(type=="ar15machinegun")
+{
+speed=30;
+range=35;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="crossbow")
+{
+speed=30;
+range=60;
+damage=random(75,110);
+spread=5;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="mj420machinegun")
+{
+speed=30;
+range=50;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="pcs_handgun")
+{
+speed=30;
+range=65;
+damage=random(145,170);
+spread=5;
+}
+else if(type=="ruga22revolver")
+{
+speed=30;
+range=40;
+damage=random(135,165);
+spread=5;
+}
+else if(type=="mlr_assault_rifle")
+{
+speed=30;
+range=90;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="chainsaw")
+{
+speed=30;
+range=20;
+damage=random(115,150);
+spread=5;
+hitsound=true;
+}
+else if(type=="machete")
+{
+speed=30;
+range=20;
+damage=random(65,85);
+spread=5;
+hitsound=true;
+hitsounds=3;
+}
+else if(type=="spiked_iron_mace")
+{
+speed=30;
+range=30;
+damage=random(65,85);
+spread=5;
+}
+else if(type=="barett_m1500sniper_rifle")
+{
+speed=30;
+range=150;
+damage=random(2000,3600);
+spread=5;
+}
+else if(type=="m16machinegun")
+{
+speed=30;
+range=40;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="msb530shotgun")
+{
+speed=30;
+range=50;
+damage=random(700,1400);
+spread=5;
+}
+else if(type=="browning_m2heavy_machinegun")
+{
+speed=30;
+range=65;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="fn2000pistol")
+{
+speed=30;
+range=56;
+damage=random(530,580);
+spread=5;
+}
+else if(type=="fnm_pistol")
+{
+speed=30;
+range=60;
+damage=random(530,580);
+spread=5;
+}
+else if(type=="mlk290rifle")
+{
+speed=30;
+range=160;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="g36pistol")
+{
+speed=30;
+range=90;
+damage=random(530,580);
+spread=5;
+}
+else if(type=="gouse_pistol")
+{
+speed=30;
+range=110;
+damage=random(530,580);
+spread=5;
+}
+else if(type=="lr12pistol")
+{
+speed=30;
+range=75;
+damage=random(530,580);
+spread=5;
+}
+else if(type=="m9pistol")
+{
+speed=30;
+range=100;
+damage=random(530,580);
+spread=5;
+}
+else if(type=="m125assault_rifle")
+{
+speed=30;
+range=125;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="m152minigun")
+{
+speed=30;
+range=90;
+damage=random(95,145);
+spread=5;
+}
+else if(type=="m560sniper_rifle")
+{
+speed=30;
+range=160;
+damage=random(2000,3600);
+spread=5;
+}
+else if(type=="mg4machinegun")
+{
+speed=30;
+range=60;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="mk_long_machinegun")
+{
+speed=30;
+range=110;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="mk52assault_rifle")
+{
+speed=30;
+range=140;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="mk215machinegun")
+{
+speed=30;
+range=80;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="ml7rifle")
+{
+speed=30;
+range=150;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="ml15rifle")
+{
+speed=30;
+range=150;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="s55assault_rifle")
+{
+speed=30;
+range=120;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="sp5shotgun")
+{
+speed=30;
+range=30;
+damage=random(700,1400);
+spread=5;
+}
+else if(type=="sp150shotgun")
+{
+speed=30;
+range=40;
+damage=random(700,1400);
+spread=5;
+}
+else if(type=="blz5machinegun")
+{
+speed=30;
+range=70;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="hk_machinegun")
+{
+speed=30;
+range=66;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="m10machinegun")
+{
+speed=30;
+range=45;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="mp12machinegun")
+{
+speed=30;
+range=40;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="m155minigun")
+{
+speed=30;
+range=70;
+damage=random(105,160);
+spread=5;
+}
+else if(type=="s110assault_rifle")
+{
+speed=30;
+range=140;
+damage=random(1500,3500);
+spread=5;
+}
+else if(type=="str301machinegun")
+{
+speed=30;
+range=40;
+damage=random(300,400);
+spread=5;
+}
+else if(type=="grenade")
+{
+speed=30;
+range=40;
+damage=random(300,600);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="stun_Dart")
+{
+speed=30;
+range=100;
+damage=random(50,90);
+spread=5;
+wall=false;
+hitsound=false;
+}
+else if(type=="taser")
+{
+speed=30;
+range=25;
+damage=random(50,90);
+spread=5;
+stunning=true;
+stuntime=1000;
+}
+else if(type=="molotov_cocktail")
+{
+speed=30;
+range=20;
+damage=random(50,90);
+spread=5;
+}
+else if(type=="health_dart")
+{
+speed=30;
+range=10;
+damage=random(50,90);
+spread=5;
+}
+else if(type=="poison_dart")
+{
+speed=30;
+range=15;
+damage=random(50,90);
+spread=5;
+}
+else if(type=="poison_dagger")
+{
+speed=15;
+range=30;
+damage=random(50,90);
+spread=5;
+}
+else if(type=="stp429")
+{
+speed=30;
+range=50;
+damage=random(50,90);
+spread=5;
+}
+else if(type=="hand_grenade")
+{
+speed=30;
+range=30;
+damage=random(50,90);
+spread=5;
+}
+else if(type=="mine")
+{
+speed=0;
+range=0;
+}
+else if(type=="sound_grenade")
+{
+speed=10;
+range=50;
+damage=random(50,90);
+spread=5;
+}
+else if(type=="fire_ball")
+{
+speed=50;
+range=20;
+damage=random(50,90);
+spread=5;
+}
+else if(type=="stone")
+{
+speed=30;
+range=20;
+damage=random(30,70);
+spread=5;
+wall=true;
+hitsound=true;
+}
+else if(type=="brick")
+{
+speed=30;
+range=35;
+damage=random(50,105);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="concrete")
+{
+speed=10;
+range=40;
+damage=random(80,145);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="gas_bottle")
+{
+speed=30;
+range=30;
+damage=random(50,190);
+spread=5;
+wall=true;
+hitsound=true;
+}
+else if(type=="wood")
+{
+speed=30;
+range=25;
+damage=random(30,40);
+spread=5;
+wall=true;
+hitsound=true;
+}
+else if(type=="glass")
+{
+speed=30;
+range=40;
+damage=random(40,80);
+spread=5;
+wall=true;
+hitsound=true;
+hitsounds=5;
+}
+else if(type=="coins")
+{
+speed=30;
+range=6;
+damage=random(50,90);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="ball")
+{
+speed=30;
+range=random(14,17);
+damage=random(50,90);
+spread=5;
+wall=true;
+hitsound=false;
+}
+else if(type=="mud")
+{
+speed=30;
+range=15;
+damage=random(50,90);
+spread=5;
+wall=true;
+hitsound=true;
+}
+else if(type=="empty_bottle")
+{
+speed=30;
+range=15;
+damage=random(100,400);
+spread=5;
+wall=true;
+hitsound=true;
+}
+else if(type=="cannon")
+{
+speed=30;
+range=25;
+damage=random(200,500);
+spread=5;
+wall=false;
+hitsound=false;
+}
+else if(type=="laser")
+{
+speed=30;
+range=15;
+damage=random(100,150);
+spread=5;
+wall=false;
+hitsound=false;
+}
+else if(type=="macgun")
+{
+speed=30;
+range=10;
+damage=random(100,200);
+spread=5;
+wall=false;
+hitsound=false;
+}
+else if(type=="macgun2")
+{
+speed=30;
+range=10;
+damage=random(100,300);
+spread=5;
+wall=false;
+hitsound=false;
+}
+}
+}
+void weaponloop(int i)
+{
+if(@weapons[i].map==null or @weapons[i].owner==null)
+{
+weapons.remove_at(i);
+return;
+}
+if(weapons[i].speedtimer.elapsed>weapons[i].speed)
+{
+weapons[i].speedtimer.restart();
+vector w;
+w=move(weapons[i].x, weapons[i].y, weapons[i].z, weapons[i].dir, weapons[i].ddir, 0.0, 0);
+weapons[i].x=w.x;
+weapons[i].y=w.y;
+weapons[i].z=w.z;
+int wx=round(weapons[i].x,0);
+int wy=round(weapons[i].y,0);
+int wz=round(weapons[i].z,0);
+weapons[i].distance++;
+weapons[i].damage-=10;
+if(weapons[i].distance > weapons[i].range)
+{
+if(string_contains(weapons[i].type,"machinegun",1)!=-1||string_contains(weapons[i].type,"tiny_mg",1)!=-1)
+{
+send_packet(6,"play 5.56mm_ammo"+random(1,3)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)]);
+}
+else if(string_contains(weapons[i].type,"rifle",1)!=-1)
+{
+send_packet(6,"play 7.62mm_ammo"+random(1,2)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)]);
+}
+else if(string_contains(weapons[i].type,"colt",1)!=-1||string_contains(weapons[i].type,"pistol",1)!=-1||string_contains(weapons[i].type,"tranquilizer_gun",1)!=-1)
+{
+send_packet(6,"play 9mm_ammo"+random(1,2)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)]);
+}
+else if(string_contains(weapons[i].type,"sniper",1)!=-1||string_contains(weapons[i].type,"nak_nk1000_decimater",1)!=-1||string_contains(weapons[i].type,"sniper_rifle",1)!=-1)
+{
+send_packet(6,"play 12.7mm_ammo"+random(1,2)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)]);
+}
+else if(string_contains(weapons[i].type,"shotgun",1)!=-1)
+{
+send_packet(6,"play shotgun_shell"+random(1,7)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)]);
+}
+else if(weapons[i].type=="stone")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play firehit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(5,10);
+}
+}
+else
+{
+send_packet(6,"play slingshot_hit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)]);
+spawn_obj(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)],"stone",1);
+}
+}
+else if(weapons[i].type=="brick")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play firehit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(35,70);
+}
+}
+else
+{
+send_packet(6,"play slingshot_hit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+}
+}
+else if(weapons[i].type=="concrete")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play firehit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(50,170);
+}
+}
+else
+{
+send_packet(6,"play slingshot_hit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+}
+}
+else if(weapons[i].type=="tranquilizer")
+{
+send_packet(6,"play 9mm_ammo"+random(1,2)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+}
+else if(weapons[i].type=="gas_bottle")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play firehit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(5,10);
+}
+}
+else
+{
+send_packet(6,"play explode12.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+send_dpacketn(6,weapons[i].owner.name,"distsound explode12 "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z+" "+weapons[i].map.name,maps[get_map_index(weapons[i].map.name)]);
+spawn_fire(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)],random(30,50));
+}
+}
+else if(weapons[i].type=="wood")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health+=random(5,10);
+weapons[i].owner.inv_add_item("wood", -1);
+}
+}
+}
+else if(weapons[i].type=="glass")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play firehit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(5,10);
+}
+}
+else
+{
+send_packet(6,"play obj_break"+random(1,3)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+send_dpacketn(6,weapons[i].owner.name,"distsound obj_break"+random(1,3)+" "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z+" "+weapons[i].map.name,maps[get_map_index(weapons[i].map.name)]);
+}
+}
+else if(weapons[i].type=="coins")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play firehit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(5,10);
+}
+}
+else
+{
+send_packet(6,"play kd"+random(1,5)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+spawn_obj(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)],"coins",1);
+}
+}
+else if(weapons[i].type=="ball")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play firehit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(5,10);
+}
+}
+else
+{
+send_packet(6,"play ballbounce.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+send_dpacketn(6,weapons[i].owner.name,"distsound ballbounce "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z+" "+weapons[i].map.name,maps[get_map_index(weapons[i].map.name)]);
+spawn_silenceobj(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)],"ball",1);
+}
+}
+else if(weapons[i].type=="mud")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play firehit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(5,10);
+}
+}
+else
+{
+send_packet(6,"play mud5land.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+}
+}
+else if(weapons[i].type=="empty_bottle")
+{
+if(starter_exist_on(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)])==true)
+{
+send_packet(6,"play firehit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(5,10);
+}
+}
+else
+{
+send_packet(6,"play empty-bottlemiss"+random(1,2)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+send_dpacketn(6,weapons[i].owner.name,"distsound empty-bottlemiss"+random(1,2)+" "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z+" "+weapons[i].map.name,maps[get_map_index(weapons[i].map.name)]);
+}
+}
+else if(weapons[i].type=="grenade")
+{
+spawn_grenade(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="time_bomb")
+{
+spawn_time_bomb(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="nuclear_bomb")
+{
+spawn_nuclear_bomb(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="gas_canister")
+{
+spawn_canister(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], "gas");
+}
+else if(weapons[i].type=="energogenic_canister")
+{
+spawn_canister(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], "energogenic");
+}
+else if(weapons[i].type=="energy_reducing_canister")
+{
+spawn_canister(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], "energy_reducing");
+}
+else if(weapons[i].type=="thirsting_canister")
+{
+spawn_canister(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], "thirsting");
+}
+else if(weapons[i].type=="starvogenic_canister")
+{
+spawn_canister(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], "starvogenic");
+}
+else if(weapons[i].type=="pathogenic_canister")
+{
+spawn_canister(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], "pathogenic");
+}
+else if(weapons[i].type=="experience_canister")
+{
+spawn_canister(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], "experience");
+}
+else if(weapons[i].type=="gas_bottle")
+{
+send_packet(6,"play explode27.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+send_dpacket(6,"distsound explode27 "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z+" "+weapons[i].map.name,maps[get_map_index(weapons[i].map.name)]);
+spawn_canister(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], "gas");
+}
+else if(weapons[i].type=="mine")
+{
+spawn_mine(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="antibiotic_canister")
+{
+spawn_canister(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], "antibiotic");
+}
+weapons.remove_at(i);
+return;
+}
+if(string_contains(get_tile_at(weapons[i].x, weapons[i].y, weapons[i].z, weapons[i].map), "wall", 1)>-1 and string_contains(get_tile_at(weapons[i].x, weapons[i].y, weapons[i].z, weapons[i].map), "wallboat", 1)<0)
+{
+string wallsound;
+if(weapons[i].type=="glass")
+{
+send_packet(6,"play obj_break"+random(1,3)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+send_dpacketn(6,weapons[i].owner.name,"distsound obj_break"+random(1,3)+" "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z+" "+weapons[i].map.name,maps[get_map_index(weapons[i].map.name)]);
+}
+else if(weapons[i].type=="coins")
+{
+send_packet(6,"play kd"+random(1,5)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+spawn_obj(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)],"coins",1);
+}
+else if(weapons[i].type=="ball")
+{
+send_packet(6,"play ballhit.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+send_dpacketn(6,weapons[i].owner.name,"distsound ballhit "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z+" "+weapons[i].map.name,maps[get_map_index(weapons[i].map.name)]);
+spawn_silenceobj(weapons[i].x,weapons[i].y,weapons[i].z,maps[get_map_index(weapons[i].map.name)],"ball",1); 
+}
+else if(weapons[i].type=="mud")
+{
+send_packet(6,"play mud5land.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+}
+else if(weapons[i].type=="empty_bottle")
+{
+send_packet(6,"play empty-bottlemiss"+random(1,2)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+send_dpacketn(6,weapons[i].owner.name,"distsound empty-bottlemiss"+random(1,2)+" "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z+" "+weapons[i].map.name,maps[get_map_index(weapons[i].map.name)]);
+}
+if(weapons[i].wall)
+{
+send_packet(6,"play rico"+random(1,48)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+}
+else
+{
+wallsound=weapons[i].type+"wall";
+send_packet(6,"play "+wallsound+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+}
+weapons.remove_at(i);
+return;
+}
+bool hit=false;
+if(hit==false)
+{
+for(uint x=0; x<players.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and weapons[i].owner.name!=players[x].name and weapons[i].owner.looking=="" and players[x].map==weapons[i].map.name and players[x].pvp==1 and are_teamed(weapons[i].owner.name,players[x].name)==false and in_vehicle(players[x])<0 and in_motor(players[x])<0 and players[x].is_dead==false and is_safe(players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)])==false and players[x].safe==false and players[x].away==false and players[x].afk==false and players[x].newb==0 and players[x].looking=="" and get_3d_distance(wx, wy, wz, players[x].x, players[x].y, players[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="artillery") send_reliable(players[x],"hit "+players[x].nickname,2);
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(weapons[i].x, weapons[i].y, weapons[i].z, maps[get_map_index(weapons[i].map.name)], weapons[i].owner);
+}
+if(string_contains(weapons[i].type,"sword",1)>-1 and string_contains(players[x].weapon_name,"sword",1)>-1)
+{
+int n=random(1,100);
+if(n>25)
+{
+send_packet(6,"play sword_block"+random(1,12)+".ogg "+players[x].x+" "+players[x].y+" "+players[x].z, players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)]);
+return;
+}
+}
+if(players[x].bullet_proof_vested==1 and players[x].shielded==0 and players[x].steel_shielded==0 and players[x].armored==0 and players[x].large_armor_plated==0)
+{
+send_packet(6,"play armor_hit_"+random(1,4)+".ogg "+players[x].x+" "+players[x].y+" "+players[x].z, players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)]);
+if(weapons[i].type=="stp429") players[x].bullet_proof_vestshots-=random(3,10);
+else if(weapons[i].type=="grenade") players[x].bullet_proof_vestshots-=random(5,10);
+else players[x].bullet_proof_vestshots-=random(2,5);
+}
+else if(players[x].bullet_proof_vested==0 and players[x].shielded==1 and players[x].steel_shielded==0 and players[x].armored==0 and players[x].large_armor_plated==0)
+{
+send_packet(6,"play shieldhit"+random(1,10)+".ogg "+players[x].x+" "+players[x].y+" "+players[x].z, players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)]);
+if(weapons[i].type=="stp429") players[x].shieldshots-=random(10,25);
+else if(weapons[i].type=="grenade") players[x].shieldshots-=random(20,40);
+else if(weapons[i].type=="rpg") players[x].shieldshots-=random(30,60);
+else players[x].shieldshots-=random(5,10);
+players[x].shieldtimer.restart();
+}
+else if(players[x].bullet_proof_vested==0 and players[x].shielded==0 and players[x].steel_shielded==1 and players[x].armored==0 and players[x].large_armor_plated==0)
+{
+send_packet(6,"play shieldhit"+random(1,10)+".ogg "+players[x].x+" "+players[x].y+" "+players[x].z, players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)]);
+if(weapons[i].type=="stp429") players[x].steel_shieldshots-=random(10,25);
+else if(weapons[i].type=="grenade") players[x].steel_shieldshots-=random(20,40);
+else if(weapons[i].type=="rpg") players[x].steel_shieldshots-=random(30,60);
+else players[x].steel_shieldshots-=random(5,10);
+players[x].shieldtimer.restart();
+}
+else if(players[x].bullet_proof_vested==0 and players[x].shielded==0 and players[x].steel_shielded==0 and players[x].armored==1 and players[x].large_armor_plated==0)
+{
+send_packet(6,"play armor_hit_"+random(1,4)+".ogg "+players[x].x+" "+players[x].y+" "+players[x].z, players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)]);
+if(weapons[i].type=="stp429") players[x].armorshots-=random(3,10);
+else if(weapons[i].type=="grenade") players[x].armorshots-=random(5,10);
+else players[x].armorshots-=random(2,5);
+}
+else if(players[x].bullet_proof_vested==0 and players[x].shielded==0 and players[x].steel_shielded==0 and players[x].armored==0 and players[x].large_armor_plated==1)
+{
+send_packet(6,"play armor_hit_"+random(1,4)+".ogg "+players[x].x+" "+players[x].y+" "+players[x].z, players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)]);
+if(weapons[i].type=="stp429") players[x].large_armor_plateshots-=random(3,10);
+else if(weapons[i].type=="grenade") players[x].large_armor_plateshots-=random(5,10);
+else players[x].large_armor_plateshots-=random(2,5);
+}
+else
+{
+if(weapons[i].hitsound==false)
+{
+send_packet(6,"play h"+random(1,5)+".ogg "+players[x].x+" "+players[x].y+" "+players[x].z, players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)]);
+}
+else
+{
+string hitsound;
+if(weapons[i].hitsounds==0)
+{
+hitsound=weapons[i].type+"hit";
+}
+else
+{
+hitsound=weapons[i].type+"hit"+random(1,weapons[i].hitsounds);
+}
+send_packet(6,"play "+hitsound+".ogg "+players[x].x+" "+players[x].y+" "+players[x].z, players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)]);
+}
+players[x].health-=weapons[i].damage;
+send_packet(6,"play v"+string_to_number(players[x].voice)+"hit"+random(1,5)+".ogg "+players[x].x+" "+players[x].y+" "+players[x].z,players[x].x,players[x].y,players[x].z,maps[get_map_index(players[x].map)]);
+players[x].statchangetimer.restart();
+}
+if(players[x].pvp_stop)
+{
+players[x].pvp_stop=false;
+send_reliable(players[x],"play_s terror.ogg",6);
+send_reliable(players[x],"error! "+players[x].nickname+", you can't turn off your pvp while someone is shooting at you!",2);
+}
+if(players[x].afking) 
+{
+players[x].afking=false;
+players[x].afk=false;
+send_reliable(players[x],"play_s afkoff.ogg",6);
+send_reliable(players[x],"error! "+players[x].nickname+", you can't go afk while someone is shooting at you!",2);
+write_to(players[x].name, "afk.usr", players[x].afk);
+write_to(players[x].name, "afkseconds.usr", players[x].afkseconds);
+players[x].afktitle="";
+}
+if(weapons[i].stunning)
+{
+players[x].stun(weapons[i].stuntime,false,false);
+}
+players[x].hitby=weapons[i].owner.name;
+weapons[i].owner.statchangetimer.force(600000);
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<ais.length(); x++)
+{
+if (ais[x].map.name==weapons[i].map.name and get_3d_distance(wx, wy, wz, ais[x].x, ais[x].y, ais[x].z)<=weapons[i].spread)
+{
+if(ais[x].revitalized==1 and weapons[i].owner.pvp==0) return;
+if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(ais[x].x, ais[x].y, ais[x].z, maps[get_map_index(ais[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(ais[x].x, ais[x].y, ais[x].z, maps[get_map_index(ais[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="grenade")
+{
+spawn_grenade(ais[x].x, ais[x].y, ais[x].z, maps[get_map_index(ais[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(ais[x].x, ais[x].y, ais[x].z, maps[get_map_index(ais[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(ais[x].x, ais[x].y, ais[x].z, maps[get_map_index(ais[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(ais[x].x, ais[x].y, ais[x].z, maps[get_map_index(ais[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(ais[x].x, ais[x].y, ais[x].z, maps[get_map_index(ais[x].map.name)], weapons[i].owner);
+}
+if (ais[x].painsound=="")
+{
+if(weapons[i].hitsound==false)
+{
+send_packet(6,"play h"+random(1,5)+".ogg "+ais[x].x+" "+ais[x].y+" "+ais[x].z, ais[x].x,ais[x].y,ais[x].z,maps[get_map_index(ais[x].map.name)]);
+}
+else
+{
+string hitsound;
+if(weapons[i].hitsounds==0)
+{
+hitsound=weapons[i].type+"hit";
+}
+else
+{
+hitsound=weapons[i].type+"hit"+random(1,weapons[i].hitsounds);
+}
+send_packet(6,"play "+hitsound+".ogg "+ais[x].x+" "+ais[x].y+" "+ais[x].z, ais[x].x,ais[x].y,ais[x].z,maps[get_map_index(ais[x].map.name)]);
+}
+}
+ais[x].health-=weapons[i].damage;
+ais[x].hitby=weapons[i].owner.name;
+if (ais[x].painsound!="") send_packet(6,"play "+ais[x].painsound+" "+ais[x].x+" "+ais[x].y+" "+ais[x].z, ais[x].x,ais[x].y,ais[x].z,maps[get_map_index(ais[x].map.name)]);
+if (ais[x].maddable==true and ais[x].mad==false) ais[x].mad=true;
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s robotping.ogg", 6);
+hit=true;
+}
+}
+}
+/*
+if(hit==false)
+{
+for(uint x=0; x<vs.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and vs[x].map==weapons[i].map.name and weapons[i].owner.name!=vs[x].owner and get_3d_distance(weapons[i].x,weapons[i].y,weapons[i].z,vs[x].x,vs[x].y,vs[x].z)<=weapons[i].spread)
+{
+string t="";
+if(weapons[i].type=="grenade")
+{
+t="";
+spawn_grenade(vs[x].x, vs[x].y, vs[x].z, maps[get_map_index(vs[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+t="";
+spawn_rpg(vs[x].x, vs[x].y, vs[x].z, maps[get_map_index(vs[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+t="";
+spawn_rpg(vs[x].x, vs[x].y, vs[x].z, maps[get_map_index(vs[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+t="";
+spawn_rpg(vs[x].x, vs[x].y, vs[x].z, maps[get_map_index(vs[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+t="";
+spawn_rocket(vs[x].x, vs[x].y, vs[x].z, maps[get_map_index(vs[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+t="";
+spawn_rocket(vs[x].x, vs[x].y, vs[x].z, maps[get_map_index(vs[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+t="";
+spawn_grenade(vs[x].x, vs[x].y, vs[x].z, maps[get_map_index(vs[x].map)], weapons[i].owner);
+}
+vs[x].hit(weapons[i].damage,weapons[i].owner.name+"'s "+weapons[i].type,t);
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<vvehicles.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and vvehicles[x].map==weapons[i].map.name and get_3d_distance(weapons[i].x,weapons[i].y,weapons[i].z,vvehicles[x].x,vvehicles[x].y,vvehicles[x].z)<=weapons[i].spread)
+{
+string t="";
+if(weapons[i].type=="grenade")
+{
+t="";
+spawn_grenade(vvehicles[x].x, vvehicles[x].y, vvehicles[x].z, maps[get_map_index(vvehicles[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+t="";
+spawn_rpg(vvehicles[x].x, vvehicles[x].y, vvehicles[x].z, maps[get_map_index(vvehicles[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+t="";
+spawn_rpg(vvehicles[x].x, vvehicles[x].y, vvehicles[x].z, maps[get_map_index(vvehicles[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+t="";
+spawn_rpg(vvehicles[x].x, vvehicles[x].y, vvehicles[x].z, maps[get_map_index(vvehicles[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+t="";
+spawn_rocket(vvehicles[x].x, vvehicles[x].y, vvehicles[x].z, maps[get_map_index(vvehicles[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+t="";
+spawn_rocket(vvehicles[x].x, vvehicles[x].y, vvehicles[x].z, maps[get_map_index(vvehicles[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+t="";
+spawn_grenade(vvehicles[x].x, vvehicles[x].y, vvehicles[x].z, maps[get_map_index(vvehicles[x].map)], weapons[i].owner);
+}
+vvehicles[x].hit(weapons[i].damage,weapons[i].owner.name+"'s "+weapons[i].type,t);
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<mos.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and mos[x].map==weapons[i].map.name and weapons[i].owner.name!=mos[x].owner and get_3d_distance(weapons[i].x,weapons[i].y,weapons[i].z,mos[x].x,mos[x].y,mos[x].z)<=weapons[i].spread)
+{
+string t="";
+if(weapons[i].type=="grenade")
+{
+t="";
+spawn_grenade(mos[x].x, mos[x].y, mos[x].z, maps[get_map_index(mos[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+t="";
+spawn_rpg(mos[x].x, mos[x].y, mos[x].z, maps[get_map_index(mos[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+t="";
+spawn_rpg(mos[x].x, mos[x].y, mos[x].z, maps[get_map_index(mos[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+t="";
+spawn_rpg(mos[x].x, mos[x].y, mos[x].z, maps[get_map_index(mos[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+t="";
+spawn_rocket(mos[x].x, mos[x].y, mos[x].z, maps[get_map_index(mos[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+t="";
+spawn_rocket(mos[x].x, mos[x].y, mos[x].z, maps[get_map_index(mos[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+t="";
+spawn_grenade(mos[x].x, mos[x].y, mos[x].z, maps[get_map_index(mos[x].map)], weapons[i].owner);
+}
+mos[x].hit(weapons[i].damage,weapons[i].owner.name+"'s "+weapons[i].type,t);
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<mmotors.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and mmotors[x].map==weapons[i].map.name and get_3d_distance(weapons[i].x,weapons[i].y,weapons[i].z,mmotors[x].x,mmotors[x].y,mmotors[x].z)<=weapons[i].spread)
+{
+string t="";
+if(weapons[i].type=="grenade")
+{
+t="";
+spawn_grenade(mmotors[x].x, mmotors[x].y, mmotors[x].z, maps[get_map_index(mmotors[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+t="";
+spawn_rpg(mmotors[x].x, mmotors[x].y, mmotors[x].z, maps[get_map_index(mmotors[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+t="";
+spawn_rpg(mmotors[x].x, mmotors[x].y, mmotors[x].z, maps[get_map_index(mmotors[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+t="";
+spawn_rpg(mmotors[x].x, mmotors[x].y, mmotors[x].z, maps[get_map_index(mmotors[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+t="";
+spawn_rocket(mmotors[x].x, mmotors[x].y, mmotors[x].z, maps[get_map_index(mmotors[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+t="";
+spawn_rocket(mmotors[x].x, mmotors[x].y, mmotors[x].z, maps[get_map_index(mmotors[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+t="";
+spawn_grenade(mmotors[x].x, mmotors[x].y, mmotors[x].z, maps[get_map_index(mmotors[x].map)], weapons[i].owner);
+}
+mmotors[x].hit(weapons[i].damage,weapons[i].owner.name+"'s "+weapons[i].type,t);
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<turrets.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and turrets[x].map.name==weapons[i].map.name and get_3d_distance(wx, wy, wz, turrets[x].x, turrets[x].y, turrets[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(turrets[x].x, turrets[x].y, turrets[x].z, maps[get_map_index(turrets[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(turrets[x].x, turrets[x].y, turrets[x].z, maps[get_map_index(turrets[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(turrets[x].x, turrets[x].y, turrets[x].z, maps[get_map_index(turrets[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(turrets[x].x, turrets[x].y, turrets[x].z, maps[get_map_index(turrets[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(turrets[x].x, turrets[x].y, turrets[x].z, maps[get_map_index(turrets[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(turrets[x].x, turrets[x].y, turrets[x].z, maps[get_map_index(turrets[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(turrets[x].x, turrets[x].y, turrets[x].z, maps[get_map_index(turrets[x].map.name)], weapons[i].owner);
+}
+send_packet(6,"play locker_hit"+random(1, 6)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+turrets[x].hitby=weapons[i].owner.name;
+turrets[x].health-=weapons[i].damage;
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s turretping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<lockers.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and lockers[x].map==weapons[i].map.name and get_3d_distance(wx, wy, wz, lockers[x].x, lockers[x].y, lockers[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(lockers[x].x, lockers[x].y, lockers[x].z, maps[get_map_index(lockers[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(lockers[x].x, lockers[x].y, lockers[x].z, maps[get_map_index(lockers[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(lockers[x].x, lockers[x].y, lockers[x].z, maps[get_map_index(lockers[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(lockers[x].x, lockers[x].y, lockers[x].z, maps[get_map_index(lockers[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(lockers[x].x, lockers[x].y, lockers[x].z, maps[get_map_index(lockers[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(lockers[x].x, lockers[x].y, lockers[x].z, maps[get_map_index(lockers[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(lockers[x].x, lockers[x].y, lockers[x].z, maps[get_map_index(lockers[x].map)], weapons[i].owner);
+}
+send_packet(6,"play locker_hit"+random(1, 6)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+lockers[x].health-=weapons[i].damage;
+lockers[x].hitby=weapons[i].owner.name;
+int lowner=get_player_index_from(lockers[x].owner);
+if(lowner>-1)
+{
+if(players[lowner].smartphoneon==1)
+{
+send_reliable(players[lowner], "spnotify attention, your locker is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<fridges.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and fridges[x].map==weapons[i].map.name and get_3d_distance(wx, wy, wz, fridges[x].x, fridges[x].y, fridges[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(fridges[x].x, fridges[x].y, fridges[x].z, maps[get_map_index(fridges[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(fridges[x].x, fridges[x].y, fridges[x].z, maps[get_map_index(fridges[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(fridges[x].x, fridges[x].y, fridges[x].z, maps[get_map_index(fridges[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(fridges[x].x, fridges[x].y, fridges[x].z, maps[get_map_index(fridges[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(fridges[x].x, fridges[x].y, fridges[x].z, maps[get_map_index(fridges[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(fridges[x].x, fridges[x].y, fridges[x].z, maps[get_map_index(fridges[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(fridges[x].x, fridges[x].y, fridges[x].z, maps[get_map_index(fridges[x].map)], weapons[i].owner);
+}
+send_packet(6,"play base_fridge_impact"+random(1, 3)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+fridges[x].health-=weapons[i].damage;
+fridges[x].hitby=weapons[i].owner.name;
+int lowner=get_player_index_from(fridges[x].owner);
+if(lowner>-1)
+{
+if(players[lowner].smartphoneon==1)
+{
+send_reliable(players[lowner], "spnotify attention, your fridge is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<robots.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and robots[x].map.name==weapons[i].map.name and get_3d_distance(wx, wy, wz, robots[x].x, robots[x].y, robots[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(robots[x].x, robots[x].y, robots[x].z, maps[get_map_index(robots[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(robots[x].x, robots[x].y, robots[x].z, maps[get_map_index(robots[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(robots[x].x, robots[x].y, robots[x].z, maps[get_map_index(robots[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(robots[x].x, robots[x].y, robots[x].z, maps[get_map_index(robots[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(robots[x].x, robots[x].y, robots[x].z, maps[get_map_index(robots[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(robots[x].x, robots[x].y, robots[x].z, maps[get_map_index(robots[x].map.name)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(robots[x].x, robots[x].y, robots[x].z, maps[get_map_index(robots[x].map.name)], weapons[i].owner);
+}
+send_packet(6,"play locker_hit"+random(1, 6)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+robots[x].health-=weapons[i].damage;
+robots[x].hitby=weapons[i].owner.name;
+int lowner=get_player_index_from(robots[x].owner);
+if(lowner>-1)
+{
+if(players[lowner].smartphoneon==1)
+{
+send_reliable(players[lowner], "spnotify attention, your robot is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<microwaves.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and microwaves[x].map==weapons[i].map.name and get_3d_distance(wx, wy, wz, microwaves[x].x, microwaves[x].y, microwaves[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(microwaves[x].x, microwaves[x].y, microwaves[x].z, maps[get_map_index(microwaves[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(microwaves[x].x, microwaves[x].y, microwaves[x].z, maps[get_map_index(microwaves[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(microwaves[x].x, microwaves[x].y, microwaves[x].z, maps[get_map_index(microwaves[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(microwaves[x].x, microwaves[x].y, microwaves[x].z, maps[get_map_index(microwaves[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(microwaves[x].x, microwaves[x].y, microwaves[x].z, maps[get_map_index(microwaves[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(microwaves[x].x, microwaves[x].y, microwaves[x].z, maps[get_map_index(microwaves[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(microwaves[x].x, microwaves[x].y, microwaves[x].z, maps[get_map_index(microwaves[x].map)], weapons[i].owner);
+}
+send_packet(6,"play locker_hit"+random(1, 6)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+microwaves[x].health-=weapons[i].damage;
+microwaves[x].hitby=weapons[i].owner.name;
+int lowner=get_player_index_from(microwaves[x].owner);
+if(lowner>-1)
+{
+if(players[lowner].smartphoneon==1)
+{
+send_reliable(players[lowner], "spnotify attention, your microwave is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<air_conditioners.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and air_conditioners[x].map==weapons[i].map.name and get_3d_distance(wx, wy, wz, air_conditioners[x].x, air_conditioners[x].y, air_conditioners[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(air_conditioners[x].x, air_conditioners[x].y, air_conditioners[x].z, maps[get_map_index(air_conditioners[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(air_conditioners[x].x, air_conditioners[x].y, air_conditioners[x].z, maps[get_map_index(air_conditioners[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(air_conditioners[x].x, air_conditioners[x].y, air_conditioners[x].z, maps[get_map_index(air_conditioners[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(air_conditioners[x].x, air_conditioners[x].y, air_conditioners[x].z, maps[get_map_index(air_conditioners[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(air_conditioners[x].x, air_conditioners[x].y, air_conditioners[x].z, maps[get_map_index(air_conditioners[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(air_conditioners[x].x, air_conditioners[x].y, air_conditioners[x].z, maps[get_map_index(air_conditioners[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(air_conditioners[x].x, air_conditioners[x].y, air_conditioners[x].z, maps[get_map_index(air_conditioners[x].map)], weapons[i].owner);
+}
+send_packet(6,"play locker_hit"+random(1, 6)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+air_conditioners[x].health-=weapons[i].damage;
+air_conditioners[x].hitby=weapons[i].owner.name;
+int lowner=get_player_index_from(air_conditioners[x].owner);
+if(lowner>-1)
+{
+if(players[lowner].smartphoneon==1)
+{
+send_reliable(players[lowner], "spnotify attention, your air_conditioner is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<steams.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and steams[x].map==weapons[i].map.name and get_3d_distance(wx, wy, wz, steams[x].x, steams[x].y, steams[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(steams[x].x, steams[x].y, steams[x].z, maps[get_map_index(steams[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(steams[x].x, steams[x].y, steams[x].z, maps[get_map_index(steams[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(steams[x].x, steams[x].y, steams[x].z, maps[get_map_index(steams[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(steams[x].x, steams[x].y, steams[x].z, maps[get_map_index(steams[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(steams[x].x, steams[x].y, steams[x].z, maps[get_map_index(steams[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(steams[x].x, steams[x].y, steams[x].z, maps[get_map_index(steams[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(steams[x].x, steams[x].y, steams[x].z, maps[get_map_index(steams[x].map)], weapons[i].owner);
+}
+send_packet(6,"play locker_hit"+random(1, 6)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+steams[x].health-=weapons[i].damage;
+steams[x].hitby=weapons[i].owner.name;
+int lowner=get_player_index_from(steams[x].owner);
+if(lowner>-1)
+{
+if(players[lowner].smartphoneon==1)
+{
+send_reliable(players[lowner], "spnotify attention, your steam is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<fans.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and fans[x].map==weapons[i].map.name and get_3d_distance(wx, wy, wz, fans[x].x, fans[x].y, fans[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(fans[x].x, fans[x].y, fans[x].z, maps[get_map_index(fans[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(fans[x].x, fans[x].y, fans[x].z, maps[get_map_index(fans[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(fans[x].x, fans[x].y, fans[x].z, maps[get_map_index(fans[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(fans[x].x, fans[x].y, fans[x].z, maps[get_map_index(fans[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(fans[x].x, fans[x].y, fans[x].z, maps[get_map_index(fans[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(fans[x].x, fans[x].y, fans[x].z, maps[get_map_index(fans[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(fans[x].x, fans[x].y, fans[x].z, maps[get_map_index(fans[x].map)], weapons[i].owner);
+}
+send_packet(6,"play locker_hit"+random(1, 6)+".ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+fans[x].health-=weapons[i].damage;
+fans[x].hitby=weapons[i].owner.name;
+int lowner=get_player_index_from(fans[x].owner);
+if(lowner>-1)
+{
+if(players[lowner].smartphoneon==1)
+{
+send_reliable(players[lowner], "spnotify attention, your fan is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<houses.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and houses[x].map==weapons[i].map.name and get_3d_distance(wx, wy, wz, houses[x].x, houses[x].y, houses[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(houses[x].x, houses[x].y, houses[x].z, maps[get_map_index(houses[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(houses[x].x, houses[x].y, houses[x].z, maps[get_map_index(houses[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(houses[x].x, houses[x].y, houses[x].z, maps[get_map_index(houses[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(houses[x].x, houses[x].y, houses[x].z, maps[get_map_index(houses[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(houses[x].x, houses[x].y, houses[x].z, maps[get_map_index(houses[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(houses[x].x, houses[x].y, houses[x].z, maps[get_map_index(houses[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(houses[x].x, houses[x].y, houses[x].z, maps[get_map_index(houses[x].map)], weapons[i].owner);
+}
+send_packet(6,"play base_impact_ext.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+houses[x].health-=weapons[i].damage;
+houses[x].hitby=weapons[i].owner.name;
+int howner=get_player_index_from(houses[x].owner);
+if(howner>-1)
+{
+if(players[howner].smartphoneon==1)
+{
+send_reliable(players[howner], "play_s notify_blips3.ogg", 6);
+send_reliable(players[howner], "spnotify attention, your house is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<playerstores.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and playerstores[x].map==weapons[i].map.name and get_3d_distance(wx, wy, wz, playerstores[x].x, playerstores[x].y, playerstores[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(playerstores[x].x, playerstores[x].y, playerstores[x].z, maps[get_map_index(playerstores[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(playerstores[x].x, playerstores[x].y, playerstores[x].z, maps[get_map_index(playerstores[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(playerstores[x].x, playerstores[x].y, playerstores[x].z, maps[get_map_index(playerstores[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(playerstores[x].x, playerstores[x].y, playerstores[x].z, maps[get_map_index(playerstores[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(playerstores[x].x, playerstores[x].y, playerstores[x].z, maps[get_map_index(playerstores[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(playerstores[x].x, playerstores[x].y, playerstores[x].z, maps[get_map_index(playerstores[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(playerstores[x].x, playerstores[x].y, playerstores[x].z, maps[get_map_index(playerstores[x].map)], weapons[i].owner);
+}
+send_packet(6,"play base_impact_ext.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+playerstores[x].health-=weapons[i].damage;
+playerstores[x].hitby=weapons[i].owner.name;
+int howner=get_player_index_from(playerstores[x].owner);
+if(howner>-1)
+{
+if(players[howner].smartphoneon==1)
+{
+send_reliable(players[howner], "play_s notify_blips3.ogg", 6);
+send_reliable(players[howner], "spnotify attention, your "+playerstores[x].name+" is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<beehives.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and beehives[x].map==weapons[i].map.name and get_3d_distance(wx, wy, wz, beehives[x].x, beehives[x].y, beehives[x].z)<=weapons[i].spread)
+{
+if(weapons[i].type=="grenade")
+{
+spawn_grenade(beehives[x].x, beehives[x].y, beehives[x].z, maps[get_map_index(beehives[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg_launcher")
+{
+spawn_rpg(beehives[x].x, beehives[x].y, beehives[x].z, maps[get_map_index(beehives[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg7")
+{
+spawn_rpg(beehives[x].x, beehives[x].y, beehives[x].z, maps[get_map_index(beehives[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rpg")
+{
+spawn_rpg(beehives[x].x, beehives[x].y, beehives[x].z, maps[get_map_index(beehives[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket_launcher")
+{
+spawn_rocket(beehives[x].x, beehives[x].y, beehives[x].z, maps[get_map_index(beehives[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="rocket")
+{
+spawn_rocket(beehives[x].x, beehives[x].y, beehives[x].z, maps[get_map_index(beehives[x].map)], weapons[i].owner);
+}
+else if(weapons[i].type=="tsp_grenade_launcher")
+{
+spawn_grenade(beehives[x].x, beehives[x].y, beehives[x].z, maps[get_map_index(beehives[x].map)], weapons[i].owner);
+}
+send_packet(6,"play base_impact_ext.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+beehives[x].health-=weapons[i].damage;
+beehives[x].hitby=weapons[i].owner.name;
+int howner=get_player_index_from(beehives[x].owner);
+if(howner>-1)
+{
+if(players[howner].smartphoneon==1)
+{
+send_reliable(players[howner], "play_s notify_blips3.ogg", 6);
+send_reliable(players[howner], "spnotify attention, your beehive is being attacked by "+weapons[i].owner.name+"", 0);
+}
+}
+if(weapons[i].owner.weaponpings==1) send_reliable(weapons[i].owner, "play_s weaponping.ogg", 6);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<item_cariers.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and item_cariers[x].map.name==weapons[i].map.name and get_3d_distance(wx, wy, wz, item_cariers[x].x, item_cariers[x].y, item_cariers[x].z)<=weapons[i].spread)
+{
+send_reliable(item_cariers[x].owner,"Your item carier was destroyed by "+weapons[i].owner.name+"!", 2);
+send_reliable(weapons[i].owner, "You destroyed "+item_cariers[x].owner.name+"'s item carier!", 2);
+send_packet(6,"play smallprojectilesmash.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+item_cariers.remove_at(x);
+destroy_moving_sound(item_cariers[x].mid);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<silenceobjs.length(); x++)
+{
+if(silenceobjs[x].name=="ball" and silenceobjs[x].map.name==weapons[i].map.name and get_3d_distance(wx, wy, wz, silenceobjs[x].x, silenceobjs[x].y, silenceobjs[x].z)<=weapons[i].spread)
+{
+send_packet(6,"play jump9.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+spawn_weapon(weapons[i].x, weapons[i].y, weapons[i].z, weapons[i].owner.facing, weapons[i].owner.ffacing, silenceobjs[x].name, players[get_player_index_from(weapons[i].owner.name)], maps[get_map_index(weapons[i].map.name)]);
+remove_silenceobj(x);
+hit=true;
+}
+}
+}
+if(hit==false)
+{
+for(uint x=0; x<objs.length(); x++)
+{
+if(objs[x].name=="empty_bottle" and objs[x].map.name==weapons[i].map.name and get_3d_distance(wx, wy, wz, objs[x].x, objs[x].y, objs[x].z)<=weapons[i].spread)
+{
+send_packet(6,"play empty-bottlethrow.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+spawn_weapon(weapons[i].x, weapons[i].y, weapons[i].z, weapons[i].owner.facing, weapons[i].owner.ffacing, objs[x].name, players[get_player_index_from(weapons[i].owner.name)], maps[get_map_index(weapons[i].map.name)]);
+remove_obj(x);
+}
+else if(objs[x].name=="glass" and objs[x].map.name==weapons[i].map.name and get_3d_distance(wx, wy, wz, objs[x].x, objs[x].y, objs[x].z)<=weapons[i].spread)
+{
+send_packet(6,"play stonethrow.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+spawn_weapon(weapons[i].x, weapons[i].y, weapons[i].z, weapons[i].owner.facing, weapons[i].owner.ffacing, objs[x].name, players[get_player_index_from(weapons[i].owner.name)], maps[get_map_index(weapons[i].map.name)]);
+remove_obj(x);
+}
+hit=true;
+}
+}
+*/
+if(hit==false)
+{
+for(uint x=0; x<espionage_cameras.length(); x++)
+{
+if(weapons[i].owner.pvp==1 and espionage_cameras[x].map.name==weapons[i].map.name and get_3d_distance(wx, wy, wz, espionage_cameras[x].x, espionage_cameras[x].y, espionage_cameras[x].z)<=weapons[i].spread)
+{
+send_reliable(espionage_cameras[x].owner,"Your espionage camera was destroyed by "+weapons[i].owner.name+"!", 2);
+send_reliable(weapons[i].owner, "You've destroyed "+espionage_cameras[x].owner.name+"'s espionage camera!", 2);
+send_packet(6,"play smallprojectilesmash.ogg "+weapons[i].x+" "+weapons[i].y+" "+weapons[i].z, weapons[i].x,weapons[i].y,weapons[i].z, maps[get_map_index(weapons[i].map.name)]);
+espionage_cameras.remove_at(x);
+hit=true;
+}
+}
+}
+if(hit)
+{
+weapons.remove_at(i);
+return;
+}
+}
+}
+void spawn_weapon(double x, double y, double z, double dir, double ddir, string type, player@p, mapdata@m)
+{
+weapon w1(x, y, z, dir, ddir, type, p, m);
+if(@w1.map==null or @w1.owner==null) return;
+else weapons.insert_last(w1);
+}

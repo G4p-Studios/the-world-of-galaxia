@@ -1,0 +1,40 @@
+sound utilsplayer;
+file log;
+bool is_in_array(string value,string[]@ arr) {
+for (uint i=0;i<arr.length();i++) {
+if (arr[i]==value) return true;
+}
+return false;
+}
+void uplay(string filename,bool wait=false) {
+utilsplayer.stop();
+utilsplayer.load(filename);
+if (wait==true) utilsplayer.play_wait();
+if (!wait) utilsplayer.play();
+utilsplayer.close();
+}
+void sfade(sound@ handle) {
+int oldvol=handle.volume;
+while (handle.volume>=oldvol-50) {
+handle.volume=handle.volume-1;
+wait(15);
+}
+}
+void fade2(sound@ handle) {
+int oldvol=handle.volume;
+while (handle.volume>=oldvol-50) {
+handle.volume=handle.volume-1;
+wait(35);
+}
+}
+
+bool check_playing_sounds() {
+for (uint i=0;i<p.items.length();i++) {
+if (p.sound_is_playing(i)) return true;
+}
+return false;
+}
+void db(string t,bool quit=false) {
+alert("debug",t);
+if (quit) exit();
+}

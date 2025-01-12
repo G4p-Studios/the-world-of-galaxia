@@ -1,0 +1,312 @@
+arena@[] arenas(0);
+class arena
+{
+double length, started, joined, neededfee, fee;
+string id, map, owner, type, item;
+savedata tempsd("");
+arena(string aowner, string amap, string atype, int alength, int astarted, int aneededfee, string aitem, string aid="")
+{
+owner=aowner;
+map=amap;
+type=atype;
+length=alength;
+started=astarted;
+neededfee=aneededfee;
+item=aitem;
+id=aid;
+tempsd.fn="arenas/"+id+".arena";
+tempsd.key="dl_arena";
+}
+void loop(int i)
+{
+if(joined<1)
+{
+for(uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].map==map)
+{
+move_player(players[i2],"safezone",25,25,0);
+players[i2].bullet_proof_vested=0;
+players[i2].bullet_proof_vestshots=0;
+players[i2].shielded=0;
+players[i2].shieldshots=0;
+players[i2].steel_shielded=0;
+players[i2].steel_shieldshots=0;
+players[i2].hurtlevel=0;
+players[i2].hurttimer.restart();
+players[i2].healtimer.restart();
+players[i2].poisoned=false;
+players[i2].hurt=false;
+players[i2].cbombplacing=false;
+players[i2].drunk=false;
+players[i2].weapon_name="fists";
+}
+}
+for(uint i2=0; i2<msounds.length(); i2++)
+{
+if(msounds[i2].map==map)
+{
+msounds.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<timeitems.length(); i2++)
+{
+if(timeitems[i2].map==map)
+{
+timeitems.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<objs.length(); i2++)
+{
+if(objs[i2].map.name==map)
+{
+objs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<silenceobjs.length(); i2++)
+{
+if(silenceobjs[i2].map.name==map)
+{
+silenceobjs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<bodyfalls.length(); i2++)
+{
+if(bodyfalls[i2].map==map)
+{
+bodyfalls.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<weapons.length(); i2++)
+{
+if(weapons[i2].map.name==map)
+{
+weapons.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<censor_bombs.length(); i2++)
+{
+if(censor_bombs[i2].map.name==map)
+{
+censor_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<nuclear_bombs.length(); i2++)
+{
+if(nuclear_bombs[i2].map.name==map)
+{
+nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<small_nuclear_bombs.length(); i2++)
+{
+if(small_nuclear_bombs[i2].map.name==map)
+{
+small_nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<large_nuclear_bombs.length(); i2++)
+{
+if(large_nuclear_bombs[i2].map.name==map)
+{
+large_nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<time_bombs.length(); i2++)
+{
+if(time_bombs[i2].map.name==map)
+{
+time_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<grenades.length(); i2++)
+{
+if(grenades[i2].map.name==map)
+{
+grenades.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<canisters.length(); i2++)
+{
+if(canisters[i2].map.name==map)
+{
+canisters.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<snares.length(); i2++)
+{
+if(snares[i2].map.name==map)
+{
+snares.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<rockets.length(); i2++)
+{
+if(rockets[i2].map.name==map)
+{
+rockets.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<rpgs.length(); i2++)
+{
+if(rpgs[i2].map.name==map)
+{
+rpgs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<turrets.length(); i2++)
+{
+if(turrets[i2].map.name==map)
+{
+turrets.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<mines.length(); i2++)
+{
+if(mines[i2].map.name==map)
+{
+mines.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<robots.length(); i2++)
+{
+if(robots[i2].map.name==map)
+{
+destroy_moving_sound(robots[i2].mid);
+robots.remove_at(i2);
+continue;
+}
+}
+file_delete("arenas/"+id+".arena");
+remove_map(map);
+arenas.remove_at(i);
+return;
+}
+if(started==0 and length>1 and joined==length)
+{
+started=1;
+for(uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].map==map)
+{
+if(players[i2].stunned==true)
+{
+send_reliable(players[i2],"startmoving",0);
+players[i2].stunned=false;
+}
+int mi=get_map_index(players[i2].map);
+if((mi>-1))
+{
+if(maps[mi].pvp==1)
+{
+if(players[i2].pvp==0)
+{
+players[i2].pvp=1;
+players[i2].pvpd=1;
+}
+}
+}
+}
+}
+send_reliable(0, "play_s notifyalert.ogg",6);
+send_reliable(0,"arena "+owner+"'s "+type+" Arena with a total of "+joined+" participators has been started!",0);
+}
+if(started==1 and length>1 and joined==1)
+{
+for(uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].map==map)
+{
+int newx=string_to_number(get_char_val(players[i2].name,"oldx"));
+int newy=string_to_number(get_char_val(players[i2].name,"oldy"));
+int newz=string_to_number(get_char_val(players[i2].name,"oldz"));
+string charfolder="chars/"+players[i2].name;
+scd(players[i2]);
+if(players[i2].inv.get_size()>0) players[i2].inv.delete_all();
+file_copy(charfolder+"/oldinv.usr",charfolder+"/inv.usr",true);
+if(players[i2].inv.get_size()<1) players[i2].inv_add_item("starter_pack",1);
+load_char_data(players[i2],true);
+file_delete(charfolder+"/oldx.usr");
+file_delete(charfolder+"/oldy.usr");
+file_delete(charfolder+"/oldz.usr");
+file_delete(charfolder+"/oldmap.usr");
+file_delete(charfolder+"/oldinv.usr");
+move_player(players[i2],"safezone",newx,newy,newz);
+players[i2].health=players[i2].maxhealth;
+players[i2].bullet_proof_vested=0;
+players[i2].bullet_proof_vestshots=0;
+players[i2].shielded=0;
+players[i2].shieldshots=0;
+players[i2].steel_shielded=0;
+players[i2].steel_shieldshots=0;
+players[i2].hurtlevel=0;
+players[i2].hurttimer.restart();
+players[i2].healtimer.restart();
+players[i2].poisoned=false;
+players[i2].hurt=false;
+players[i2].cbombplacing=false;
+players[i2].drunk=false;
+players[i2].weapon_name="fists";
+send_reliable(players[i2], "play_s applause6.ogg",6);
+if(length<1)
+{
+send_reliable(0,"arena "+players[i2].name+" has won in "+owner+"'s "+type+" Arena!",0);
+}
+else
+{
+send_reliable(0,"arena "+players[i2].name+" has won in "+owner+"'s "+type+" Arena and got "+fee+" "+item+"!",0);
+players[i2].inv_add_item("coins",fee);
+}
+neededfee=0;
+item="";
+fee=0;
+if(players[i2].pvpd==1)
+{
+players[i2].pvp=0;
+players[i2].pvpd=0;
+}
+if(players[i2].pvpd==3)
+{
+players[i2].pvp=1;
+players[i2].pvpd=2;
+}
+joined=0;
+}
+}
+}
+}
+}
+void create_arena(string owner, string map, string type, int length, int started, int neededfee, string item, string id)
+{
+arena a(owner, map, type, length, started, neededfee, item, id);
+arenas.insert_last(a);
+}
+int get_arena_index(string id)
+{
+for(uint i=0; i<arenas.length(); i++)
+{
+if(arenas[i].id==id)
+{
+return i;
+}
+}
+return -1;
+}

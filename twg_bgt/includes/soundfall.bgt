@@ -1,0 +1,480 @@
+int direction, lives, key, hits_temp, misses, games, miss_panning, maxnum, sfseconds;
+float hits, total;
+double pitch_rate;
+string ffilename;
+bool qquestion = false, paused = false;
+sound sfspeech, sfmusic, sffalling, result, catch;
+timer speed, game_duration;
+void soundfallmain()
+{
+game_duration.pause();
+sfspeech.stream ("sfwelcome.ogg");
+sound_error_check (sfspeech);
+sfspeech.play();
+send_reliable(peer_id,"draw sfwelcome.ogg", 7);
+while (sfspeech.playing)
+{
+wait(5);
+mainloop();
+if ((key_pressed (KEY_ESCAPE)) || (key_pressed (KEY_SPACE)) || (key_pressed (KEY_RETURN)))
+{
+sfspeech.stop();
+sfmusic.stop();
+sffalling.stop();
+result.stop();
+catch;
+entertainment_centermenu();
+break;
+}
+}
+sfmusic.stream ("menumus27.ogg");
+sound_error_check (sfmusic);
+sfmusic.play_looped();
+sfspeech.stream ("sfstart.ogg");
+sound_error_check (sfspeech);
+sfspeech.play();
+send_reliable(peer_id,"draw sfstart.ogg", 7);
+do
+{
+wait(5);
+mainloop();
+key_check();
+}
+while (!key_pressed (KEY_RETURN));
+sffalling.load ("sffalling.ogg");
+sound_error_check (sffalling);
+catch.load ("sfcatch.ogg");
+sound_error_check (catch);
+game_duration.restart();
+sfstart_game();
+}
+void sound_error_check (sound@ handle)
+{
+if (!handle.active)
+{
+alert ("Error!", "A sound could not be loaded. The game will now exit.");
+entertainment_centermenu();
+}
+}
+void key_check()
+{
+wait(5);
+mainloop();
+while (true)
+{
+if ((key_pressed (KEY_ESCAPE)) && !qquestion || (key_down (KEY_LMENU)) && (key_pressed (KEY_F4)) && !qquestion)
+{
+quit();
+}
+if ((key_pressed (KEY_PRIOR)) && sfmusic.playing || (key_down (KEY_PRIOR)) && sfmusic.playing)
+{
+wait (50);
+sfmusic.volume = sfmusic.volume + 5;
+}
+if ((key_pressed (KEY_NEXT)) && sfmusic.playing && sfmusic.volume >- 65 || (key_down (KEY_NEXT)) && sfmusic.playing && sfmusic.volume >- 65)
+{
+wait (50);
+sfmusic.volume = sfmusic.volume - 5;
+}
+if ((key_pressed (KEY_SPACE)) && !paused && !qquestion)
+{
+pause_game();
+}
+if ((key_pressed (KEY_LEFT)) && speed.elapsed > 0)
+{
+key = 1;
+sffalling.stop();
+break;
+}
+if ((key_pressed (KEY_UP)) && speed.elapsed > 0)
+{
+key = 2;
+sffalling.stop();
+break;
+}
+if ((key_pressed (KEY_RIGHT)) && speed.elapsed > 0)
+{
+key = 3;
+sffalling.stop();
+break;
+}
+if ((key_pressed (KEY_DOWN)) && !qquestion)
+{
+sffalling.pause();
+sfspeech.stream ("sfsptest.ogg");
+sound_error_check (sfspeech);
+sfspeech.play_wait();
+send_reliable(peer_id,"draw sfsptest.ogg", 7);
+if (!paused && direction != 0)
+{
+sffalling.play();
+send_reliable(peer_id,"draw sffalling.ogg", 7);
+}
+}
+if ((key_pressed (KEY_G)) && !qquestion)
+{
+numspeak ("g");
+}
+if ((key_pressed (KEY_D)) && !qquestion)
+{
+numspeak ("d");
+}
+if ((key_pressed (KEY_T)) && !qquestion)
+{
+numspeak ("t");
+}
+if ((key_pressed (KEY_C)) && !qquestion)
+{
+numspeak ("c");
+}
+if ((key_pressed (KEY_B)) && !qquestion)
+{
+numspeak ("b");
+}
+wait (5);
+break;
+}
+}
+void sfstart_game()
+{
+sfspeech.stream ("sfgo.ogg");
+sound_error_check (sfspeech);
+sfspeech.play_wait();
+send_reliable(peer_id,"draw sfgo.ogg", 7);
+lives = 5;
+games+=1;
+pitch_rate = 0.5;
+hits_temp = 0;
+maxnum = 5;
+sound_fall();
+}
+void sound_fall()
+{
+if (lives == 0)
+{
+play_again();
+}
+direction = random (1, 3);
+if (direction == 1)
+{
+sffalling.pan = -100;
+catch.pan = -100;
+miss_panning = -100;
+}
+if (direction == 2)
+{
+sffalling.pan = 0;
+catch.pan = 0;
+miss_panning = 0;
+}
+if (direction == 3)
+{
+sffalling.pan = 100;
+catch.pan = 100;
+miss_panning = 100;
+}
+speed.restart();
+sffalling.pitch = 100;
+sffalling.play();
+send_reliable(peer_id,"draw sffalling.ogg", 7);
+do
+{
+wait(5);
+mainloop();
+key_check();
+if (speed.elapsed >= 10)
+{
+sffalling.pitch = sffalling.pitch - pitch_rate;
+speed.restart();
+}
+if (sffalling.pitch == sffalling.pitch_lower_limit)
+{
+sffalling.stop();
+}
+}
+while (sffalling.playing);
+if (key == direction)
+{
+key = 0;
+direction = 0;
+sffalling.stop();
+hit();
+}
+if (key != direction)
+{
+key = 0;
+direction = 0;
+sffalling.stop();
+miss();
+}
+if (key == 0 && direction != 0)
+{
+direction = 0;
+miss();
+}
+}
+void hit()
+{
+hits+=1;
+hits_temp+=1;
+total+=1;
+if (hits_temp == 5)
+{
+maxnum+=1;
+hits_temp = 0;
+}
+int hit_sound = random (1, maxnum);
+if (hit_sound <= 5)
+{
+ffilename = "sfhit" + hit_sound + ".ogg";
+result.stream (ffilename);
+sound_error_check (result);
+catch.play();
+send_reliable(peer_id,"draw sfcatch.ogg", 7);
+result.play_wait();
+}
+else
+{
+catch.play_wait();
+send_reliable(peer_id,"draw sfcatch.ogg", 7);
+}
+pitch_rate+=0.05;
+sfmusic.pitch = sfmusic.pitch + 0.2;
+sound_fall();
+}
+void miss()
+{
+misses+=1;
+total+=1;
+int miss_sound = random (1, 5);
+ffilename = "miss" + miss_sound + ".ogg";
+result.stream (ffilename);
+sound_error_check (result);
+result.pan = miss_panning;
+result.play_wait();
+send_reliable(peer_id,"draw "+ffilename+".ogg", 7);
+lives-=1;
+sound_fall();
+}
+void play_again()
+{
+sfspeech.stream ("sfgameover.ogg");
+sound_error_check (sfspeech);
+sfspeech.play_wait();
+send_reliable(peer_id,"draw sfgameover.ogg", 7);
+qquestion = true;
+sfspeech.stream ("sfagain.ogg");
+sound_error_check (sfspeech);
+sfspeech.play();
+send_reliable(peer_id,"draw sfagain.ogg", 7);
+while (true)
+{
+wait(5);
+mainloop();
+key_check();
+if ((key_pressed (KEY_Y)) || (key_pressed (KEY_Z)))
+{
+qquestion = false;
+sfmusic.pitch = 100;
+sfstart_game();
+}
+if (key_pressed (KEY_N))
+{
+game_finished();
+}
+}
+}
+void game_finished()
+{
+sfseconds = game_duration.elapsed/1000;
+string stats = "You played " + games;
+if (games == 1)
+{
+stats+=" game ";
+}
+else
+{
+stats+=" games ";
+}
+stats+="during your last session of Soundfall which lasted for " + sfseconds;
+if (sfseconds == 1)
+{
+stats+=" second. ";
+}
+else
+{
+stats+=" seconds. ";
+}
+stats+="Over all, you managed to catch " + hits;
+if (hits == 1)
+{
+stats+=" sffalling sound ";
+}
+else
+{
+stats+=" sffalling sounds ";
+}
+stats+="and " + misses + " of them flew past you, which makes for a total of " + total + " fallen ";
+if (total == 1)
+{
+stats+="sound.\r\n";
+}
+else
+{
+stats+="sounds.\r\n";
+}
+float percentage;
+if (total > 0)
+{
+percentage = (hits / total) * 100;
+}
+if (percentage > 0 && percentage <= 25)
+{
+stats+="That must be a bad joke!";
+}
+if (percentage > 25 && percentage <= 50)
+{
+stats+="That's not too bad but not too good either. A nice average.";
+}
+if (percentage > 50 && percentage <= 75)
+{
+stats+="That's quite a score already.";
+}
+if (percentage > 75 && percentage < 100)
+{
+stats+="Wow, that's a truly impressive achievement indeed! Congratulations!";
+}
+if (percentage == 100)
+{
+stats+="Oh! I must have made a mistake when calculating this! That's impossible! Feeling low compared to you!";
+}
+clipboard_copy_text (stats);
+sfspeech.stream ("sfbye.ogg");
+sound_error_check (sfspeech);
+sfspeech.play();
+send_reliable(peer_id,"draw sfbye.ogg", 7);
+while (sfspeech.playing)
+{
+wait(5);
+mainloop();
+if ((key_pressed (KEY_ESCAPE)) || (key_pressed (KEY_SPACE)) || (key_pressed (KEY_RETURN)))
+{
+sfspeech.stop();
+sfmusic.stop();
+sffalling.stop();
+result.stop();
+catch;
+entertainment_centermenu();
+break;
+}
+}
+}
+void quit()
+{
+sffalling.pause();
+qquestion = true;
+sfspeech.stream ("sfquit.ogg");
+sound_error_check (sfspeech);
+sfspeech.play();
+send_reliable(peer_id,"draw sfquit.ogg", 7);
+while (true)
+{
+wait(5);
+mainloop();
+key_check();
+if ((key_pressed (KEY_Y)) || (key_pressed (KEY_Z)))
+{
+game_finished();
+}
+if (key_pressed (KEY_N))
+{
+qquestion = false;
+sfspeech.stop();
+if (direction != 0)
+{
+sffalling.play();
+send_reliable(peer_id,"draw sffalling.ogg", 7);
+}
+sfspeech.stop();
+sfmusic.stop();
+sffalling.stop();
+result.stop();
+entertainment_centermenu();
+break;
+}
+}
+}
+void pause_game()
+{
+paused = true;
+sfmusic.pause();
+sffalling.pause();
+game_duration.pause();
+sfspeech.stream ("sfpaused.ogg");
+sound_error_check (sfspeech);
+sfspeech.play_wait();
+send_reliable(peer_id,"draw sfpaused.ogg", 7);
+do
+{
+key_check();
+wait (5);
+mainloop();
+}
+while (!key_pressed (KEY_SPACE));
+paused = false;
+sfspeech.stream ("sfunpaused.ogg");
+sound_error_check (sfspeech);
+sfspeech.play_wait();
+send_reliable(peer_id,"draw sfunpaused.ogg", 7);
+if (game_duration.elapsed > 0)
+{
+game_duration.resume();
+}
+sfmusic.play_looped();
+if (direction > 0)
+{
+sffalling.play();
+send_reliable(peer_id,"draw sffalling.ogg", 7);
+}
+}
+void numspeak (string var_to_speak)
+{
+string value_to_speak;
+if (var_to_speak == "g")
+{
+value_to_speak = number_to_words (games, false);
+}
+if (var_to_speak == "d")
+{
+sfseconds = game_duration.elapsed / 1000;
+value_to_speak = number_to_words (sfseconds, false);
+}
+if (var_to_speak == "t")
+{
+value_to_speak = number_to_words (total, false);
+}
+if (var_to_speak == "c")
+{
+value_to_speak = number_to_words (hits, false);
+}
+if (var_to_speak == "b")
+{
+value_to_speak = number_to_words (misses, false);
+}
+string[] final_numbers = string_split (value_to_speak, " ", true);
+sffalling.pause();
+sfmusic.volume = sfmusic.volume - 10;
+for (uint x = 0; x < final_numbers.length(); x++)
+{
+sfspeech.stream ("n/" + final_numbers[x] + ".ogg");
+sound_error_check (sfspeech);
+sfspeech.play_wait();
+send_reliable(peer_id,"draw n/"+final_numbers[x]+".ogg", 7);
+}
+sfmusic.volume = sfmusic.volume + 10;
+if (direction != 0 && !paused)
+{
+sffalling.play();
+send_reliable(peer_id,"draw sffalling.ogg", 7);
+}
+}

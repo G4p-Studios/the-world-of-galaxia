@@ -1,0 +1,63 @@
+forcefield@[] forcefields(0);
+class forcefield
+{
+int minx, maxx, miny, maxy, minz, maxz, forcefieldtime, forcefieldingsound, health;
+string forcefieldsound, forcefieldhitsound;
+bool forcefielded;
+timer forcefieldtimer;
+forcefield(int fminx, int fmaxx, int fminy, int fmaxy, int fminz, int fmaxz, int fforcefieldtime, int fhealth, string fforcefieldsound, string fforcefieldhitsound)
+{
+minx=fminx;
+maxx=fmaxx;
+miny=fminy;
+maxy=fmaxy;
+minz=fminz;
+maxz=fmaxz;
+forcefieldtime=fforcefieldtime;
+health=fhealth;
+forcefieldsound=fforcefieldsound;
+forcefieldhitsound=fforcefieldhitsound;
+}
+void loop()
+{
+if (forcefielded==false and forcefieldtimer.elapsed>=forcefieldtime)
+{
+forcefieldtimer.restart();
+if(forcefieldsound!="silence" and sleepmode!=0) forcefieldingsound=p.play_3d(forcefieldsound, me.x, me.y, me.z, minx, miny, minz, facing,0,0,0,0,0,0,true,0,0,0,100);             
+p.update_sound_3d(forcefieldingsound, minx, miny, minz);
+p.update_sound_range_3d(forcefieldingsound, 0, maxx-minx, 0, maxy-miny, 0, maxz-minz);
+forcefielded=true;
+}
+else if (forcefielded==true and forcefieldtimer.elapsed>=forcefieldtime)
+{
+forcefieldtimer.restart();
+if (forcefieldsound!="silence" and sleepmode!=0) p.destroy_sound(forcefieldingsound);
+forcefielded=false;
+}
+}
+}
+void forcefieldloop()
+{
+for (uint i=0; i<forcefields.length(); i++)
+{
+forcefields[i].loop();
+}
+}
+void spawn_forcefield(int minx, int maxx, int miny, int maxy, int minz, int maxz, int forcefieldtime, int health, string forcefieldsound, string forcefieldhitsound)
+{
+forcefield f(minx, maxx, miny, maxy, minz, maxz, forcefieldtime, health, forcefieldsound, forcefieldhitsound);
+forcefields.insert_last(f);
+}
+void destroy_forcefield(int v)
+{
+p.destroy_sound(forcefields[v].forcefieldingsound);
+forcefields.remove_at(v);
+}
+void destroy_all_forcefields()
+{
+for(uint i=0; i<forcefields.length(); i++)
+{
+p.destroy_sound(forcefields[i].forcefieldingsound);
+}
+forcefields.resize(0);
+}

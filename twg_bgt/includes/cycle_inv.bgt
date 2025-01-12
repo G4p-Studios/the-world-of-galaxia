@@ -1,0 +1,66 @@
+double invpos;
+dictionary cycle_inv;
+void cycleinv(double dir)
+{
+if (dir==1)
+invpos+=1;
+else
+invpos-=1;
+if (invpos>=cycle_inv.get_size())
+{
+invpos=0;
+}
+else if (invpos<0)
+{
+invpos=cycle_inv.get_size()-1;
+}
+if (cycle_inv.get_size()==0)
+{
+speak("No items");
+}
+else
+{
+double soundpos=convert_to_pan(invpos,cycle_inv.get_keys().length());
+double a;
+cycle_inv.get(cycle_inv.get_keys()[invpos],a);
+p.play_stationary("inventory"+random(1,12)+".ogg", false, 0, soundpos, 0, 100, false);
+speak(a+" "+string_replace(cycle_inv.get_keys()[invpos], "_", " ", true)+". "+(invpos+1)+" of "+cycle_inv.get_keys().length);
+}
+}
+double count_total_items()
+{
+double amount=0;
+for (uint i=0; i<cycle_inv.get_keys().length(); i++)
+{
+double a;
+cycle_inv.get(cycle_inv.get_keys()[i],a);
+amount+=a;
+}
+return amount;
+}
+double get_item_count(string item)
+{
+double amount=0;
+for (uint i=0; i<cycle_inv.get_keys().length(); i++)
+{
+double a=0;
+if (cycle_inv.get_keys()[i]==item)
+cycle_inv.get(cycle_inv.get_keys()[i],a);
+amount+=a;
+}
+return amount;
+}
+int search_inv(string itemkey)
+{
+string[] keys=cycle_inv.get_keys();
+if(itemkey=="") return -1;
+int ret=-1;
+for(uint i=0; i<keys.length(); i+=1)
+{
+if(string_contains(keys[i], itemkey, 1)>-1)
+{
+ret=i;
+}
+}
+return ret;
+}

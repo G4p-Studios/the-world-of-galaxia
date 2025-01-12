@@ -1,0 +1,92 @@
+class msound
+{
+string id,soundloop,map,owner;
+int x,y,z;
+double pitch;
+msound(string i, string l, int c1, int c2,int c3,string cm,string own="",int p=100)
+{
+id=i;
+soundloop=l;
+x=c1;
+y=c2;
+z=c3;
+map=cm;
+owner=own;
+pitch=p;
+}
+void updateme(int c1, int c2, int c3,double p=-1)
+{
+x=c1;
+y=c2;
+z=c3;
+if(p!=-1) pitch=p;
+}
+}
+msound@[] msounds;
+string spawn_moving_sound(string loop, int x, int y,int z,string map,string owner="",double pitch=100)
+{
+string id;
+bool breakit=false;
+while(true)
+{
+id=randomstring();
+breakit=true;
+for(uint i=0; i<msounds.length(); i++)
+{
+if(msounds[i].id==id) breakit=false;
+}
+if(breakit) break;
+}
+msound m1(id,loop,x,y,z,map,owner,pitch);
+msounds.insert_last(m1);
+if(owner=="") send_reliable(0,"createmsound "+id+" "+loop+" "+x+" "+y+" "+z+" "+map+" "+pitch,4);
+else
+{
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name!=owner) send_packetn2(4,players[i].name,"createmsound "+id+" "+loop+" "+x+" "+y+" "+z+" "+map+" "+pitch,maps[get_map_index(players[i].map)]);
+}
+}
+return id;
+}
+void update_moving_sound(string id, int x, int y,int z,double pitch=-1)
+{
+for(uint i=0; i<msounds.length(); i++)
+{
+if(msounds[i].id==id)
+{
+msounds[i].updateme(x,y,z,pitch);
+if(msounds[i].owner=="") sendmap("updatemsound "+id+" "+x+" "+y+" "+z+" "+msounds[i].pitch,msounds[i].map,4,false);
+else
+{
+for(uint j=0; j<players.length(); j++)
+{
+if(players[j].name!=msounds[i].owner) send_unreliable(players[j],"updatemsound "+id+" "+x+" "+y+" "+z+" "+msounds[i].pitch,4);
+}
+}
+}
+}
+}
+bool moving_sound_exists(string id)
+{
+for(uint i=0; i<msounds.length(); i++)
+{
+if(msounds[i].id==id)
+{
+return true;
+}
+}
+return false;
+}
+void destroy_moving_sound(string id)
+{
+for(uint i=0; i<msounds.length(); i++)
+{
+if(msounds[i].id==id)
+{
+send_reliable(0,"destroymsound "+id,4);
+msounds.remove_at(i);
+continue;
+}
+}
+}

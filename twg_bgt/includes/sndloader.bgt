@@ -1,0 +1,46 @@
+pack_file soundspack;
+void sound_init()
+{
+speak("loading sounds...this might take a while");
+sound bar;
+sound preloading;
+preloading.load("m2.ogg");
+preloading.volume=-10;
+string filename=get_sound_storage();
+bool success=soundspack.open(filename);
+if(!success)
+{
+alert("error","Error in loading sounds");
+exit();
+}
+//preloading.play_looped();
+string final_list;
+string[] list=soundspack.list_files();
+string[] ambs=string_split(srctypes,"\r\n",false);
+string[] ds1s=string_split(ds1types,"\r\n",false);
+string[] ds2s=string_split(ds2types,"\r\n",false);
+string[] ds3s=string_split(ds3types,"\r\n",false);
+string[] ds4s=string_split(ds4types,"\r\n",false);
+string[] signs=string_split(signtypes,"\r\n",false);
+string[] platforms=string_split(tiletypes,"\r\n",false);
+for(uint x=0; x<list.length(); x++)
+{
+//lets cut the ogg extention to make array searching work.
+string soundfile=string_trim_right(list[x],4);
+if(ambs.find(soundfile)>-1 or ds1s.find(soundfile)>-1 or ds2s.find(soundfile)>-1 or ds3s.find(soundfile)>-1 or ds4s.find(soundfile)>-1 or signs.find(soundfile)>-1 or platforms.find(soundfile)>-1) list.remove_at(x);
+}
+preloading.play_looped();
+for(uint i=0; i<list.length(); i++)
+{
+string soundfile=string_trim_right(list[i],4);
+if(ambs.find(soundfile)>-1 or ds1s.find(soundfile)>-1 or ds2s.find(soundfile)>-1 or ds3s.find(soundfile)>-1 or ds4s.find(soundfile)>-1 or signs.find(soundfile)>-1 or platforms.find(soundfile)>-1) list.remove_at(i);
+bool p=preload_add(list[i]);
+if(p)
+{
+//int perc=percent(i,list.length());
+}
+}
+preloading.stop();
+speak("finished!");
+wait(1000);
+}

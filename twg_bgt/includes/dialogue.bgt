@@ -1,0 +1,24 @@
+bool dialogue(string message, string sound,string consound)
+{
+int soundslot;
+soundslot=p.play_stationary(sound,false,0,0,0,100);
+speak(message);
+while(true)
+{
+wait(5);
+if (key_pressed(KEY_LEFT) or key_pressed(KEY_RIGHT) or key_pressed(KEY_UP) or key_pressed(KEY_DOWN))
+{
+speak(message);
+}
+if (key_pressed(KEY_RETURN))
+{
+soundslot=p.play_stationary(consound,false,0,0,0,100);
+return true;
+}
+else if(key_pressed(KEY_ESCAPE))
+{
+return false;
+}
+}
+return false;
+}

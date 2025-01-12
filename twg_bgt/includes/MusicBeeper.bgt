@@ -1,0 +1,224 @@
+library lib;
+string[] notes;
+void music_beeper()
+{
+load_notes();
+lib.load("Kernel32.dll");
+string songname=input_box("music beep", "Please enter the path to your .song file, extension is not needed!");
+if(songname=="")
+{
+entertainment_centermenu();
+}
+if(!file_exists(songname+".song"))
+{
+alert("Error!", "file does not sceme to exist!");
+entertainment_centermenu();
+}
+string songtext;
+file f;
+f.open(songname+".song", "rb");
+songtext=f.read();
+f.close();
+error_check(songtext);
+string[] lines=string_split(songtext, "\r\n", false);
+for(uint i=0; i<lines.length(); i++)
+{
+if(lines[i].length()>0)
+{
+if(lines[i][0]==";")
+continue;
+string lt=string_replace(lines[i], " ", "", true);
+string[] parsed=string_split(lt, ":", false);
+if(parsed[0]=="Mute")
+wait(string_to_number(parsed[1]));
+else
+beep(get_frequency(parsed[0]), string_to_number(parsed[1]));
+}
+}
+}
+void beep(int freq, int dur)
+{
+lib.call("int Beep(int, int);", freq, dur);
+}
+void error_check(string songtext)
+{
+bool errored=false;
+string error_text;
+string[] lines=string_split(songtext, "\r\n", false);
+for(uint i=0; i<lines.length(); i++)
+{
+if(lines[i].length()>0)
+{
+if(lines[i][0]==";")
+continue;
+int lnum=i+1;
+string lt=string_replace(lines[i], " ", "", true);
+string[] parsed=string_split(lt, ":", false);
+if(parsed.length()>2)
+{
+errored=true;
+error_text+="On line "+lnum+", you are only able to have note:duration! \r\n";
+continue;
+}
+if(parsed.length()<2)
+{
+errored=true;
+error_text+="On line "+lnum+", Invalid Sintax. Can not retrieve note/duration! \r\n";
+continue;
+}
+if(string_to_number(parsed[1]) <1 or !string_is_digits(parsed[1]))
+{
+errored=true;
+error_text+="On line "+lnum+", Duration must be only digits and greater than 0 MS! \r\n";
+continue;
+}
+if(get_frequency(parsed[0])<0)
+{
+errored=true;
+error_text+="On line "+lnum+", "+parsed[0]+" is an invalid note! \r\n";
+continue;
+}
+}
+}
+if(errored==true)
+{
+clipboard_copy_text(error_text);
+alert("Error! ", "There are 1 or more errors in the song file, and they have been coppied to the clipboard! "+error_text);
+entertainment_centermenu();
+}
+}
+int get_frequency(string note)
+{
+int index=find_note(note);
+if(index>-1)
+{
+string[] csplit=string_split(notes[index], ":", false);
+if(csplit.length()>1)
+return string_to_number(csplit[1]);
+else
+return -1;
+}
+return -1;
+}
+void load_notes()
+{
+notes.insert_last("Mute:0");
+notes.insert_last("C0:16.35");
+notes.insert_last("C#0:17.32");
+notes.insert_last("D0:18.35");
+notes.insert_last("D#0:19.45");
+notes.insert_last("E0:20.60");
+notes.insert_last("F0:21.83");
+notes.insert_last("F#0:23.12");
+notes.insert_last("G0:24.50");
+notes.insert_last("G#0:25.96");
+notes.insert_last("A0:27.50");
+notes.insert_last("A#0:29.14");
+notes.insert_last("B0:30.87");
+notes.insert_last("C1:32.70");
+notes.insert_last("C#1:34.65");
+notes.insert_last("D1:36.71");
+notes.insert_last("D#1:38.89");
+notes.insert_last("E1:41.20");
+notes.insert_last("F1:43.65");
+notes.insert_last("F#1:46.25");
+notes.insert_last("G1:49.00");
+notes.insert_last("G#1:51.91");
+notes.insert_last("A1:55.00");
+notes.insert_last("A#1:58.27");
+notes.insert_last("B1:61.74");
+notes.insert_last("C2:65.41");
+notes.insert_last("C#2:69.30");
+notes.insert_last("D2:73.42");
+notes.insert_last("D#2:77.78");
+notes.insert_last("E2:82.41");
+notes.insert_last("F2:87.31");
+notes.insert_last("F#2:92.50");
+notes.insert_last("G2:98.00");
+notes.insert_last("G#2:103.83");
+notes.insert_last("A2:110.00");
+notes.insert_last("A#2:116.54");
+notes.insert_last("B2:123.47");
+notes.insert_last("C3:130.81");
+notes.insert_last("C#3:138.59");
+notes.insert_last("D3:146.83");
+notes.insert_last("D#3:155.56");
+notes.insert_last("E3:164.81");
+notes.insert_last("F3:174.61");
+notes.insert_last("F#3:185.00");
+notes.insert_last("G3:196.00");
+notes.insert_last("G#3:207.65");
+notes.insert_last("A3:220.00");
+notes.insert_last("A#3:233.08");
+notes.insert_last("B3:246.94");
+notes.insert_last("C4:261.63");
+notes.insert_last("C#4:277.18");
+notes.insert_last("D4:293.66");
+notes.insert_last("D#4:311.13");
+notes.insert_last("E4:329.63");
+notes.insert_last("F4:349.23");
+notes.insert_last("F#4:369.99");
+notes.insert_last("G4:392.00");
+notes.insert_last("G#4:415.30");
+notes.insert_last("A4:440.00");
+notes.insert_last("A#4:466.16");
+notes.insert_last("B4:493.88");
+notes.insert_last("C5:523.25");
+notes.insert_last("C#5:554.37");
+notes.insert_last("D5:587.33");
+notes.insert_last("D#5:622.25");
+notes.insert_last("E5:659.25");
+notes.insert_last("F5:698.46");
+notes.insert_last("F#5:739.99");
+notes.insert_last("G5:783.99");
+notes.insert_last("G#5:830.61");
+notes.insert_last("A5:880.00");
+notes.insert_last("A#5:932.33");
+notes.insert_last("B5:987.77");
+notes.insert_last("C6:1046.50");
+notes.insert_last("C#6:1108.73");
+notes.insert_last("D6:1174.66");
+notes.insert_last("D#6:1244.51");
+notes.insert_last("E6:1318.51");
+notes.insert_last("F6:1396.91");
+notes.insert_last("F#6:1479.98");
+notes.insert_last("G6:1567.98");
+notes.insert_last("G#6:1661.22");
+notes.insert_last("A6:1760.00");
+notes.insert_last("A#6:1864.66");
+notes.insert_last("B6:1975.53");
+notes.insert_last("C7:2093.00");
+notes.insert_last("C#7:2217.46");
+notes.insert_last("D7:2349.32");
+notes.insert_last("D#7:2489.02");
+notes.insert_last("E7:2637.02");
+notes.insert_last("F7:2793.83");
+notes.insert_last("F#7:2959.96");
+notes.insert_last("G7:3135.96");
+notes.insert_last("G#7:3322.44");
+notes.insert_last("A7:3520.00");
+notes.insert_last("A#7:3729.31");
+notes.insert_last("B7:3951.07");
+notes.insert_last("C8:4186.01");
+notes.insert_last("C#8:4434.92");
+notes.insert_last("D8:4698.63");
+notes.insert_last("D#8:4978.03");
+notes.insert_last("E8:5274.04");
+notes.insert_last("F8:5587.65");
+notes.insert_last("F#8:5919.91");
+notes.insert_last("G8:6271.93");
+notes.insert_last("G#8:6644.88");
+notes.insert_last("A8:7040.00");
+notes.insert_last("A#8:7458.62");
+notes.insert_last("B8:7902.13");
+}
+int find_note(string note)
+{
+for(uint i=0; i<notes.length(); i++)
+{
+string[] p=string_split(notes[i], ":", false);
+if(note==p[0])
+return i;
+}
+return -1;
+}

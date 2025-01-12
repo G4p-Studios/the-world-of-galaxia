@@ -1,0 +1,4203 @@
+vehicle@[] vs;
+int sky_racerspawn=9686, sky_racerstart=9100, sky_racerstop=31820, sky_racerdie=25353, sky_racerfire=2983, fordspawn=4510, fordstop=1047, fordstart=1582, v4_by_4_jeepspawn=3383, v4_by_4_jeepstop=1505, v4_by_4_jeepstart=3900, sorentospawn=493, sorentostart=1489, sorentostop=2335, sorentodie=9103, m60_tankspawn=4310, m60_tankstop=6000, m60_tankstart=6800, m60_tankfire=686, repair=25922, tankspawn=4510, tankstop=1000, tankstart=1954, tankfire=686, grayhound_busspawn=5927, grayhound_busstop=2766, grayhound_busstart=5987, truckspawn=4000, truckstart=7250, truckstop=1444, dogan_slxspawn=4000, dogan_slxstart=7250, dogan_slxstop=1444, dodge_chargerspawn=2421, dodge_chargerstart=2435, dodge_chargerstop=2234, doom_buggyspawn=2760, doom_buggystart=3203, doom_buggystop=975, ford_pickup_truckspawn=3682, ford_pickup_truckstart=7874, ford_pickup_truckstop=4083, mlk_mission_cruiserspawn=2453, mlk_mission_cruiserstart=4273, mlk_mission_cruiserstop=975, muscle_carspawn=1804, muscle_carstop=371, muscle_carstart=3390;
+void playext(string soundname, int x, int y, int z, mapdata@m, string noname)
+{
+int index=get_player_index_from(noname);
+for(uint i=0; i<players.length(); i++)
+{
+if(i!=index) send_reliable(players[i],soundname+" "+x+" "+y+" "+z+" "+m.name,3);
+}
+}
+void playint(string soundname, string name)
+{
+int index=get_player_index_from(name);
+if(index>-1) send_reliable(players[index],"play_s "+soundname+".ogg",6);
+}
+void sendint(string packet, string name,int channel=0)
+{
+int index=get_player_index_from(name);
+if(index>-1) send_reliable(players[index],packet,channel);
+}
+void sendint2(string packet, string name,int channel=7)
+{
+int index=get_player_index_from(name);
+if(index>-1) send_reliable(players[index],packet,channel);
+}
+class vehicle
+{
+double x,y,z,facing,health,fuel=100;
+string type,owner,map,mid,horn,doing,hitby="nothing",passenger;
+int speed=0,soundtime=0,fueltime,movetime,firetime,vmovetime,vfueltime,falldist;
+timer firetimer,movetimer,fueltimer,soundtimer,falltimer;
+bool lowfuel=false,lowhealth=false,falling=false;
+double pitch;
+vector min, max;
+vehicle(string vtype,int pind)
+{
+owner=players[pind].name;
+x=players[pind].x;y=players[pind].y;z=players[pind].z;facing=players[pind].facing;map=players[pind].map;
+min=get_min_values(map);
+max=get_max_values(map);
+type=vtype;
+send_reliable(players[pind],"move "+x+" "+y+" "+z,7);
+if(type=="v4_by_4_jeep") send_packet(6,"play 4_by_4_jeep_spawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+else send_packet(6,"play "+type+"_spawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_reliable(players[pind],"vespawning "+type,0);
+}
+void command(string cmd, bool force=false, int i=-1)
+{
+}
+void loop(int i)
+{
+}
+void hit(int damage,string hb,string type="")
+{
+this.health-=damage;
+this.hitby=hb;
+playsound("locker_hit"+random(1,6)+"",true,false);
+}
+void playsound(string sound, bool ext=true, bool alt=true)
+{
+playint(sound+(alt==true&&ext==true ? "_int" : ""),owner);
+if(ext) playext(sound+(alt==true&&ext==true ? "_ext" : ""),x,y,z,maps[get_map_index(map)],owner);
+}
+}
+void spawn_vehicle(string type, int pind)
+{
+if(type=="sky_racer")
+{
+sky_racer v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="ford")
+{
+ford v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="muscle_car")
+{
+muscle_car v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="v4_by_4_jeep")
+{
+v4_by_4_jeep v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="dodge_charger")
+{
+dodge_charger v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="doom_buggy")
+{
+doom_buggy v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="ford_pickup_truck")
+{
+ford_pickup_truck v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="mlk_mission_cruiser")
+{
+mlk_mission_cruiser v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="grayhound_bus")
+{
+grayhound_bus v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="truck")
+{
+truck v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="dogan_slx")
+{
+dogan_slx v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="sorento")
+{
+sorento v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="tank")
+{
+tank v1(pind);
+vs.insert_last(v1);
+}
+else if(type=="m60_tank")
+{
+m60_tank v1(pind);
+vs.insert_last(v1);
+}
+}
+int in_vehicle(player@p)
+{
+for(uint i=0; i<vs.length(); i++)
+{
+if(vs[i].owner==p.name) return i;
+}
+return -1;
+}
+class v4_by_4_jeep : vehicle
+{
+v4_by_4_jeep(int pind)
+{
+super("v4_by_4_jeep",pind);
+health=players[pind].v4_by_4_jeephealth;
+fuel=players[pind].v4_by_4_jeepfuel;
+fueltime=16873;
+soundtime=v4_by_4_jeepspawn;soundtimer.restart();
+vmovetime=750;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint("4_by_4_jeep_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your 4_by_4_jeep must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=v4_by_4_jeepstart;
+if(doing=="stop") soundtime=v4_by_4_jeepstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound("4_by_4_jeep_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play 4_by_4_jeep_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].v4_by_4_jeephealth=health;
+players[index].v4_by_4_jeepfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("4_by_4_jeep_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("4_by_4_jeep_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play 4_by_4_jeep_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].v4_by_4_jeepfuel=100;
+players[index].v4_by_4_jeephealth=35000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(5000, 10000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="v4_by_4_jeep" ? 35000 : 5000);
+sendint("speak your 4_by_4_jeep has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart 4_by_4_jeep_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("v4_by_4_jeep_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("v4_by_4_jeep_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class dodge_charger : vehicle
+{
+dodge_charger(int pind)
+{
+super("dodge_charger",pind);
+health=players[pind].dodge_chargerhealth;
+fuel=players[pind].dodge_chargerfuel;
+fueltime=16873;
+soundtime=dodge_chargerspawn;soundtimer.restart();
+vmovetime=750;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=dodge_chargerstart;
+if(doing=="stop") soundtime=dodge_chargerstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].dodge_chargerhealth=health;
+players[index].dodge_chargerfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].dodge_chargerfuel=100;
+players[index].dodge_chargerhealth=22000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="dodge_charger" ? 22000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("dodge_charger_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("dodge_charger_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class dogan_slx : vehicle
+{
+dogan_slx(int pind)
+{
+super("dogan_slx",pind);
+health=players[pind].dogan_slxhealth;
+fuel=players[pind].dogan_slxfuel;
+fueltime=16873;
+soundtime=dogan_slxspawn;soundtimer.restart();
+vmovetime=750;
+vfueltime=1000;
+}
+~dogan_slx()
+{
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=dogan_slxstart;
+if(doing=="stop") soundtime=dogan_slxstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+else if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].dogan_slxhealth=health;
+players[index].dogan_slxfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=vmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("vestop",owner);
+mid=spawn_moving_sound("dogan_slx_drive_ext.ogg",x,y,z,map,owner);
+sendint("vestart dogan_slx_drive_int.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=vmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("vestop",owner);
+mid=spawn_moving_sound("dogan_slx_idle_ext.ogg",x,y,z,map,owner);
+sendint("vestart dogan_slx_idle_int.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+destroy_moving_sound(mid);
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].dogan_slxfuel=100;
+players[index].dogan_slxhealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(50000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=50000;
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound("dogan_slx_idle_ext.ogg",x,y,z,map,owner);
+this.pitch=100;
+sendint("vestart dogan_slx_idle_int.ogg 100",owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("dogan_slx_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("dogan_slx_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class doom_buggy : vehicle
+{
+doom_buggy(int pind)
+{
+super("doom_buggy",pind);
+health=players[pind].doom_buggyhealth;
+fuel=players[pind].doom_buggyfuel;
+fueltime=16873;
+soundtime=doom_buggyspawn;soundtimer.restart();
+vmovetime=750;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=doom_buggystart;
+if(doing=="stop") soundtime=doom_buggystop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].doom_buggyhealth=health;
+players[index].doom_buggyfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].doom_buggyfuel=100;
+players[index].doom_buggyhealth=24000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="doom_buggy" ? 24000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("doom_buggy_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("doom_buggy_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class ford : vehicle
+{
+ford(int pind)
+{
+super("ford",pind);
+health=players[pind].fordhealth;
+fuel=players[pind].fordfuel;
+fueltime=16873;
+soundtime=fordspawn;soundtimer.restart();
+vmovetime=750;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=fordstart;
+if(doing=="stop") soundtime=fordstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].fordhealth=health;
+players[index].fordfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].fordfuel=100;
+players[index].fordhealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="ford" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("ford_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("ford_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class ford_pickup_truck : vehicle
+{
+ford_pickup_truck(int pind)
+{
+super("ford_pickup_truck",pind);
+health=players[pind].ford_pickup_truckhealth;
+fuel=players[pind].ford_pickup_truckfuel;
+fueltime=16873;
+soundtime=ford_pickup_truckspawn;soundtimer.restart();
+vmovetime=750;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=ford_pickup_truckstart;
+if(doing=="stop") soundtime=ford_pickup_truckstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].ford_pickup_truckhealth=health;
+players[index].ford_pickup_truckfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].ford_pickup_truckfuel=100;
+players[index].ford_pickup_truckhealth=32000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="ford_pickup_truck" ? 32000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("ford_pickup_truck_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("ford_pickup_truck_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class grayhound_bus : vehicle
+{
+grayhound_bus(int pind)
+{
+super("grayhound_bus",pind);
+health=players[pind].grayhound_bushealth;
+fuel=players[pind].grayhound_busfuel;
+fueltime=16873;
+soundtime=grayhound_busspawn;soundtimer.restart();
+vmovetime=715;
+vfueltime=875;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=grayhound_busstart;
+if(doing=="stop") soundtime=grayhound_busstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].grayhound_bushealth=health;
+players[index].grayhound_busfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].grayhound_busfuel=100;
+players[index].grayhound_bushealth=33000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="grayhound_bus" ? 33000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("grayhound_bus_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("grayhound_bus_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class m60_tank : vehicle
+{
+m60_tank(int pind)
+{
+super("m60_tank",pind);
+health=players[pind].m60_tankhealth;
+fuel=players[pind].m60_tankfuel;
+fueltime=16873;
+firetime=7000;
+soundtime=m60_tankspawn;soundtimer.restart();
+vmovetime=765;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=m60_tankstart;
+if(doing=="stop") soundtime=m60_tankstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="firegun"&&firetimer.elapsed>=firetime and map!="store" and speed>0)
+{
+doing="prefire";
+soundtime=m60_tankfire;
+soundtimer.restart();
+playint("m60_tank_artillery_beforeshot",owner);
+return;
+}
+else if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].m60_tankhealth=health;
+players[index].m60_tankfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-1);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-1);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].m60_tankfuel=100;
+players[index].m60_tankhealth=40000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(30000, 70000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="m60_tank" ? 40000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_idle_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="prefire")
+{
+firetimer.restart();
+send_dpacketn(6,get_player_index_from(owner),"distsound m60_tank_artillery_fire_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+playext("m60_tank_artillery_fire1_ext"+random(1,4),x,y,z,maps[get_map_index(map)],owner);
+playint("m60_tank_artillery_fire1_int"+random(1,4),owner);
+spawn_weapon(x,y,z,facing,0,"artillery",players[get_player_index_from(owner)],maps[get_map_index(map)]);
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("m60_tank_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("m60_tank_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class mlk_mission_cruiser : vehicle
+{
+mlk_mission_cruiser(int pind)
+{
+super("mlk_mission_cruiser",pind);
+health=players[pind].mlk_mission_cruiserhealth;
+fuel=players[pind].mlk_mission_cruiserfuel;
+fueltime=16873;
+soundtime=mlk_mission_cruiserspawn;soundtimer.restart();
+vmovetime=755;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=mlk_mission_cruiserstart;
+if(doing=="stop") soundtime=mlk_mission_cruiserstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].mlk_mission_cruiserhealth=health;
+players[index].mlk_mission_cruiserfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].mlk_mission_cruiserfuel=100;
+players[index].mlk_mission_cruiserhealth=45000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="mlk_mission_cruiser" ? 45000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("mlk_mission_cruiser_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("mlk_mission_cruiser_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class muscle_car : vehicle
+{
+muscle_car(int pind)
+{
+super("muscle_car",pind);
+health=players[pind].muscle_carhealth;
+fuel=players[pind].muscle_carfuel;
+fueltime=16873;
+soundtime=muscle_carspawn;soundtimer.restart();
+vmovetime=750;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=muscle_carstart;
+if(doing=="stop") soundtime=muscle_carstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].muscle_carhealth=health;
+players[index].muscle_carfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].muscle_carfuel=100;
+players[index].muscle_carhealth=40000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="muscle_car" ? 40000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("muscle_car_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("muscle_car_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class sky_racer : vehicle
+{
+sky_racer(int pind)
+{
+super("sky_racer",pind);
+health=players[pind].sky_racerhealth;
+fuel=players[pind].sky_racerfuel;
+fueltime=16873;
+firetime=3000;
+soundtime=sky_racerspawn;soundtimer.restart();
+vmovetime=500;
+vfueltime=700;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start" ) soundtime=sky_racerstart;
+if(doing=="stop") soundtime=sky_racerstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="firegun"&&firetimer.elapsed>=firetime and map!="store" and speed>0)
+{
+doing="prefire";
+if(type=="sky_racer")
+{
+soundtime=sky_racerfire;
+soundtimer.restart();
+playsound("sky_racer_shot_start",true,false);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound explode"+random(4,10)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+}
+return;
+}
+else if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+if(type=="sky_racer")
+{
+players[index].sky_racerhealth=health;
+players[index].sky_racerfuel=fuel;
+}
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speedzup"&&speed>2)
+{
+movetime=vmovetime-((speed-1)*100);
+playint("command",owner);
+z++;
+}
+else if(cmd=="speedzdown"&&speed<2&&z>0)
+{
+movetime=vmovetime-((speed-1)*100);
+playint("command",owner);
+z--;
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+if(type=="sky_racer")
+{
+players[index].sky_racerfuel=100;
+players[index].sky_racerhealth=25000;
+}
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(10000, 30000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=25000;
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="fall")
+{
+int index=get_player_index_from(owner);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+sendint("veunspawn",owner);
+if(index>-1)
+{
+players[index].sky_racerfuel=100;
+players[index].sky_racerhealth=25000;
+players[index].health=-1;
+players[index].hitby="gravity";
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+if(z<=0) z=0;
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="prefire")
+{
+firetimer.restart();
+if(type=="sky_racer")
+{
+int hit=0;
+for(uint i=0; i<players.length(); i++)
+{
+int index=get_player_index_from(owner);
+if(index>-1) 
+{
+if(are_teamed(players[index].name,players[i].name) or in_vehicle(players[i])>-1 or in_motor(players[i])>-1 or players[i].is_dead or is_safe(players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]) or players[i].safe or players[i].pvp==0 or players[i].away or players[i].afk or players[i].newb==1 or players[i].looking!="") continue;
+if(players[i].map==map and get_3d_distance(players[i].x, players[i].y, players[i].z, x, y, z)<=50)
+{
+hit++;
+send_packet(6,"play explode13.ogg "+players[i].x+" "+players[i].y+" "+players[i].z, players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+send_dpacket(6,"distsound explode13 "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+players[i].hit(600,990);
+players[i].hitby=owner+"'s sky_racer";
+}
+}
+}
+int vhit=0;
+for(uint i=0; i<vs.length(); i++)
+{
+int index=get_player_index_from(owner);
+if(index>-1) 
+{
+if(players[index].pvp==0) continue;
+if(are_teamed(owner,vs[i].owner)) continue;
+if(vs[i].map==map and get_2d_distance(x,y,vs[i].x,vs[i].y)<=20 and vs[i].map==map and vs[i].owner!=owner and (vs[i].z>=(z-10)&&vs[i].z<=z))
+{
+vs[i].hit(random(2000,4000),owner+"'s sky_racer","artillery");
+send_dpacket(6,"distsound explode13 "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+vhit++;
+}
+}
+}
+if(hit==0&&vhit==0) sendint("speak hit nothing",owner);
+else if(hit>0&&vhit==0) sendint("speak hit "+hit+" players",owner);
+else if(hit>0&&vhit>0) sendint("speak hit "+hit+" players and "+vhit+" vehicles",owner);
+else if(vhit>0&&hit==0) sendint("speak hit "+vhit+" vehicles",owner);
+else sendint("speak hit "+hit+" players and "+vhit+" vehicles",owner);
+}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+if(type=="sky_racer")
+{
+doing="fall";
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+playsound("sky_racer_nofuel");
+soundtime=sky_racerdie;
+soundtimer.restart();
+}
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+if(z<0)
+{
+falling=false;
+falldist=0;
+z=10;
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(250,500),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+return;
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(doing!="stop"&&falling==false&&speed==0&&tile=="" or tile=="air")
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class sorento : vehicle
+{
+sorento(int pind)
+{
+super("sorento",pind);
+health=players[pind].sorentohealth;
+fuel=players[pind].sorentofuel;
+fueltime=16873;
+soundtime=sorentospawn;soundtimer.restart();
+vmovetime=750;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=sorentostart;
+if(doing=="stop") soundtime=sorentostop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].sorentohealth=health;
+players[index].sorentofuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].sorentofuel=100;
+players[index].sorentohealth=25000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="sorento" ? 25000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("sorento_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("sorento_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class tank : vehicle
+{
+tank(int pind)
+{
+super("tank",pind);
+health=players[pind].tankhealth;
+fuel=players[pind].tankfuel;
+fueltime=16873;
+firetime=7000;
+soundtime=tankspawn;soundtimer.restart();
+vmovetime=765;
+vfueltime=1000;
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=tankstart;
+if(doing=="stop") soundtime=tankstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="firegun"&&firetimer.elapsed>=firetime and map!="store" and speed>0)
+{
+doing="prefire";
+soundtime=tankfire;
+soundtimer.restart();
+playint("tank_artillery_beforeshot",owner);
+return;
+}
+else if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].tankhealth=health;
+players[index].tankfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+speed++;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-1);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+speed--;
+movetime=vmovetime/speed;
+double pi=125;
+double inc=25;
+pi+=inc*(speed-1);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[index].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+spawn_weapon(x,y,z,facing,0,"artillery",players[get_player_index_from(owner)],maps[get_map_index(map)]);
+if(index>-1)
+{
+players[index].tankfuel=100;
+players[index].tankhealth=35000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(30000, 70000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="tank" ? 35000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=50;
+mid=spawn_moving_sound(type+"_engine_ext.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("vestart "+type+"_engine_int.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="prefire")
+{
+firetimer.restart();
+send_dpacketn(6,get_player_index_from(owner),"distsound tank_artillery_fire_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+playext("tank_artillery_fire1_ext"+random(1,4),x,y,z,maps[get_map_index(map)],owner);
+playint("tank_artillery_fire1_int"+random(1,4),owner);
+spawn_weapon(x,y,z,facing,0,"artillery",players[get_player_index_from(owner)],maps[get_map_index(map)]);
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("tank_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("tank_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+class truck : vehicle
+{
+truck(int pind)
+{
+super("truck",pind);
+health=players[pind].truckhealth;
+fuel=players[pind].truckfuel;
+fueltime=16873;
+firetime=6000;
+soundtime=truckspawn;soundtimer.restart();
+vmovetime=740;
+vfueltime=900;
+}
+~truck()
+{
+}
+void command(string cmd,bool force=false,int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd!="repair") playint(type+"_command",owner);
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your vehicle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+else if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=truckstart;
+if(doing=="stop") soundtime=truckstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your vehicle until it is completely off", owner);
+return;
+}
+sendint("veunspawn",owner);
+send_packet(6,"play "+type+"_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].truckhealth=health;
+players[index].truckfuel=fuel;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=vmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("vestop",owner);
+mid=spawn_moving_sound("truck_drive_ext.ogg",x,y,z,map,owner);
+sendint("vestart truck_drive_int.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=vmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("vestop",owner);
+mid=spawn_moving_sound("truck_idle_ext.ogg",x,y,z,map,owner);
+sendint("vestart truck_idle_int.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("vepitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound(type+"_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(health<=0)
+{
+destroy_moving_sound(mid);
+sendint("vestop",owner);
+sendint("veunspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play "+type+"_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_die_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].truckfuel=100;
+players[index].truckhealth=60000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(50000, 50000);
+players[index].hitby="internal:vehicle:"+type;
+}
+spawn_vvehicle(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+vs.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=50000;
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound("truck_idle_ext.ogg",x,y,z,map,owner);
+this.pitch=100;
+sendint("vestart truck_idle_int.ogg 100",owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="prefire")
+{
+playsound("truck_weapon_fire");
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound truck_weapon_fire_dist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+int hit=0;
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==owner or players[i].is_dead or players[i].map!=map or in_vehicle(players[i])>-1 or players[i].afk or is_safe(players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]) or players[i].safe) continue;
+if(get_3d_distance(x,y,z,players[i].x,players[i].y,players[i].z)<=100)
+{
+hit++;
+players[i].hit(25000,30000);
+players[i].should_subtract=false;
+players[i].hitby=owner+"'s truck";
+}
+}
+int vhit=0;
+for(uint i=0; i<vs.length(); i++)
+{
+if(are_teamed(owner,vs[i].owner)) continue;
+if(vs[i].map==map and vs[i].owner!=owner and get_3d_distance(x,y,z,vs[i].x,vs[i].y,vs[i].z)<=100)
+{
+vs[i].hit(random(8000,10000),owner+"'s truck","artillery");
+vhit++;
+}
+}
+if(hit==0&&vhit==0) sendint("speak hit nothing",owner);
+else if(hit>0&&vhit==0) sendint("speak hit "+hit+" players",owner);
+else if(hit>0&&vhit>0) sendint("speak hit "+hit+" players and "+vhit+" vehicles",owner);
+else if(vhit>0&&hit==0) sendint("speak hit "+vhit+" vehicles",owner);
+else sendint("speak hit "+hit+" players and "+vhit+" vehicles",owner);
+firetimer.restart();
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(vfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("lowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("goodfuel",owner);
+sendint("vestop",owner);
+destroy_moving_sound(mid);
+playext("truck_stop_ext",x,y,z,maps[get_map_index(map)],owner);
+playint("truck_stop_int",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(1,4)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].name,"distsound vehicle_c"+random(1,4)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("vestop",owner);
+sendint("goodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("goodfuel",owner);
+}
+}
+}
+int has_vehicle(string who)
+{
+for(uint i=0; i<vvehicles.length(); i++)
+{
+if(vvehicles[i].owner==who)
+{
+return i;
+}
+}
+return -1;
+}

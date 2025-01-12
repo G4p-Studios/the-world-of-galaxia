@@ -1,0 +1,244 @@
+void voicechat(player@p, string message)
+{
+string[] parsed=string_split(message, " ",true);
+if(parsed[0]=="up_voice")
+{
+vlog(p.name+"_tts_chats",string_replace(get_event_message(),"tts "+parsed[1]+" ","",true));
+if(players[get_player_index(e.peer_id)].ds.find("voicechat")>-1)
+{
+send_reliable(p,"Oops! Your voice chat has been disabled.",2);
+return;
+}
+if(string_len(string_trim_left(get_event_message(),9))>(file_size_limit_kb*1024))
+{
+send_reliable(p,"This file is too large. The maximum file size is "+convert_size(file_size_limit_kb*1024)+", and your file is "+convert_size(string_len(string_trim_left(get_event_message(),9))),2);
+return;
+}
+send_packet(5,"voice "+p.x+" "+p.y+" "+p.z+" "+p.map+" "+string_replace(get_event_message(),"up_voice ","",true),p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else if(parsed[0]=="tts")
+{
+vlog(p.name+"_tts_chats",string_replace(get_event_message(),"tts "+parsed[1]+" ","",true));
+if(players[get_player_index(e.peer_id)].ds.find("voicechat")>-1)
+{
+send_reliable(p,"Oops! Your voice chat has been disabled.",2);
+return;
+}
+if(string_len(string_trim_left(get_event_message(),9))>(file_size_limit_kb*1024))
+{
+send_reliable(p,"This file is too large. The maximum file size is "+convert_size(file_size_limit_kb*1024)+", and your file is "+convert_size(string_len(string_trim_left(get_event_message(),9))),2);
+return;
+}
+send_packet(5,"tts "+p.name+" "+p.x+" "+p.y+" "+p.z+" "+p.map+" "+string_replace(get_event_message(),"tts "+parsed[1]+" ","",true),p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(string_to_number(parsed[1])==1) send_packet(0,"ttschat "+p.name+" has sent a "+string_to_number(parsed[1])+" character tts chat on "+get_date()+" at "+get_time()+"",p.x,p.y,p.z,maps[get_map_index(p.map)]);
+else if(string_to_number(parsed[1])>1) send_packet(0,"ttschat "+p.name+" has sent a "+string_to_number(parsed[1])+" characters tts chat on "+get_date()+" at "+get_time()+"",p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else if(parsed[0]=="voice")
+{
+vlog(p.name+"_voices",string_replace(get_event_message(),"voice "+parsed[1]+" ","",true));
+if(players[get_player_index(e.peer_id)].ds.find("voicechat")>-1)
+{
+send_reliable(p,"Oops! Your voice chat has been disabled.",2);
+return;
+}
+if(string_len(string_trim_left(get_event_message(),9))>(file_size_limit_kb*1024))
+{
+send_reliable(p,"This file is too large. The maximum file size is "+convert_size(file_size_limit_kb*1024)+", and your file is "+convert_size(string_len(string_trim_left(get_event_message(),9))),2);
+return;
+}
+send_packet(5,"voice "+p.name+" "+p.x+" "+p.y+" "+p.z+" "+p.map+" "+string_replace(get_event_message(),"voice "+parsed[1]+" ","",true),p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(string_to_number(parsed[1])>=1000)send_packet(0,"voicechat "+p.name+" has sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" voice chat on "+get_date()+" at "+get_time()+"",p.x,p.y,p.z,maps[get_map_index(p.map)]);
+else if(string_to_number(parsed[1])<1000)send_packet(0,"voicechat "+p.name+" has sent a "+string_to_number(parsed[1])+" milliseconds voice chat on "+get_date()+" at "+get_time()+"",p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else if(parsed[0]=="pvoice")
+{
+vlog(p.name+"_voices",string_replace(get_event_message(),"voice "+parsed[1]+" "+parsed[2]+" ","",true));
+if(players[get_player_index(e.peer_id)].ds.find("voicechat")>-1)
+{
+send_reliable(p,"Oops! Your voice chat has been disabled.",2);
+return;
+}
+if(string_len(string_trim_left(get_event_message(),9))>(file_size_limit_kb*1024))
+{
+send_reliable(p,"This file is too large. The maximum file size is "+convert_size(file_size_limit_kb*1024)+", and your file is "+convert_size(string_len(string_trim_left(get_event_message(),9))),2);
+return;
+}
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==parsed[2])
+{
+if(string_to_lower_case(players[i].name)==string_to_lower_case(p.name))
+{
+send_reliable(p,"you can't send voice chat to yourself",2);
+return;
+}
+if(players[i].is_muted(p.name))
+{
+send_reliable(p,"Error: "+players[i].name+" muted you",2);
+return;
+}
+send_packetn3(5,players[i].name,"voice2 "+p.name+" "+string_replace(get_event_message(),"pvoice "+parsed[1]+" "+parsed[2]+" ","",true));
+if(string_to_number(parsed[1])>=1000)send_reliable(p,"voicechat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" private voice chat to "+players[i].name+" on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(p,"voicechat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" private voice chat to "+players[i].name+" on "+get_date()+" at "+get_time()+"",0);
+if(string_to_number(parsed[1])>=1000)send_reliable(players[i],"voicechat "+p.name+" has sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" private voice chat to you on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(players[i],"voicechat "+p.name+" has sent a "+string_to_number(parsed[1])+" milliseconds private voice chat to you on "+get_date()+" at "+get_time()+"",0);
+}
+}
+}
+else if(parsed[0]=="tvoice")
+{
+vlog(p.name+"_voices",string_replace(get_event_message(),"voice "+parsed[1]+" ","",true));
+if(players[get_player_index(e.peer_id)].ds.find("voicechat")>-1)
+{
+send_reliable(p,"Oops! Your voice chat has been disabled.",2);
+return;
+}
+if(string_len(string_trim_left(get_event_message(),9))>(file_size_limit_kb*1024))
+{
+send_reliable(p,"This file is too large. The maximum file size is "+convert_size(file_size_limit_kb*1024)+", and your file is "+convert_size(string_len(string_trim_left(get_event_message(),9))),2);
+return;
+}
+for(uint i=0; i<players.length(); i++)
+{
+if(p.name!=players[i].name and are_teamed(p.name,players[i].name))
+{
+if(players[i].is_muted(p.name))
+{
+send_reliable(p,"Error: "+players[i].name+" muted you",2);
+return;
+}
+send_packetn3(5,players[i].name,"voice2 "+p.name+" "+string_replace(get_event_message(),"tvoice "+parsed[1]+" ","",true));
+if(string_to_number(parsed[1])>=1000)send_reliable(p,"voicechat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" team voice chat to your team on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(p,"voicechat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" team voice chat to your team on "+get_date()+" at "+get_time()+"",0);
+if(string_to_number(parsed[1])>=1000)send_reliable(players[i],"voicechat "+p.name+" has sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" team voice chat on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(players[i],"voicechat "+p.name+" has sent a "+string_to_number(parsed[1])+" milliseconds team voice chat on "+get_date()+" at "+get_time()+"",0);
+}
+}
+}
+else if(parsed[0]=="prvoice")
+{
+vlog(p.name+"_voices",string_replace(get_event_message(),"prvoice "+parsed[1]+" ","",true));
+if(players[get_player_index(e.peer_id)].ds.find("voicechat")>-1)
+{
+send_reliable(p,"Oops! Your voice chat has been disabled.",2);
+return;
+}
+if(string_len(string_trim_left(get_event_message(),9))>(file_size_limit_kb*1024))
+{
+send_reliable(p,"This file is too large. The maximum file size is "+convert_size(file_size_limit_kb*1024)+", and your file is "+convert_size(string_len(string_trim_left(get_event_message(),9))),2);
+return;
+}
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==p.partner)
+{
+if(players[i].is_muted(p.name))
+{
+send_reliable(p,"Error: "+players[i].name+" muted you",2);
+return;
+}
+send_packetn3(5,players[i].name,"voice2 "+p.name+" "+string_replace(get_event_message(),"prvoice "+parsed[1]+" ","",true));
+if(string_to_number(parsed[1])>=1000)send_reliable(p,"voicechat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" partner voice chat on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(p,"voicechat you've sent a "+string_to_number(parsed[1])+" milliseconds partner voice chat on "+get_date()+" at "+get_time()+"",0);
+if(string_to_number(parsed[1])>=1000)send_reliable(players[i],"voicechat "+p.name+" has sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" partner voice chat on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(players[i],"voicechat "+p.name+" has sent a "+string_to_number(parsed[1])+" milliseconds partner voice chat on "+get_date()+" at "+get_time()+"",0);
+}
+}
+}
+else if(parsed[0]=="ptts")
+{
+vlog(p.name+"_ttss",string_replace(get_event_message(),"tts "+parsed[1]+" ","",true));
+if(players[get_player_index(e.peer_id)].ds.find("ttschat")>-1)
+{
+send_reliable(p,"Oops! Your tts chat has been disabled.",2);
+return;
+}
+if(string_len(string_trim_left(get_event_message(),9))>(file_size_limit_kb*1024))
+{
+send_reliable(p,"This file is too large. The maximum file size is "+convert_size(file_size_limit_kb*1024)+", and your file is "+convert_size(string_len(string_trim_left(get_event_message(),9))),2);
+return;
+}
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==parsed[2])
+{
+if(string_to_lower_case(players[i].name)==string_to_lower_case(p.name))
+{
+send_reliable(p,"you can't send tts chat to yourself",2);
+return;
+}
+if(players[i].is_muted(p.name))
+{
+send_reliable(p,"Error: "+players[i].name+" muted you",2);
+return;
+}
+send_packetn3(5,players[i].name,"tts2 "+p.name+" "+string_replace(get_event_message(),"ptts "+parsed[1]+" ","",true));
+if(string_to_number(parsed[1])>=1000)send_reliable(p,"ttschat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" private tts chat to "+players[i].name+" on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(p,"ttschat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" private tts chat to "+players[i].name+" on "+get_date()+" at "+get_time()+"",0);
+if(string_to_number(parsed[1])>=1000)send_reliable(players[i],"ttschat "+p.name+" has sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" private tts chat to you on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(players[i],"ttschat "+p.name+" has sent a "+string_to_number(parsed[1])+" characters private tts chat to you on "+get_date()+" at "+get_time()+"",0);
+}
+}
+}
+else if(parsed[0]=="ttts")
+{
+vlog(p.name+"_ttss",string_replace(get_event_message(),"tts "+parsed[1]+" ","",true));
+if(players[get_player_index(e.peer_id)].ds.find("ttschat")>-1)
+{
+send_reliable(p,"Oops! Your tts chat has been disabled.",2);
+return;
+}
+if(string_len(string_trim_left(get_event_message(),9))>(file_size_limit_kb*1024))
+{
+send_reliable(p,"This file is too large. The maximum file size is "+convert_size(file_size_limit_kb*1024)+", and your file is "+convert_size(string_len(string_trim_left(get_event_message(),9))),2);
+return;
+}
+for(uint i=0; i<players.length(); i++)
+{
+if(p.name!=players[i].name and are_teamed(p.name,players[i].name))
+{
+if(players[i].is_muted(p.name))
+{
+send_reliable(p,"Error: "+players[i].name+" muted you",2);
+return;
+}
+send_packetn3(5,players[i].name,"tts2 "+p.name+" "+string_replace(get_event_message(),"ttts "+parsed[1]+" ","",true));
+if(string_to_number(parsed[1])>=1000)send_reliable(p,"ttschat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" team tts chat to your team on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(p,"ttschat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" team tts chat to your team on "+get_date()+" at "+get_time()+"",0);
+if(string_to_number(parsed[1])>=1000)send_reliable(players[i],"ttschat "+p.name+" has sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" team tts chat on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(players[i],"ttschat "+p.name+" has sent a "+string_to_number(parsed[1])+" characters team tts chat on "+get_date()+" at "+get_time()+"",0);
+}
+}
+}
+else if(parsed[0]=="prtts")
+{
+vlog(p.name+"_ttss",string_replace(get_event_message(),"tts "+parsed[1]+" "+parsed[2]+" ","",true));
+if(players[get_player_index(e.peer_id)].ds.find("ttschat")>-1)
+{
+send_reliable(p,"Oops! Your tts chat has been disabled.",2);
+return;
+}
+if(string_len(string_trim_left(get_event_message(),9))>(file_size_limit_kb*1024))
+{
+send_reliable(p,"This file is too large. The maximum file size is "+convert_size(file_size_limit_kb*1024)+", and your file is "+convert_size(string_len(string_trim_left(get_event_message(),9))),2);
+return;
+}
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==p.partner)
+{
+if(players[i].is_muted(p.name))
+{
+send_reliable(p,"Error: "+players[i].name+" muted you",2);
+return;
+}
+send_packetn3(5,players[i].name,"tts2 "+p.name+" "+string_replace(get_event_message(),"prtts "+parsed[1]+" ","",true));
+if(string_to_number(parsed[1])>=1000)send_reliable(p,"ttschat you've sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" partner tts chat on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(p,"ttschat you've sent a "+string_to_number(parsed[1])+" characters partner tts chat on "+get_date()+" at "+get_time()+"",0);
+if(string_to_number(parsed[1])>=1000)send_reliable(players[i],"ttschat "+p.name+" has sent a "+ms_to_readable_time(string_to_number(parsed[1]))+" partner tts chat on "+get_date()+" at "+get_time()+"",0);
+else if(string_to_number(parsed[1])<1000)send_reliable(players[i],"ttschat "+p.name+" has sent a "+string_to_number(parsed[1])+" characters partner tts chat on "+get_date()+" at "+get_time()+"",0);
+}
+}
+}
+
+}

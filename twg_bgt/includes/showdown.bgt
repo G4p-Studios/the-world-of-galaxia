@@ -1,0 +1,422 @@
+sound rolling2;
+void showdownmain()
+{
+gametimer.pause();
+ophit.load("showdownracket.ogg");
+opmove.load("showdownmove.ogg");
+rolling.load("showdownball1.ogg");
+rolling2.load("showdownball2.ogg");
+showdowngame();
+}
+void showdowngame()
+{
+yourturn=1;
+if (loaded==0)
+{
+add_buffer_item("entertainment_center", "lets start!");
+gametimer.restart();
+}
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if (key_pressed(KEY_T))
+{
+ttime.set_timer(gametimer);
+add_buffer_item("entertainment_center", ""+ttime.m()+" minutes, "+ttime.s()+" seconds");
+}
+if (key_pressed(KEY_HOME))
+{
+set_sound_master_volume(sound_master_volume+2);
+}
+if (key_pressed(KEY_END) and sound_master_volume>=-40)
+{
+set_sound_master_volume(sound_master_volume-2);
+}
+if (score>=finalscore)
+{
+gametimer.pause();
+p.play_stationary("crowdwon.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw crowdwon.ogg",7);
+showdownstopsounds();
+dialogs("your final score, "+pscore+"\r\nyour opponent's final score, "+opscore+"\r\ntotal hits of the ball, "+totalhits+"\r\ngame length, "+ms_to_readable_time(gametimer.elapsed)+"");
+gametimer.force(0);
+compserve=0;
+totalhits=0;
+ loaded=0;
+chancechosen=1;
+yourturn=1;
+opscore=0;
+ pscore=0;
+entertainment_centermenu();
+return;
+}
+if (opscore>=finalscore)
+{
+gametimer.pause();
+p.play_stationary("crowdepicfail"+random(1,2)+".ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw crowdepicfail"+random(1,2)+".ogg",7);
+showdownstopsounds();
+dialogs("your final score, "+pscore+"\r\nyour opponent's final score, "+opscore+"\r\ntotal hits of the ball, "+totalhits+"\r\ngame length, "+ms_to_readable_time(gametimer.elapsed)+"");
+gametimer.force(0);
+compserve=0;
+totalhits=0;
+ loaded=0;
+chancechosen=1;
+yourturn=1;
+opscore=0;
+ pscore=0;
+entertainment_centermenu();
+return;
+}
+if (ballon==1 and balltimer.elapsed>=ballspeed)
+{
+balltimer.restart();
+if (balldir==1)
+{
+if (bally==20)
+{
+p.play_stationary("showdowngoal.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw showdowngoal.ogg",7);
+rolling.stop();
+rolling2.stop();
+ballon=0;
+ballspeed=defballspeed;
+ballxspeed=defballxspeed;
+ballhits=0;
+if (compserve==0)
+{
+compserve=1;
+}
+else if (compserve==1)
+{
+compserve=0;
+}
+yourturn=1;
+score+=1;
+wait(3500);
+add_buffer_item("entertainment_center", "scores. "+score+"/"+opscore);
+wait(600);
+}
+if (bally<=20)
+{
+bally+=1;
+}
+}
+if (balldir==0)
+{
+if (bally==0)
+{
+p.play_stationary("showdowngoal.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw showdowngoal.ogg",7);
+rolling.stop();
+rolling2.stop();
+yourturn=1;
+ballspeed=defballspeed;
+ballspeed=defballspeed;
+ballxspeed=defballxspeed;
+ballhits=0;
+ballon=0;
+if (compserve==0)
+{
+compserve=1;
+}
+else if (compserve==1)
+{
+compserve=0;
+}
+opscore+=1;
+wait(3500);
+add_buffer_item("entertainment_center", "scores. "+score+"/"+opscore);
+wait(600);
+}
+if (bally<=20)
+{
+bally-=1;
+}
+}
+}
+if (compserve==1 and ballon==0)
+{
+opx=random(0,20);
+rerandomize();
+ballx=opx;
+bally=opy;
+ballon=1;
+balldir=0;
+ophit.stop();
+ophit.play();
+int c=random(1,2);
+if(c==1) rolling.play_looped();
+else rolling2.play_looped();
+yourturn=1;
+}
+if (ballxdir==1 and ballxtimer.elapsed>=ballxspeed and ballon==1)
+{
+ballxtimer.restart();
+ballx+=1;
+}
+if (ballxdir==0 and ballxtimer.elapsed>=ballxspeed)
+{
+ballxtimer.restart();
+ballx-=1;
+}
+if (ballx>=20 and ballxdir==1)
+{
+ballhit.load("showdownhitwall.ogg");
+ballhit.stop();
+ballhit.play();
+ballxdir=0;
+}
+if (ballx<=0 and ballxdir==0)
+{
+ballhit.load("showdownhitwall.ogg");
+ballhit.stop();
+ballhit.play();
+ballxdir=1;
+}
+if (yourturn==0 and optimer.elapsed>=opspeed)
+{
+optimer.restart();
+opspeed=random(140,380);
+if (ballx<opx)
+{
+opmove.stop();
+opmove.play();
+opx-=1;
+}
+else if (ballx>opx)
+{
+opmove.stop();
+opmove.play();
+opx+=1;
+}
+if (ballx==opx)
+{
+if (bally>=19)
+{
+ophit.stop();
+ophit.play();
+ballhits+=1;
+if (ballhits>15)
+{
+p.play_stationary("crowdok"+random(1,2)+".ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw crowdok"+random(1,2)+".ogg",7);
+}
+balldir=0;
+yourturn=1;
+if (ballspeed>=90)
+{
+ballspeed-=10;
+}
+if (ballxspeed>=60)
+{
+ballxspeed-=5;
+}
+}
+}
+}
+if (key_pressed(KEY_LEFT))
+{
+if (bx==0)
+{
+p.play_stationary("showdownrackethitwall.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw showdownrackethitwall.ogg",7);
+}
+if (bx>0)
+{
+p.play_stationary("showdownmove.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw showdownmove.ogg",7);
+bx-=1;
+}
+}
+if (key_pressed(KEY_RIGHT))
+{
+if (bx==20)
+{
+p.play_stationary("showdownrackethitwall.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw showdownrackethitwall.ogg",7);
+}
+if (bx<20)
+{
+p.play_stationary("showdownmove.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw showdownmove.ogg",7);
+bx+=1;
+}
+}
+if (key_pressed(KEY_UP))
+{
+if (ballon==1)
+{
+if (bally<=2 and balldir==0)
+{
+if (ballx<=bx+1 and ballx>=bx-1)
+{
+p.play_stationary("showdownracket.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw showdownracket.ogg",7);
+balldir=1;
+totalhits+=1;
+if (ballspeed>=90)
+{
+ballspeed-=10;
+}
+if (ballxspeed>=60)
+{
+ballxspeed-=5;
+}
+totalhits+=1;
+ballhits+=1;
+if (ballhits>15)
+{
+p.play_stationary("crowdok"+random(1,2)+".ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw crowdok"+random(1,2)+".ogg",7);
+}
+yourturn=0;
+}
+}
+}
+if (ballon==0 and compserve==0)
+{
+rerandomize();
+ballx=bx;
+bally=by;
+ballon=1;
+balldir=1;
+p.play_stationary("showdownracket.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw showdownracket.ogg",7);
+int c2=random(1,2);
+if(c2==1) rolling.play_looped();
+else rolling2.play_looped();
+yourturn=0;
+}
+}
+if(key_pressed(KEY_S))
+{
+add_buffer_item("entertainment_center", "scores: "+score+"/"+opscore+"");
+}
+if(key_pressed(KEY_ESCAPE))
+{
+showdownstopsounds();
+dialogs("your final score, "+pscore+"\r\nyour opponent's final score, "+opscore+"\r\ntotal hits of the ball, "+totalhits+"\r\ngame length, "+ms_to_readable_time(gametimer.elapsed)+"");
+gametimer.force(0);
+compserve=0;
+totalhits=0;
+ loaded=0;
+chancechosen=1;
+yourturn=1;
+opscore=0;
+ pscore=0;
+entertainment_centermenu();
+return;
+}
+showdownpositions();
+wait(5);
+}
+}
+void showdownpositions()
+{
+p.update_listener_3d(bx, by, 0, calculate_theta(facing));
+position_sound_2d(ballhit, bx, by, ballx, bally, 0, 1, 1, 0, 0.0, 0.0, 100.0);
+position_sound_2d(rolling, bx, by, ballx, bally, 0, 1, 1, 0, 0.0, 0.0, 100.0);
+position_sound_2d(rolling2, bx, by, ballx, bally, 0, 1, 1, 0, 0.0, 0.0, 100.0);
+position_sound_2d(opmove, bx, by, opx, opy, 0, 1, 1, 0, 0.0, 0.0, 100.0);
+position_sound_2d(ophit, bx, by, opx, opy, 0, 1, 1, 0, 0.0, 0.0, 100.0);
+}
+void showdownstopsounds()
+{
+p.destroy_all();
+rolling.stop();
+rolling2.stop();
+}

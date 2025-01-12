@@ -1,0 +1,194 @@
+mapname:main
+minx:-1
+maxx:200
+miny:0
+maxy:350
+minz:-250
+maxz:150
+tile:0:200:0:350:0:0:0:100:concrete4
+owner:mahdi
+litem:1
+starting_point:0:100:0:100:0:0
+deathpoint:0:100:0:100:0:0
+zone:0:200:0:350:0:100:New Rofl City
+tile:50:60:0:40:0:100:0:100:wall
+travelpoint:0:49:0:0:0:0:safezone_yard:0:99:0:welcome back:silence.ogg:silence.ogg:silence.ogg
+zone:0:49:0:0:0:10:entrance to go back:trackme
+src:1:49:0:0:0:100:0:100:birds20.ogg
+src:0:49:0:40:0:100:0:100:birds95.ogg
+tile:100:100:0:100:0:100:0:100:wall
+tile:61:99:0:40:0:0:0:100:rocks
+src:61:99:0:40:0:100:0:100:birds76.ogg
+tile:5:99:40:70:0:0:0:100:concrete32
+zone:5:99:40:70:0:10:Madson Lane:trackme
+tile:5:99:40:44:0:0:0:100:metal15
+zone:5:99:40:44:0:10:pit
+tile:0:200:0:350:-240:-1:0:100:wall
+tile:5:99:41:43:-3:0:0:100:air
+tile:5:99:41:43:-3:-3:0:100:puddle
+zone:5:99:41:43:-3:-1:inside the pit
+tile:5:99:42:42:0:0:0:100:metal13
+tile:5:99:66:70:0:0:0:100:metal15
+zone:5:99:66:70:0:10:pit
+tile:5:99:67:69:-3:0:0:100:air
+tile:5:99:67:69:-3:-3:0:100:puddle
+zone:5:99:67:69:-3:-1:inside the pit
+tile:5:99:68:68:0:0:0:100:metal13
+src:5:99:40:70:0:100:0:100:city_a2.ogg
+tile:0:4:40:70:0:0:0:100:concrete18
+zone:0:4:40:70:0:10:sidewalk:trackme
+src:0:4:40:70:0:100:0:100:birds76.ogg
+tile:0:99:101:200:0:0:0:100:concrete2
+src:0:99:71:200:0:100:0:100:village_a2.ogg
+tile:100:200:40:40:0:100:0:100:wall
+tile:100:200:70:70:0:100:0:100:wall
+tile:100:199:41:69:0:0:0:100:concrete21
+zone:100:150:41:69:0:10:highway:trackme
+src:100:150:41:69:0:100:0:100:highway_a1.ogg
+tile:101:200:101:200:0:0:0:100:grass3
+tile:151:200:0:349:0:0:0:100:leaves
+tile:151:200:0:50:0:0:0:100:dirt14
+tile:101:200:140:180:0:50:0:100:wallgrass
+tile:101:101:140:180:0:50:0:100:grass2
+tile:101:200:140:140:0:50:0:100:grass2
+tile:200:200:140:180:0:50:0:100:grass2
+tile:101:200:180:180:0:50:0:100:grass2
+tile:101:200:140:180:50:50:0:100:grass2
+src:100:180:100:200:0:100:0:100:jungle3.ogg
+zone:49:131:250:341:0:100:Inside of the General tower, first floor
+tile:50:151:249:349:0:0:0:100:concrete2
+zone:50:51:249:349:0:20:entrance to the general tower
+tile:50:130:250:340:0:0:0:100:wood7
+tile:52:130:249:249:0:200:0:100:wallbuilding
+tile:131:131:249:340:0:100:0:100:wallbuilding4
+tile:50:131:341:341:0:100:0:100:wallbuilding2
+tile:49:49:249:341:0:100:0:100:wallglass3
+tile:50:50:340:340:0:20:0:100:roof2
+tile:50:130:250:340:20:20:0:100:wood7
+zone:50:130:249:351:20:39:second flor
+tile:70:70:250:250:21:40:0:100:roof3
+tile:50:130:250:340:40:40:0:100:wood7
+zone:50:130:249:341:40:59:Third floor.:trackme
+tile:130:130:340:340:41:60:0:100:roof
+zone:50:130:249:341:60:79:Fourth floor
+tile:50:130:250:340:60:60:0:100:wood7
+tile:50:51:250:350:61:80:0:100:roof2
+zone:50:130:249:341:80:99:Fifth floor
+tile:50:130:250:340:80:80:0:100:wood7
+tile:90:90:300:300:81:110:0:100:roof3
+tile:50:130:250:340:110:110:0:100:wood6
+zone:50:130:250:340:110:130:on the roof of the general tower
+src:50:130:250:340:110:130:calm.ogg
+zone:90:90:300:300:81:109:stairs to rooff
+zone:50:51:250:250:61:79:stairs to fifth floor
+zone:130:130:340:340:41:59:stairs to fourth floor
+zone:70:70:250:250:21:39:stairs to third floor
+zone:50:50:340:340:0:19:stairs to second florr
+tile:50:50:220:344:110:110:0:100:gravel3
+tile:54:70:220:220:110:110:0:100:gravel3
+tile:70:70:200:216:110:110:0:100:broken_glass
+tile:40:64:200:200:110:110:0:100:dirt6
+tile:40:40:190:198:110:110:0:100:dirt6
+tile:40:40:202:230:110:110:0:100:dirt3
+tile:40:46:232:232:110:110:0:100:dirt6
+src:50:130:250:350:0:150:0:100:room3.ogg
+src:0:48:201:350:0:150:0:100:forest2.ogg
+tile:0:48:201:350:0:0:0:100:gravel2
+tile:0:200:342:350:0:0:0:100:concrete6
+zone:0:200:342:350:0:10:near a road
+src:0:200:342:350:0:150:0:100:jungle_a5.ogg
+tile:132:200:201:342:0:0:0:100:concrete34
+zone:132:200:201:342:0:0:downtown:trackme
+src:132:200:201:342:0:150:0:100:birds35.ogg
+src:132:200:201:342:0:150:0:100:birds36.ogg
+tile:140:150:70:100:0:0:0:100:concrete30
+src:140:150:71:100:0:100:0:100:city_a3.ogg
+zone:140:150:71:100:0:100:a naro streat:trackme
+src:151:180:0:100:0:100:0:100:birds15.ogg
+src:151:180:0:100:0:100:0:100:birds11.ogg
+src:181:200:0:349:0:100:0:100:birds86.ogg
+src:181:200:0:349:0:100:0:100:birds31.ogg
+src:200:200:1:349:0:100:0:100:rain10.ogg
+src:200:200:1:349:0:100:0:100:jungle4.ogg
+src:101:150:0:40:0:100:0:100:night1.ogg
+tile:101:150:0:39:0:0:0:100:weed
+zone:200:200:0:349:0:10:Daintree Rainforest entrance:trackme
+travelpoint:200:200:0:349:0:0:Daintree_Rainforest:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+tile:3:3:51:55:0:5:0:100:concrete8
+zone:3:3:51:55:0:5:super market stairs:trackme
+tile:0:3:51:55:5:5:0:100:concrete9
+zone:0:2:51:55:5:15:near super market
+zone:0:0:51:55:5:5:super market door. Press shift enter to go inside:trackme
+travelpoint:0:0:51:55:5:5:super_market:50:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+tile:-1:-1:0:350:-250:150:0:100:wall
+tile:-1:-1:51:70:0:10:0:100:wallglass3
+travelpoint:0:0:57:59:0:0:clothing_store:35:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+zone:0:0:57:59:0:10:clothing store door. Press shift enter to go inside:trackme
+zone:0:0:61:62:0:10:medical store door. Press shift enter to go inside:trackme
+zone:0:0:64:66:0:10:fruit store door. Press shift enter to go inside:trackme
+zone:0:0:68:69:0:10:household store door. Press shift enter to go inside:trackme
+travelpoint:0:0:61:62:0:0:medical_store:25:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+src:-1:-1:57:59:0:10:0:100:house2.ogg
+src:-1:-1:61:62:0:10:0:100:calm.ogg
+src:-1:-1:61:62:0:10:0:100:bar2.ogg
+src:-1:-1:51:55:3:10:-10:100:vent.ogg
+travelpoint:0:0:64:66:0:0:fruit_store:55:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+travelpoint:0:0:68:69:0:0:household_store:40:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+src:-1:-1:64:66:0:10:0:100:calm.ogg
+src:-1:-1:68:69:0:10:0:100:calm.ogg
+src:51:131:201:248:0:150:0:100:jungle2.ogg
+tile:51:131:201:248:0:0:0:100:packed_leaves
+src:50:131:201:248:0:100:0:100:night1.ogg
+tile:181:200:201:340:0:0:0:100:shortgrass
+travelpoint:150:150:220:220:0:0:weapon_store:0:0:55:welcome:silence.ogg:silence.ogg:silence.ogg
+zone:150:150:220:220:0:10:weapon and explosive store door. Press shift enter to go inside:trackme
+src:150:150:220:220:0:10:0:100:calm.ogg
+src:101:150:71:100:0:100:0:100:birds25.ogg
+zone:140:140:220:220:0:10:vehicle store door. Press shift enter to go inside:trackme
+zone:145:145:220:220:0:10:team store door. Press shift enter to go inside:trackme
+zone:155:155:220:220:0:10:misc store door. Press shift enter to go inside:trackme
+src:140:140:220:220:0:10:0:100:calm.ogg
+src:145:145:220:220:0:10:0:100:calm.ogg
+src:155:155:220:220:0:10:0:100:calm.ogg
+travelpoint:145:145:220:220:0:0:team_store:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+travelpoint:140:140:220:220:0:0:vehicle_store:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+travelpoint:155:155:220:220:0:0:misc_store:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+zone:150:150:235:235:0:10:entertainment center door. Press shift enter to go inside:trackme
+src:150:150:235:235:0:10:0:100:calm.ogg
+travelpoint:150:150:235:235:0:0:entertainment_center:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+zone:140:140:235:235:0:10:civil registry office door. Press shift enter to go inside:trackme
+src:140:140:235:235:0:10:0:100:calm.ogg
+travelpoint:140:140:235:235:0:0:civil_registry_office:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+zone:160:160:235:235:0:10:employment agency door. Press shift enter to go inside:trackme
+src:160:160:235:235:0:10:0:100:calm.ogg
+travelpoint:160:160:235:235:0:0:employment_agency:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+zone:170:170:235:235:0:0:bank door. Press shift enter to go inside:trackme
+src:170:170:235:235:0:0:0:100:people2.ogg
+src:170:170:235:235:0:0:0:100:people3.ogg
+travelpoint:170:170:235:235:0:0:bank:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+travelpoint:140:140:250:250:0:0:night_club:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+zone:140:140:250:250:0:0:night club entrance. Press shift enter to go inside:trackme
+src:140:140:250:250:0:10:0:100:party_crowd.ogg
+src:140:140:250:250:0:10:0:100:party_music.ogg
+src:0:200:350:350:0:10:0:100:birds37.ogg
+zone:0:200:350:350:0:10:to go to a road, press shift enter:trackme
+travelpoint:0:200:350:350:0:0:road:0:0:0:You enter the road:silence.ogg:silence.ogg:silence.ogg
+owner:deborah
+travelpoint:150:150:250:250:0:0:phone_booth:0:0:0:welcome:door1s.ogg:door20open.ogg:door20close.ogg
+zone:150:150:250:250:0:10:phone booth door. Press shift enter to go inside:trackme
+src:150:150:250:250:0:10:0:100:calm.ogg
+travelpoint:175:175:236:236:0:0:coffee_shop:26:0:0:welcome:door1s.ogg:door20open.ogg:door20close.ogg
+zone:175:175:236:236:0:10:coffee shop entrance. Press shift enter to go:trackme
+src:175:175:236:236:0:10:0:100:cafe.ogg
+src:175:175:236:236:0:10:0:100:calm.ogg
+enable:disasters
+travelpoint:134:134:294:294:0:0:restaurant:1:1:0:welcome:silence.ogg:entering_glass1.ogg:exiting_glass1.ogg
+zone:134:134:294:294:0:10:restaurant entrance:trackme
+src:134:134:294:294:0:10:-16:100:restaurant4.ogg
+travelpoint:172:172:44:44:0:0:cemetery:0:0:0:welcome:silence.ogg:door106open.ogg:door106close.ogg
+zone:172:172:44:44:0:10:cemetery entrance:trackme
+src:172:172:44:44:0:10:0:100:birds2.ogg
+src:172:172:44:44:0:10:0:100:birds14.ogg
+
+tile:0:2:51:55:0:4:0:100:wall
+owner:mad-gamer

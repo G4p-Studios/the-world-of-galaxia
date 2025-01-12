@@ -1,0 +1,98 @@
+tts_voice s; //If you want to use default tts for some reason...
+sound dlgaudio;
+sound lmusic; //The main background music track useable in levels.
+int lmusicv=-10; //The volume of the music, held independently so that we can have music volume save.
+string track; //The track being played.
+void music_new(string track,int vol, string tname="")
+{
+if(lmusic.playing)
+{
+music_stop();
+}
+lmusic.load(""+track+"");
+lmusicv=vol;
+lmusic.volume=lmusicv;
+track=tname;
+music_loop();
+}
+void music_loop()
+{
+lmusic.play_looped();
+}
+void music_play()
+{
+//lmusic.mplay();
+}
+void music_stop()
+{
+lmusic.stop();
+}
+void music_voldown(int amount)
+{
+lmusicv-=amount;
+lmusic.volume=lmusicv;
+}
+void music_volup(int amount)
+{
+lmusicv+=amount;
+lmusic.volume=lmusicv;
+}
+void music_pause()
+{
+lmusic.pause();
+}
+void music_resume()
+{
+music_loop();
+}
+void music_fade(int time,int final)
+{
+//Please note: Currently, there's no way to do this in game without freezing everything. Sound_sources will still play, but everything will stop moving and looping.
+timer t;
+while(true)
+{
+wait(5);
+if(t.elapsed>=time)
+{
+t.restart();
+if(final==lmusicv)
+{
+break;
+}
+if(final>lmusicv) lmusicv++;
+if(final<lmusicv) lmusicv--;
+lmusic.volume=lmusicv;
+}
+}
+}
+
+//Some pool related functions.
+void mplay(string sound, bool loop=false)
+{
+p.play_stationary_extended(""+sound+"",loop,0,0,0,100);
+}
+void sound_stop_all()
+{
+p.pause_all();
+}
+void sound_resume_all()
+{
+p.resume_all();
+}
+void sound_purge()
+{
+p.destroy_all();
+}
+//tts stuff.
+void v_speak(string message)
+{
+s.speak(message);
+}
+void v_speak_now(string message)
+{
+s.speak_interrupt(message);
+}
+void v_stop()
+{
+s.stop();
+}

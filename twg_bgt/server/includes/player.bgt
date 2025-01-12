@@ -1,0 +1,2595 @@
+player@[] players(0);
+string [] bones={"head","knee","left hand","right hand","arm","forearm","thumb","ankle","back","elbow","hip","waist","chest","chin","left foot","right foot","left leg","right leg","neck","nose","shoulder","stomach","left wrist","right wrist","forehead","thigh","shin","instep","jaw","jawbone","mandible","cheekbone"};
+string[] drunkmsglist={"awwwwwwwwwwwwwwww","asjgasokgjasgksgjskgsjgskgjsgsg","awkjsjkflflflflrlrorpeoewp","my head is spinning! ouch ouch ouch! awwhwhwhwhwhw","ajsfkasfjsafasfjasfkasjfksdfjskdfajfkjskfjsaf","aw awwkwe","muhahahahahahahahahaha","wahahahahahahaha"};
+string[] randsounds={"alarm"+random(1,20)+"","burp"+random(1,3)+"","tiger_kill"};
+class player
+{
+int x,y,z;
+int pvpd;
+string oldmap;
+string computer_id;
+string englishmessage;
+string version;
+string lasthit;
+string nickname;
+string map, vmap, mapavoltar="";
+string replyname;
+string langchan="English";
+string mhd, anotado, cidadenatal, draw;
+string tarma="soco.ogg";
+string muted;
+string trusted;
+string flag;
+string team_invited;
+string invite;
+string teamname;
+string sellitem;
+string sugando;
+string nsugador;
+string rid="";
+string job;
+string onmsg="an anonymous person just came online", offmsg="an anonymous person just went offline", status="no status message has been set";
+string shitem;
+string following="",follower="";
+bool following_on=false;
+string looking="",looker="";
+bool looking_on=false;
+bool bone_break=false;
+string bonebreak;
+int roll_bandage=0;
+int advanced_bone_repair_kit=0;
+int bone_level=0;
+int maxbone_level=1000;
+bool movedbyadmin=false;
+bool cp=false;
+double cx,cy,cz;
+string cmap;
+string partner;
+string ex_partner;
+int gender;
+string country="";
+int age=0;
+int giftlimit=0;
+int day, month, year;
+string gender2;
+int nuclearbombspawned;
+string editline, removeline, removeowner, aieditline, airemoveline, aitoedit, aitoremove, fadtoedit, drawsoundseditline, drawsoundsremoveline, itemusagelimiteditline, itemusagelimitremoveline;
+dictionary inv;
+int car_id;
+int damage=0, defense=0, id;
+int contabancaria=0;
+double balance=0, nconta, vconta;
+int readolmsg=1;
+int invs=0, invs2=0;
+int ppeixe=0;
+int sky_racerfuel=100, sky_racerhealth=25000, sorentofuel=100, sorentohealth=25000, fordfuel=100, fordhealth=30000, v4_by_4_jeepfuel=100, v4_by_4_jeephealth=35000, dodge_chargerfuel=100, dodge_chargerhealth=22000, doom_buggyfuel=100, doom_buggyhealth=24000, ford_pickup_truckfuel=100, ford_pickup_truckhealth=32000, mlk_mission_cruiserfuel=100, mlk_mission_cruiserhealth=45000, tankfuel=100, tankhealth=35000, m60_tankfuel=100, m60_tankhealth=40000, grayhound_busfuel=100, grayhound_bushealth=33000, truckhealth=60000, truckfuel=100, dogan_slxhealth=30000, dogan_slxfuel=100, BMVhealth=20000, BMVfuel=100, muscle_carhealth=40000, muscle_carfuel=100, generic_motorcyclefuel=100, generic_motorcyclehealth=30000, frog_motorcyclefuel=100, frog_motorcyclehealth=30000, ducati_street_fighterfuel=100, ducati_street_fighterhealth=30000, onda_cbr_600fuel=100, onda_cbr_600health=30000, yamaha_r6fuel=100, yamaha_r6health=30000, motor_boatfuel=100, motor_boathealth=20000, aprilia_v4fuel=100, aprilia_v4health=30000, aprilia_rs660fuel=100, aprilia_rs660health=30000, ducati_diavelfuel=100, ducati_diavelhealth=30000, yamaha_off_roadfuel=100, yamaha_off_roadhealth=30000, kawasaki_hipersportfuel=100, kawasaki_hipersporthealth=30000, kawasaki_adventure_tourerfuel=100, kawasaki_adventure_tourerhealth=30000, ducati_scrumblerfuel=100, ducati_scrumblerhealth=30000, bmw_off_roadfuel=100, bmw_off_roadhealth=30000;
+int drunktime=3200000;
+int drunkacttime=random(15000, 25000);
+int stptime=4250;
+int beerswigs=0, waterswigs=0, waterbswigs=0, gasswigs=35, colaswigs=0;
+int drunkstage=0;
+int have_cycle_inventory=1;
+int xppotion=0;
+double xppotiontime=300000;
+string b1="nothing", b2="nothing", b3="nothing", b4="nothing", b5="nothing", b6="nothing", b7="nothing", b8="nothing", b9="nothing", b10="nothing", b11="nothing", b12="nothing", b13="nothing", b14="nothing", b15="nothing", b16="nothing", b17="nothing", b18="nothing", b19="nothing", b20="nothing", b21="nothing", b22="nothing", b23="nothing", b24="nothing", b25="nothing", b26="nothing", b27="nothing", b28="nothing";
+string launchitem="";
+int launchmode=-1;
+int missilex;
+int missiley;
+int missilez;
+string imitem="";
+int immode=-1;
+int icpx;
+int icpy;
+int icpz;
+int beacon=1;
+int beacontime=800;
+bool lockerplacing=false;
+bool fridgeplacing=false;
+bool speedboost=false;
+int speedboosttimer;
+int ncaverna=-1;
+int caverna=0;
+bool see_item=false, cbank=false;
+int registered=0;
+//int paid=0;
+int emequipe=0;
+bool afk=false,afking=false;
+bool away=false;
+bool invited=false;
+bool prison=false;
+int pot_copasity=inv_item_number("pot")*10;
+int bullet_proof_vested=0;
+int bullet_proof_vestshots=0;
+int armored=0;
+int armorshots=0;
+int large_armor_plated=0;
+int large_armor_plateshots=0;
+int shielded=0;
+int shieldshots=0;
+int steel_shielded=0;
+int steel_shieldshots=0;
+int bra=0;
+bool poisoned=false;
+int poisonlosses=0;
+string poisonowner="";
+bool invisible=false;
+bool itemgrabbing=false, emergency_itemgrabbing=false;
+bool nuclearbombspawning=false;
+bool waterspawning=false;
+bool fire=false;
+int firelosses=0;
+string fireowner="";
+int pitch;
+int voice;
+int levelsound=1;
+int mens_denim_shorts=0;
+int mens_lightweight_shorts=0;
+int mens_lightweight_pants=0;
+int lightweight_sneakers=0;
+int womens_sneakers_on_a_high_platform=0;
+int mens_lightweight_shirt=0;
+int womens_tight_jeans=0;
+int short_fitting_dresses_with_deep_neckline=0;
+int easy_summer_dress=0;
+int short_fitting_top=0;
+int denim_short_shorts=0;
+int denim_shirt=0;
+int t_shirt=0;
+int sweat_pants=0;
+int sports_jacket=0;
+int baseball_cap=0;
+int open_shoes_with_high_thin_heel=0;
+int bathrobe=0;
+int slippers=0;
+int leather_pants=0;
+int leather_fitting_short_dress=0;
+int denim_short_skirt=0;
+int long_light_skirt=0;
+int blouse_tight_with_deep_neckline=0;
+int female_closed_swimsuit=0;
+int female_outdoor_swimsuit=0;
+int male_bathing_panties=0;
+int heavy_studded_leather_boots=0;
+int classic_straight_pants=0;
+int classic_jacket=0;
+int classic_shirt=0;
+int tie=0;
+int classic_shoes=0;
+int openwork_stockings=0;
+int wedding_dress=0;
+int wedding_wreath=0;
+int mens_panties=0;
+int womens_lace_panties=0;
+int warm_knitted_hat=0;
+int down_jacket=0;
+int leather_jacket_with_fur_trim_on_collar_and_sleeves=0;
+int fur_coat_short_with_a_hood=0;
+int warm_male_boots=0;
+int warm_High_Womens_High_Heel_Boots=0;
+int warm_sports_jacket_with_hood=0;
+int leather_cloak=0;
+int warmed_sports_pants=0;
+int mens_sweater=0;
+int female_sweater_with_deep_neckline=0;
+int warm_pants=0;
+int warm_high_collar_sweater=0;
+int soft_scarf=0;
+int warm_leather_boots=0;
+int capacetepolicia=0;
+int anel=0;
+int marriage_ring=0;
+int bracadeira=0;
+int pulseira=0;
+int coletesalvavida=0, colete_aprova_de_balas=0, naopodevestir=0, ncolete=0;
+int casacopeles=0;
+int oculosmizuno=0;
+int coletemizuno=0;
+int calcamizuno=0;
+int botamizuno=0;
+int coletemilitar=0;
+int coletecamuflado=0;
+int tenisnike=0;
+int camisamalha=0;
+int jaquetacouro=0;
+int calcajeans=0;
+int sapatoscarpin=0, sapatomagnetico=0;
+int coturnomilitar=0;
+int calcalegging=0;
+int calcacamuflada=0;
+int luvas=0;
+int tenisadidas=0;
+int pulseiraouro=0;
+int pulseiraprata=0;
+int pulseirabronze=0;
+int chapeupanama=0;
+int bonemizuno=0;
+int relogio=0;
+bool tasered=false;
+bool burned=false;
+int burnlosses=0;
+string burnowner="";
+double air;
+int voted=0;
+bool wandlocked=false;
+bool vomited=false;
+bool drunk=false;
+bool underwater=false;
+bool dmoving=false;
+bool amoving=false;
+bool insz=false;
+double energy;
+double thirst;
+double hunger;
+double thirstt;
+double hungerr;
+double sick;
+double dirty=0;
+double wet=0;
+double nthirst=0, nhunger=0;
+int mask=0;
+int cthing;
+int cigarrettething;
+double tempopacifico;
+bool safe, supersafe;
+int pvp=0;
+bool pvp_starting=false, pvp_stop=false;
+int pvpseconds;
+bool atpacifista=false;
+double doente=0;
+bool paralisado=false, paralisado2=false;
+bool podequest=false;
+int sitting=0;
+int pmreceiving=1;
+double level;
+double reinforcement;
+double xpmaster;
+double xp=0;
+double xprequired=120;
+int timebomb;
+string[] members;
+int cut=0;
+int skin=0;
+int firecook=0;
+string title="", ptitle, pvptitle="", jobtitle="", newbtitle="", awaytitle="", afktitle="", prisontitle="";
+string tflag;
+int unstuntrys;
+bool achuva=false;
+double nchuva=600000;
+double ngripe=0;
+double gettime=1600;
+int persisttime=60000;
+int smartphonecharge=100;
+int smartphonechargetime=300000;
+int smartphoneon=0;
+timer persisttimer, falltimer, activitytimer, spamtimer, playtimer, gettimer, healtimer, timeouttimer, chattimer, maptraveltimer, strtimer, usetimer, statchangetimer, tmchuva, tgripe, stunagaintimer, unstuntrytimer, stunthrowtimer, stuntimer, tvarinha, atpacifistatempo, waitingtimer, tlptimer, eattimer, foodtimer, healthtimer, energytimer, thirsttimer, hungertimer, factortimer, thack, turrettimer, buildtimer, grenadetimer, rltm, firetime, boattimer, tminvs, airwarntimer, airlifetimer, airtimer, burntimer, tasertimer, poisontimer, invisibilitytimer, itemgrabtimer, emergency_itemgrabtimer, tsvida, tsitem, tsugando, speedboosttime, drunkacttimer, drinktimer, drunktimer, whiledrunktimer, coolofftimer, sleeptimer, sitsleeptimer, snaretimer, hurttimer, ffiretimer, gastimer, nuclearbombtimer, watertimer, cbombtimer, tppeixe, tenter, nicktimer, afksecondtimer, safetimer, supersafetimer, idle, tcaverna, newbtimer, tmaquina, biketimer, warptimer, pvptimer, cigarrettetimer, liquidstimer, foodeattimer, invchecktimer, ktimer, tutimer, ewtimer, missiletimer, icptimer, stptimer, smartphonechargetimer, shieldtimer, cheatertimer, lockerplacetimer, fridgeplacetimer, beacontimer, xppotiontimer, finishchallengemaptimer, bonehealtimer, temperaturetime, coldtimer;
+int temperaturelevel=25;
+string temperature;
+string firesound, reloadsound, distsound, emptysound;
+int lockerplacetime=10737;
+int fridgeplacetime=595;
+int cigarrette=0;
+int tlptime=2442;
+string biketile;
+bool warping=false;
+uint warpstage=0;
+int cheater=0;
+int newb=0;
+uint afkseconds=0;
+bool cbombplacing=false;
+bool gas;
+bool sleeping=false;
+double sleepinglevel=0;
+bool hurt=false;
+int hurtlevel=0;
+string trackname="";
+string curspell;
+string boattile;
+string weapon_name="fists";
+double weapon_copasity=0;
+double weapon_ammos=0;
+string weapon_ammo_type;
+double firetimer=300;
+bool turretspawning=false;
+int nvarinha=0;
+string[] namesequipe;
+int stunagaintime=0;
+bool stunned=false;
+int stuntime;
+bool unstunplay=false;
+bool falling=false;
+int spammedmsgs;
+bool disconnected=false;
+string e_id;
+string features;
+string[] ds;
+int hidden=0;
+double playtime;
+string ip;
+int timeouttime=2000000000;
+string ctext,location;
+double kills,deaths;
+bool is_dead=false;
+int facing=0;
+int ffacing=0;
+int health=10000;
+double maxhealth=10000;
+int startenergy=10000;
+double chats;
+int weaponpings=1;
+string name;
+int peer_id;
+string compid;
+string hitby="no one";
+bool arabiclcm, englishlcm, germanlcm, indonesianlcm, malaylcm, persianlcm, polishlcm, portugueselcm, russianlcm, slovaklcm, spanishlcm, thailcm, turkishlcm, builder, admin, manager=false, dev=false;
+bool should_subtract=false;
+uint npescar=0, npescando, plinha=0;
+bool jpescar=false, curando=false;
+string warning="";
+uint8 warnlevel=0;
+player(int px, int py, int pz, string pmap, string pname, int ppeer_id, string cid, string pver, string pip, string compt, int phid)
+{
+x=px;
+y=py;
+z=pz;
+map=pmap;
+name=pname;
+peer_id=ppeer_id;
+compid=cid;
+version=pver;
+ip=pip;
+ctext=compt;
+if(file_exists("chars/"+name+"/playtime.usr"))
+playtimer.force(string_to_number(read_from(name,"playtimer.usr")));
+if(file_exists("chars/"+name+"/liquidstime.usr"))
+liquidstimer.force(string_to_number(read_from(name,"liquidstimer.usr")));
+if(file_exists("chars/"+name+"/foodeattime.usr"))
+foodeattimer.force(string_to_number(read_from(name,"foodeattimer.usr")));
+if(file_exists("chars/"+name+"/xppotiontime.usr"))
+xppotiontimer.force(string_to_number(read_from(name,"xppotiontimer.usr")));
+hidden=phid;
+id=e.peer_id;
+if(hidden>0) is_dead=true;
+}
+void loop(int i)
+	{
+if (xp>=xprequired)
+{
+double quantity=0;
+double extracoins=0;
+while(true)
+{
+xp-=xprequired;
+level++;
+quantity++;
+xprequired=round(power(level, 1.6)*reinforcement, 0);
+extracoins+=square_root(level)/quantity;
+if (xp<xprequired)break;
+}
+inv_add_item("coins",round(extracoins*quantity, 0));
+for(uint ii=0; ii<players.length(); ii++)
+{
+if(players[ii].levelsound==1)
+{
+send_reliable(players[ii],"play_s lvup"+random(1,11)+".ogg",6);
+if(quantity==1)
+{
+send_reliable(players[ii],""+nickname+" has increased "+quantity+" level and now is on level "+level,2);
+}
+else
+{
+send_reliable(players[ii],""+nickname+" has increased "+quantity+" levels and now is on level "+level,2);
+}
+}
+}
+titlecheck(players[i]);
+}
+if (level>3000+reinforcement)
+{
+double quantity=0;
+while(true)
+{
+level-=3000;
+reinforcement++;
+quantity++;
+if (level<3000)break;
+}
+for(uint ii=0; ii<players.length(); ii++)
+{
+if(players[ii].levelsound==1)
+{
+send_reliable(players[ii],"play_s round_over.ogg",6);
+if(quantity==1)
+{
+send_reliable(players[ii],""+nickname+" has reached to reinforcement "+reinforcement+"",2);
+}
+else
+{
+send_reliable(players[ii],""+nickname+" has increased "+quantity+" reinforcements and reached to reinforcement "+reinforcement,2);
+}
+}
+}
+titlecheck(players[i]);
+}
+if(shieldshots<=0 and shielded==1)
+{
+shielded=0;
+shieldshots=0;
+send_packet(6,"play shieldbreak.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+inv_add_item("shield",-1);
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+return;
+}
+if(steel_shieldshots<=0 and steel_shielded==1)
+{
+steel_shielded=0;
+steel_shieldshots=0;
+send_packet(6,"play shieldbreak.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+inv_add_item("steel_shield",-1);
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+return;
+}
+if(bullet_proof_vestshots<=0 and bullet_proof_vested==1)
+{
+bullet_proof_vested=0;
+bullet_proof_vestshots=0;
+send_packet(6,"play armor_break.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+inv_add_item("bullet_proof_vest",-1);
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+return;
+}
+if(armorshots<=0 and armored==1)
+{
+armored=0;
+armorshots=0;
+send_packet(6,"play armor_break.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+inv_add_item("armor",-1);
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+return;
+}
+if(large_armor_plateshots<=0 and large_armor_plated==1)
+{
+large_armor_plated=0;
+large_armor_plateshots=0;
+send_packet(6,"play armor_break.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+inv_add_item("large_armor_plate",-1);
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+return;
+}
+if(stunned==true&&stuntimer.elapsed>=stuntime)
+{
+send_reliable(peer_id,"startmoving",0);
+stunned=false;
+}
+if(cheater==1 and cheatertimer.elapsed>=30000)
+{
+statchangetimer.restart();
+cheater=0;
+cheatertimer.restart();
+send_reliable(peer_id,"You may now play again",0);
+send_packet(6,"play notify8.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_reliable(peer_id,"startmoving",0);
+file_delete("chars/"+name+"/cheater.usr");
+file_delete("chars/"+name+"/cheater.usr");
+}
+if(bone_level>=maxbone_level and bone_break==true)
+{
+send_packet(6,"play deathbone.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+health=0;
+hitby="bone fracture";
+bone_break=false;
+bone_level=0;
+}
+if(bone_level>1 and bone_break==false)
+{
+string bbone=random_string_from_array(bones);
+send_reliable(peer_id,"ouch! your "+bbone+" has been fractured!",2);
+send_packet(6,"play bonebreak"+random(1,5)+".ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+bone_break=true;
+bonebreak=bbone;
+}
+bool items_exists=false;
+for(uint i2=0; i2<objs.length(); i2++)
+{
+if(objs[i2].map.name==map and get_3d_distance(x, y, z, objs[i2].x, objs[i2].y, objs[i2].z)<26)
+{
+items_exists=true;
+}
+}
+if(items_exists and !see_item)
+{
+see_item=true;
+send_reliable(peer_id,"play_s item2.ogg",6);
+}
+if(!items_exists and see_item)
+{
+see_item=false;
+send_reliable(peer_id,"play_s noitem.ogg",6);
+}
+if(smartphonechargetimer.elapsed>=smartphonechargetime and smartphoneon==1)
+{
+smartphonechargetimer.restart();
+smartphonecharge--;
+}
+if(smartphoneon==1 and smartphonecharge<=0)
+{
+bool t=false;
+smartphoneon=0;
+playsound("phone");
+send_reliable(peer_id, "your phone has been turned off", 0);
+t=true;
+}
+if(liquidstimer.elapsed>=43200000)
+{
+liquidstimer.restart();
+if(inv.get_size()>0)
+{
+string invs=get_inv();
+string[] r=string_split(invs,"\r\n",false);
+for(uint ir=0; ir<r.length(); ir++)
+{
+string[] ar=string_split(r[ir],"=",false);
+string itemname=ar[0];
+double amount=string_to_number(ar[1]);
+if((itemname=="lemonade" or itemname=="lime_cordial" or itemname=="milkshake" or itemname=="orange_squash" or itemname=="squash" or itemname=="cocoa" or itemname=="coffee" or itemname=="black_coffee" or itemname=="decaffeinated_coffee" or itemname=="fruit_tea" or itemname=="green_tea" or itemname=="herbal_tea" or itemname=="hot_chocolate" or itemname=="tea" or itemname=="fruit_juice" or itemname=="grapefruit_juice" or itemname=="orange_juice" or itemname=="pineapple_juice" or itemname=="tomato_juice" or itemname=="cola" or itemname=="opened_cola" or itemname=="sos" or itemname=="cup_of_water" or itemname=="cup_of_cola" or itemname=="glass_of_water" or itemname=="cup_of_boiling_water" or itemname=="glass_of_boiling_water" or itemname=="cup_of_beer" or itemname=="glass_of_beer" or itemname=="glass_of_cola" or itemname=="water_bottle" or itemname=="beer_bottle" or itemname=="open_water_bottle" or itemname=="open_beer_bottle" or itemname=="pot_of_water") and string_contains(itemname,"heated_",1)<0)
+{
+inv_add_item(itemname,-amount);
+inv_add_item("heated_"+itemname,amount);
+return;
+}
+}
+}
+}
+if(liquidstimer.elapsed>=600000)
+{
+liquidstimer.restart();
+if(inv.get_size()>0)
+{
+string invs=get_inv();
+string[] r=string_split(invs,"\r\n",false);
+for(uint ir=0; ir<r.length(); ir++)
+{
+string[] ar=string_split(r[ir],"=",false);
+string itemname=ar[0];
+double amount=string_to_number(ar[1]);
+if((itemname=="creamy_ice_cream" or itemname=="vanilla_ice_cream" or itemname=="caramel_ice_cream" or itemname=="smoothie" or itemname=="iced_tea" or itemname=="ice" or itemname=="snow") and string_contains(itemname,"heated_",1)<0)
+{
+inv_add_item(itemname,-amount);
+inv_add_item("heated_"+itemname,amount);
+return;
+}
+}
+}
+}
+if(foodeattimer.elapsed>=129600000)
+{
+foodeattimer.restart();
+if(inv.get_size()>0)
+{
+string invs=get_inv();
+string[] r=string_split(invs,"\r\n",false);
+for(uint ir=0; ir<r.length(); ir++)
+{
+string[] ar=string_split(r[ir],"=",false);
+string itemname=ar[0];
+double amount=string_to_number(ar[1]);
+if((string_contains(itemname,"cooked_",1)>-1 or string_contains(itemname,"gutted_",1)>-1 or string_contains(itemname,"eatable_",1)>-1 or string_contains(itemname,"skillit_with_",1)>-1 or itemname=="fish" or itemname=="hotdog" or itemname=="hamburger" or itemname=="cheeseburger" or itemname=="chicken_sandwich" or itemname=="piece_of_hotdog" or itemname=="piece_of_hamburger" or itemname=="piece_of_cheeseburger" or itemname=="piece_of_chicken_sandwich" or itemname=="hotdog_with_sos" or itemname=="hamburger_with_sos" or itemname=="cheeseburger_with_sos" or itemname=="chicken_sandwich_with_sos" or itemname=="piece_of_hotdog_with_sos" or itemname=="piece_of_hamburger_with_sos" or itemname=="piece_of_cheeseburger_with_sos" or itemname=="piece_of_chicken_sandwich_with_sos" or itemname=="piece_of_cake" or itemname=="cake" or itemname=="apple" or itemname=="watermelon" or itemname=="orange" or itemname=="pear" or itemname=="cherry" or itemname=="strawberry" or itemname=="berry" or itemname=="nectarine" or itemname=="grape" or itemname=="mango" or itemname=="blueberry" or itemname=="pomegranate" or itemname=="carambola" or itemname=="plum" or itemname=="banana" or itemname=="raspberry" or itemname=="mandarin" or itemname=="jackfruit" or itemname=="papaya" or itemname=="kiwi" or itemname=="pineapple" or itemname=="lime" or itemname=="lemon" or itemname=="apricot" or itemname=="grapefruit" or itemname=="melon" or itemname=="coconut" or itemname=="avocado" or itemname=="peach" or itemname=="green_almond" or itemname=="tamarind" or itemname=="cornelian_cherry" or itemname=="rhubarb" or itemname=="persimmon" or itemname=="fig" or itemname=="sour_cherry" or itemname=="sour_grapes" or itemname=="sitron" or itemname=="sour_orange" or itemname=="mushroom" or itemname=="broccoli" or itemname=="cucumber" or itemname=="red_pepper" or itemname=="tomato" or itemname=="swede" or itemname=="carrot" or itemname=="brussels_sprout" or itemname=="pumpkin" or itemname=="cabbage" or itemname=="potato" or itemname=="eggplant" or itemname=="sweet_potato" or itemname=="turnip" or itemname=="courgette" or itemname=="green_chilli" or itemname=="onion" or itemname=="lettuce" or itemname=="radish" or itemname=="pea" or itemname=="asparagus" or itemname=="selery" or itemname=="green_pepper" or itemname=="french_beans" or itemname=="spinach" or itemname=="beetroot" or itemname=="red_chillies" or itemname=="bean" or itemname=="cilantro" or itemname=="artichoke" or itemname=="rosemary" or itemname=="bay_leaves" or itemname=="mint_leaves" or itemname=="basil" or itemname=="clove" or itemname=="olive" or itemname=="shallot" or itemname=="turmeric" or itemname=="garlic" or itemname=="ginger" or itemname=="spring_onions" or itemname=="lemongrass" or itemname=="chives" or itemname=="nut" or string_contains(itemname,"piece_of_bread",1)>-1) and string_contains(itemname,"corrupted_",1)<0)
+{
+inv_add_item(itemname,-amount);
+inv_add_item("corrupted_"+itemname,amount);
+return;
+}
+}
+}
+}
+if(xppotion==1 and xppotiontimer.elapsed>=xppotiontime)
+{
+send_packet(6,"play notify_packman.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+xppotiontimer.restart();
+xppotion=0;
+xppotiontime=300000;
+send_reliable(peer_id,"The effect of your potion is over",2);
+}
+if(cigarrette>0 and cigarrettetimer.elapsed>=random(2000,10000))
+{
+cigarrettetimer.restart();
+energy+=random(5,50);
+cigarrettething++;
+}
+if(cigarrette>0 and cigarrettething==35)
+{
+cigarrettetimer.restart();
+cigarrettething=0;
+cigarrette--;
+}
+if(afking&&afksecondtimer.elapsed>=1000)
+{
+afksecondtimer.restart();
+afkseconds--;
+if(afkseconds<=0)
+{
+afk=true;
+afking=false;
+send_reliable(peer_id,"stopmoving",0);
+send_reliable(0,"play_s afkon.ogg",6);
+send_dpacketn(6,name,"distsound afkon "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+send_reliable(0,""+nickname+" is now AFK!",2);
+thirstt=1;
+hungerr=1;
+write_to(name, "afk.usr", afk);
+write_to(name, "afkseconds.usr", afkseconds);
+titlecheck(players[i]);
+}
+else
+{
+send_packet(6,"play afktimer.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,name,"distsound afktimer "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+write_to(name, "afkseconds.usr", afkseconds);
+}
+}
+if(pvp_stop&&pvptimer.elapsed>=5000)
+{
+pvptimer.restart();
+pvpseconds-=5;
+if(pvpseconds<=0)
+{
+pvp=0;
+pvp_stop=false;
+send_reliable(0,"play_s pvpoff.ogg",6);
+send_dpacketn(6,name,"distsound pvpoff "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+send_reliable(0,""+nickname+" is no longer pvp!",2);
+write_to(name, "pvp.usr", pvp);
+write_to(name, "pvpseconds.usr", pvpseconds);
+titlecheck(players[i]);
+}
+else
+{
+send_packet(6,"play pvptimer.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,name,"distsound pvptimer "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+write_to(name, "pvpseconds.usr", pvpseconds);
+}
+}
+if(cbank==true and get_zone_at(x,y,z,maps[get_map_index(map)])=="bank_service_desk" and tmaquina.elapsed>=28554)
+{
+tmaquina.restart();
+contabancaria=1;
+write_to(name, "bank.usr", contabancaria);
+send_reliable(peer_id, "you have now a bank account!", 2);
+send_reliable(peer_id,"startmoving",0);
+cbank=false;
+}
+if(caverna==1&&tcaverna.elapsed>=3600000)
+{
+tcaverna.force(0);
+tcaverna.pause();
+ncaverna=-1;
+caverna=0;
+send_reliable(peer_id, "You feel your muscles returning to normal ...", 2);
+}
+if (idle.elapsed>=900000 and away==false)
+{
+away=true;
+send_reliable(0,""+name+" is now away.",2);
+titlecheck(players[i]);
+}
+if(speedboost==true and speedboosttime.elapsed>speedboosttimer)
+{
+speedboost=false;
+send_packet(6,"play poisonstop.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_reliable(peer_id, "that speed drink no longer have any effects on your boddy.", 2);
+send_reliable(peer_id, "speed_drink0", 0);
+speedboosttimer=0;
+}
+if(itemgrabbing==true and itemgrabtimer.elapsed>25000)
+{
+send_packet(6,"play itemgrabberfire.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacket(6,"distsound itemgrabberdist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+send_reliable(peer_id, "startmoving", 0);
+mmove_objs_to(x, y, z, maps[get_map_index(map)], random(3, 15));
+itemgrabbing=false;
+}
+if(emergency_itemgrabbing==true and emergency_itemgrabtimer.elapsed>25000)
+{
+send_packet(6,"play itemgrabberfire.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacket(6,"distsound itemgrabberdist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+send_reliable(peer_id, "startmoving", 0);
+move_all_objs_to(x, y, z, maps[get_map_index(map)]);
+emergency_itemgrabbing=false;
+}
+if(cbombplacing==true and cbombtimer.elapsed>=6280 and map!="store")
+{
+cbombplacing=false;
+cbombtimer.pause();
+send_reliable(peer_id,"Done!",0);
+send_reliable(peer_id,"startmoving",0);
+spawn_censor_bomb(round(x,0),round(y,0),z,maps[get_map_index(map)],players[get_player_index_from(name)]);
+}
+if(turretspawning==true and turrettimer.elapsed>12000)
+{
+turretspawning=false;
+send_reliable(peer_id, "startmoving", 0);
+spawn_turret(x, y, z, maps[get_map_index(map)], players[get_player_index_from(name)]);
+}
+if(sleeping==true)
+{
+if(sleeptimer.elapsed>=random(1050,1200))
+{
+sleeptimer.restart();
+energy+=random(15,25);
+if(energy<=100) send_reliable(peer_id,"w-",0);
+sleepinglevel+=2;
+}
+if(sleepinglevel>=100)
+{
+wake((poisoned==true?"You start feeling better from that mess. You attempt to move, and are surprised you can move with no problem anymore!":""));
+if(poisoned==true) poisoned=false;
+}
+}
+if(roll_bandage==1 and bone_break==true)
+{
+if(bonehealtimer.elapsed>=random(4050,5200))
+{
+bonehealtimer.restart();
+bone_level-=random(1,3);
+}
+if(bone_level<1)
+{
+bone_level=0;
+bone_break=false;
+send_packet(6,"play bonefix.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_reliable(peer_id,"Your "+bonebreak+" improved. You put the roll bandage used for your "+bonebreak+" inside your inventory",2);
+roll_bandage=0;
+inv_add_item("roll_bandage",1);
+return;
+}
+}
+if(advanced_bone_repair_kit==1 and bone_break==true)
+{
+if(bonehealtimer.elapsed>=random(450,820))
+{
+bonehealtimer.restart();
+bone_level-=random(15,50);
+}
+if(bone_level<1)
+{
+bone_level=0;
+bone_break=false;
+send_packet(6,"play bonefix.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_reliable(peer_id,"Your "+bonebreak+" improved. You through the kit that used for your "+bonebreak+" away",2);
+advanced_bone_repair_kit=0;
+}
+}
+if(poisoned==true)
+{
+if(hurttimer.elapsed>=5000 and hurt==false)
+{
+hurttimer.restart();
+hurtlevel+=random(5,15);
+health-=random(50, 100);
+hitby="the after effects of poison";
+send_reliable(peer_id,"Poison!",2);
+send_reliable(peer_id,"walkmod",0);
+}
+if(hurtlevel>=100 and hurt==false)
+{
+hurt=true;
+sleep("You just can't take the pain anymore! You collapse!");
+}
+}
+if(poisoned==true)
+{
+if(poisontimer.elapsed>1000)
+{
+poisontimer.restart();
+health-=random(5, 10);
+hitby=poisonowner+"'s poison";
+send_packet(6,"play poisonhit.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_reliable(peer_id, "poison!", 2);
+poisonlosses++;
+if(poisonlosses>45)
+{
+poisoned=false;
+poisonowner="";
+poisonlosses=0;
+send_packet(6,"play poisonstop.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+}
+}
+}
+if(fire==true)
+{
+if(ffiretimer.elapsed>400)
+{
+ffiretimer.restart();
+health-=random(10, 30);
+hitby=fireowner+"'s fire ball";
+send_packet(6,"play fire_ballburn.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+firelosses++;
+if(firelosses>100)
+{
+fire=false;
+fireowner="";
+firelosses=0;
+send_packet(6,"play fire_ballout.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+}
+}
+}
+if(invisibilitytimer.elapsed>33000 and invisible==true)
+{
+invisible=false;
+send_packet(6,"play invisibilitystop.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+}
+if(burned==true)
+{
+if(burntimer.elapsed>500)
+{
+burntimer.restart();
+health-=random(5, 10);
+hitby="fire";
+send_packet(6,"play burn_loop.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+burnlosses++;
+if(burnlosses>15)
+{
+burned=false;
+burnowner="";
+burnlosses=0;
+send_packet(6,"play burn_stop.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+}
+}
+}
+if(tasered==true and tasertimer.elapsed>15000)
+{
+tasered=false;
+send_reliable(peer_id, "startmoving", 0);
+send_reliable(peer_id, "untased!", 2);
+}
+if(beerswigs>25)
+{
+inv_add_item("open_beer_bottle",-1);
+inv_add_item("empty_bottle",1);
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+beerswigs=0;
+return;
+}
+if(gasswigs==40)
+{
+gasswigs=40;
+}
+if(gasswigs<=0)
+{
+gasswigs=0;
+}
+if(waterswigs>10)
+{
+inv_add_item("pot_of_water",-1);
+inv_add_item("pot",1);
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+waterswigs=0;
+return;
+}
+if(waterswigs<=0)
+{
+waterswigs=0;
+}
+if(waterbswigs>35)
+{
+inv_add_item("open_water_bottle",-1);
+inv_add_item("empty_bottle",1);
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+waterbswigs=0;
+return;
+}
+if(waterbswigs<=0)
+{
+waterbswigs=0;
+}
+if(colaswigs>4)
+{
+inv_add_item("opened_cola",-1);
+inv_add_item("empty_bottle",1);
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+colaswigs=0;
+return;
+}
+if(colaswigs<=0)
+{
+colaswigs=0;
+}
+if(drunkstage>49 and drunk==false)
+{
+drunktimer.restart();
+drunkacttimer.restart();
+drunkacttime=random(15000, 25000);
+drunk=true;
+send_reliable(peer_id,"Your head is spinning, you suddenly lose balance, you start to feel extremely dizzy and you suddenly have an urge to vomet!",0);
+spawn_bodyfall(x,y,z,map,0,"gt",100,0,get_player_index_from(name));
+}
+if(drunk==true)
+{
+if(drunkacttimer.elapsed>=drunkacttime)
+{
+drunkacttime=random(8000, 13000);
+drunkacttimer.restart();
+int action=random(1,8);
+if(action==1)
+{
+chat(title+" "+teamname+" "+awaytitle+" "+prisontitle+" "+newbtitle+" "+afktitle+" "+pvptitle+" "+ptitle+" "+teamname+" "+nickname+": "+random_string_from_array(drunkmsglist));
+}
+else if(action==2)
+{
+send_reliable(peer_id,"You feel so dizzy you lose your balance again!",2);
+spawn_bodyfall(x,y,z,map,0,"gt",100,0,get_player_index_from(name));
+}
+else if(action==3)
+{
+send_reliable(peer_id,"You grab your stomach and bend over, suddenly you throw up!",2);
+send_packet(6,"play vomit.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+if(thirstt==0) thirst+=random(35,120);
+if(hungerr==0) hunger+=random(15,70);
+vomited=true;
+}
+else if(action==4)
+{
+string sf=random_string_from_array(randsounds);
+send_reliable(peer_id,"play_s "+sf+".ogg",6);
+}
+else if(action==5)
+{
+send_reliable(peer_id,"speed_drink1",0);
+}
+else if(action==6)
+{
+send_reliable(peer_id,"speed_drink0",0);
+}
+else if(action==7)
+{
+if(thirstt==0) thirst+=random(5,50);
+}
+else if(action==8)
+{
+if(hungerr==0) hungerr+=random(3,45);
+}
+}
+if(whiledrunktimer.elapsed>=32000)
+{
+whiledrunktimer.restart();
+drunkstage-=0.5;
+}
+if(drunktimer.elapsed>=drunktime)
+{
+send_reliable(peer_id,"Things finally start getting back to normal!",0);
+drunkstage=0;
+drunk=false;
+}
+}
+if(mask==1)
+{
+if(airtimer.elapsed>=3500)
+{
+airtimer.restart();
+if(air>0)
+{
+air--;
+playsound("gas_maskbreathe");
+}
+else
+{
+send_reliable(peer_id,"You need air!",0);
+hitby="suffocation";
+health-=random(100,10000);
+}
+}
+}
+if(underwater==true and mask==0)
+{
+if(airwarntimer.elapsed>=15000)
+{
+airwarntimer.restart();
+send_reliable(peer_id,"You need to breathe!",0);
+}
+if(airlifetimer.elapsed>=60015)
+{
+airlifetimer.restart();
+hitby="drown";
+send_packet(6,"play drown"+random(1,5)+".ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+health=0;
+}
+}
+if(healthtimer.elapsed>=5000 and health<=maxhealth-1)
+{
+healthtimer.restart();
+health+=10;
+}
+if(energytimer.elapsed>=random(800,3000) and energy>=0 and energy<=1000 and sitting==1 and sleeping==false)
+{
+energytimer.restart();
+energy+=0.5;
+if(energy<=100)
+{
+send_reliable(peer_id,"w-",0);
+send_packet(6,"play Male_Breath_Medium"+random(1,2)+".ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+}
+}
+if(afk==false)
+{
+if(temperaturetime.elapsed>=15000 and (warm_knitted_hat==1 or warm_male_boots==1 or warm_High_Womens_High_Heel_Boots==1 or warm_sports_jacket_with_hood==1 or warmed_sports_pants==1 or warm_pants==1 or warm_high_collar_sweater==1 or warm_leather_boots==1))
+{
+temperaturetime.restart();
+temperaturelevel=random(22,37);
+}
+if(temperaturetime.elapsed>=180000)
+{
+temperaturetime.restart();
+int pmapind=get_map_index(map);
+if(pmapind>-1 )
+{
+if(maps[pmapind].satminx<=x and maps[pmapind].satmaxx>=x and maps[pmapind].satminy<=y and maps[pmapind].satmaxy>=y and maps[pmapind].satminz<=z and maps[pmapind].satmaxz>=z)
+{
+return;
+}
+else
+{
+int n=random(1,2);
+if(n==1) (nightendo==1?temperaturelevel-=random(1,2):temperaturelevel-=random(0,1));
+else if(n==2) (nightendo==0?temperaturelevel+=random(1,2):temperaturelevel+=random(0,1));
+}
+}
+}
+if(temperaturelevel<=10)
+{
+temperature="very cold";
+}
+if(temperature=="very cold" and coldtimer.elapsed>=10500)
+{
+coldtimer.restart();
+stun(720);
+health-=random(50,100);
+send_reliable(peer_id,"You are shivering!",2);
+}
+if(temperaturelevel>=11 and temperaturelevel<=20)
+{
+temperature="slightly but not uncomfortably cold";
+}
+if(temperature=="slightly but not uncomfortably cold" and coldtimer.elapsed>=30900)
+{
+coldtimer.restart();
+stun(510);
+health-=random(10,50);
+send_reliable(peer_id,"You are shivering!",2);
+}
+if(temperaturelevel>=21 and temperaturelevel<=34)
+{
+temperature="Not hot and not cold";
+}
+if(temperaturelevel>=35 and temperaturelevel<=39)
+{
+temperature="slightly but not uncomfortably hot";
+}
+if(temperature=="slightly but not uncomfortably hot")
+{
+if(thirstt==0 and thirsttimer.elapsed>=15210)
+{
+thirsttimer.restart();
+thirst+=random(1,2);
+}
+}
+if(temperaturelevel>=40)
+{
+temperature="very hot";
+}
+if(temperature=="very hot")
+{
+if(thirstt==0 and thirsttimer.elapsed>=10100)
+{
+thirsttimer.restart();
+thirst+=random(1,3);
+send_reliable(peer_id,"You are slightly hot!",2);
+}
+}
+}
+if(factortimer.elapsed>=random(115000,270000) and dirty>=0 and wet>=0 and dirty<=100 and wet<=100)
+{
+factortimer.restart();
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(tile=="water" or tile=="water2" or tile=="water3" or tile=="water4" or tile=="water5" or tile=="swim" or tile=="swimming" or tile=="deepwater" or chovendo==1)
+{
+wet+=0.5;
+dirty-=0.5;
+}
+else
+{
+dirty+=0.5;
+wet-=0.5;
+}
+}
+if(thirstt==0)
+{
+if(thirsttimer.elapsed>=random(21000,33200) and thirst<=1000)
+{
+thirsttimer.restart();
+thirst+=0.5;
+if(thirst>=800) send_packet(6,"play thirststat.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+}
+}
+if(hungerr==0)
+{
+if(hungertimer.elapsed>=random(34000,38400) and hunger<=1000)
+{
+hungertimer.restart();
+hunger+=0.5;
+if(hunger>=800) send_packet(6,"play hungerstat.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+}
+}
+if(spamtimer.elapsed>5000 and spammedmsgs>0)
+{
+spamtimer.restart();
+spammedmsgs=0;
+}
+if(spammedmsgs>=10)
+{
+ds.insert_last("chat");
+send_reliable(peer_id,"You're chat feature has just been disabled! Please contact an administrator!",2);
+write_to(name,"disabled.usr",getdisables(ds));
+send_reliable(0,name+" was just caught spamming and can no longer send any messages",2);
+spammedmsgs=0;
+}
+if(lockerplacing==true and lockerplacetimer.elapsed>=lockerplacetime)
+{
+lockerplacing=false;
+string newid=randomstring(6);
+int newcode=string_to_number(randomstring(4, 2));
+spawn_locker(x, y, z, map, name, newcode, 15000, newid);
+packet("Your locker has been placed. Your access code is "+newcode+"");
+}
+if(fridgeplacing==true and fridgeplacetimer.elapsed>=fridgeplacetime)
+{
+fridgeplacing=false;
+string newid=randomstring(6);
+spawn_fridge(x, y, z, map, name, 5000, newid);
+packet("Your fridge has been placed");
+}
+/*
+if(energy>=10000 and paid==0)
+{
+energy=10000;
+}
+*/
+if(thirst<=-1)
+{
+thirst=0;
+}
+if(hunger<=-1)
+{
+hunger=0;
+}
+if(sick<=0)
+{
+sick=0;
+}
+if(dirty<=0)
+{
+dirty=0;
+}
+if(wet<=0)
+{
+wet=0;
+}
+if(dirty>=100)
+{
+dirty=100;
+}
+if(wet>=100)
+{
+wet=100;
+}
+if(health>maxhealth)
+{
+health=maxhealth;
+send_reliable(peer_id,"you are at max health and you can't go any higher!",2);
+}
+if(thirst>=999.5)
+{
+health=-1;
+thirst=0;
+hitby="thirst";
+}
+if(hunger>=999.5)
+{
+health=-1;
+hunger=0;
+hitby="thirst";
+}
+if(sick>=99)
+{
+health=-1;
+sick=0;
+hitby="sick";
+}
+if(beacontimer.elapsed>=beacontime and looking=="" and is_dead==false and hidden==0)
+{
+beacontimer.restart();
+for(uint pl=0; pl<players.length(); pl++)
+{
+if(players[pl].name!=name and players[pl].beacon==1 and players[pl].looking!=name and distancecheck(players[pl].x,players[pl].y,players[pl].z)<=50 and map==players[pl].map)
+{
+if(are_teamed(name,players[pl].name)) send_reliable(players[pl],"beacon2 "+x+" "+y+" "+z+" "+map,3);
+else if(pvp==1) send_reliable(players[pl],"pvpbeacon "+x+" "+y+" "+z+" "+map,3);
+else if(away or afk) send_reliable(players[pl],"locker_ping "+x+" "+y+" "+z+" "+map,3);
+else send_reliable(players[pl],"beacon "+x+" "+y+" "+z+" "+map,3);
+}
+}
+}
+if(disconnected==true&&persisttimer.elapsed>=persisttime)
+{
+remove_player(name);
+return;
+}
+if(follower!="")
+{
+int j=get_player_index_from(follower);
+if(j<0)
+{
+follower="";
+return;
+}
+if(players[j].map!=map)
+{
+move_player(players[j],map,x,y,z);
+}
+else
+{
+if(players[j].x!=x or players[j].y!=y or players[j].z!=z)
+{
+players[j].x=x;players[j].y=y;players[j].z=z;
+send_reliable(players[j],"move "+players[j].x+" "+players[j].y+" "+players[j].z,7);
+}
+}
+}
+if(following!="")
+{
+int ind=get_player_index_from(following);
+if(ind>-1) players[ind].following="";
+}
+if(looking!="")
+{
+int ind=get_player_index_from(looking);
+if(looking_on&&ind<0)
+{
+send_reliable(players[i],"lookstop",0);
+looking="";
+int newx=string_to_number(get_char_val(name,"oldx"));
+int newy=string_to_number(get_char_val(name,"oldy"));
+int newz=string_to_number(get_char_val(name,"oldz"));
+string newmap=get_char_val(name,"oldmap");
+if(map_exists(newmap)==false)
+newmap="safezone";
+string charfolder="chars/"+name;
+file_delete(charfolder+"/oldx.usr");
+file_delete(charfolder+"/oldy.usr");
+file_delete(charfolder+"/oldz.usr");
+file_delete(charfolder+"/oldmap.usr");
+move_player(players[i],newmap,newx,newx,newz);
+send_packet(6,"play toggleoff.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+looking_on=false;
+}
+}
+if(looker!="")
+{
+int j=get_player_index_from(looker);
+if(j<0)
+{
+looker="";
+return;
+}
+if(players[j].map!=map)
+{
+move_player(players[j],map,x,y,z);
+}
+else
+{
+if(players[j].x!=x or players[j].y!=y or players[j].z!=z)
+{
+players[j].x=x;players[j].y=y;players[j].z=z;
+send_reliable(players[j],"move "+players[j].x+" "+players[j].y+" "+players[j].z,7);
+}
+}
+}
+if(looking!="")
+{
+int ind=get_player_index_from(looking);
+if(ind>-1) players[ind].looking="";
+}
+if(health<=0)
+{
+if(prison==true)
+{
+health=maxhealth;
+hurtlevel=0;
+hurttimer.restart();
+healtimer.restart();
+if(sleeping==true) wake();
+poisoned=false;
+hurt=false;
+drunk=false;
+if(sleeping==true) wake();
+return;
+}
+if(inv.exists("safe_card"))
+{
+send_packet(6,"play death_free.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,name,"distsound death_free "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+health=maxhealth;
+hurtlevel=0;
+hurttimer.restart();
+healtimer.restart();
+if(sleeping==true) wake();
+poisoned=false;
+hurt=false;
+drunk=false;
+if(sleeping==true) wake();
+inv_add_item("safe_card",-1);
+int mapindex=get_map_index(map);
+if((mapindex>-1 and maps[mapindex].safe_card==1))
+{
+move_player(players[i],"safezone",25,25,0);
+finishchallengemaptimer.force(0);
+finishchallengemaptimer.pause();
+if(pvp==1)
+{
+pvp=0;
+send_reliable(players[i],"You are no longer pvp!",2);
+send_reliable(0,"play_s pvpoff.ogg",6);
+send_reliable(0,""+nickname+" is no longer pvp",2);
+}
+}
+}
+else
+{
+for (uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].looker==name) players[i2].looker="";
+}
+send_reliable(players[i],"lookstop",0);
+looking="";
+looker="";
+looking_on=false;
+int ind2=get_player_index_from(looking);
+if(ind2>-1)
+{
+players[ind2].looker="";
+send_reliable(players[i],"lookstop",0);
+looking="";
+int newx=string_to_number(get_char_val(name,"oldx"));
+int newy=string_to_number(get_char_val(name,"oldy"));
+int newz=string_to_number(get_char_val(name,"oldz"));
+string newmap=get_char_val(name,"oldmap");
+if(map_exists(newmap)==false)
+newmap="safezone";
+string charfolder="chars/"+name;
+file_delete(charfolder+"/oldx.usr");
+file_delete(charfolder+"/oldy.usr");
+file_delete(charfolder+"/oldz.usr");
+file_delete(charfolder+"/oldmausr");
+move_player(players[i],newmap,newx,newy,newz);
+send_packet(6,"play toggleoff.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_reliable(players[i],"you've stopped looking at "+players[ind2].name+"",2);
+send_reliable(players[ind2],""+name+" stopped watching you",2);
+}
+for (uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].follower==name) players[i2].follower="";
+}
+send_reliable(players[i],"followstop",0);
+following="";
+follower="";
+following_on=false;
+int ind3=get_player_index_from(following);
+if(ind3>-1) players[ind3].follower="";
+send_reliable(players[i],"followstop",0);
+following="";
+send_packet(6,"play v"+string_to_number(voice)+"die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+spawn_bodyfall(x,y,z,map,3000,"gt",100,0);
+send_packet(6,"play kill.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_reliable(0,"kills "+killmsg(name,hitby,get_zone_at(x,y,z,maps[get_map_index(map)])),0);
+string[] a=string_split(file_get_contents("pbmaps.svr"),"\r\n",false);
+string[] a2=string_split(file_get_contents("chmaps.svr"),"\r\n",false);
+int something=a.find(map);
+int something2=a2.find(map);
+if((something>-1 and pvp==0) or something2>-1)
+{
+send_reliable(0,"maps "+nickname+" lasted "+ms_to_readable_time(finishchallengemaptimer.elapsed)+" in "+map+"",0);
+}
+send_reliable(players[i], "death", 0);
+if(string_contains(hitby, "bomb", 1)<0) spawn_timeitem(x, y, z, map, "corpse_of_"+name+"");
+int mapindex=get_map_index(map);
+if((mapindex>-1 and maps[mapindex].litem==1))
+{
+int thas=inv_item_number("teleporter");
+inv_add_item("teleporter",-thas);
+int pghas=inv_item_number("paid_gift");
+inv_add_item("paid_gift",-pghas);
+int mrhas=inv_item_number("marriage_ring");
+inv_add_item("marriage_ring",-mrhas);
+int qtfdhas=inv_item_number("quick_thirst_fix_drug");
+inv_add_item("quick_thirst_fix_drug",-qtfdhas);
+int qhfshas=inv_item_number("quick_hunger_fix_snack");
+inv_add_item("quick_hunger_fix_snack",-qhfshas);
+int xpptnhas=inv_item_number("xp_potion");
+inv_add_item("xp_potion",-xpptnhas);
+int armorhas=inv_item_number("armor");
+inv_add_item("armor",-armorhas);
+int hbhas=inv_item_number("health_box");
+inv_add_item("health_box",-hbhas);
+int ebhas=inv_item_number("energy_box");
+inv_add_item("energy_box",-ebhas);
+int tdhas=inv_item_number("tlp_device");
+inv_add_item("tlp_device",-tdhas);
+//int rhas=inv_item_number("rocket_launcher");
+//inv_add_item("rocket_launcher",-rhas);
+//int nakhas=inv_item_number("nak_nk1000_decimater");
+//inv_add_item("nak_nk1000_decimater",-nakhas);
+int nhas=inv_item_number("nuclear_bomb");
+inv_add_item("nuclear_bomb",-nhas);
+int smallnhas=inv_item_number("small_nuclear_bomb");
+inv_add_item("small_nuclear_bomb",-smallnhas);
+int largenhas=inv_item_number("large_nuclear_bomb");
+inv_add_item("large_nuclear_bomb",-largenhas);
+int laphas=inv_item_number("large_armor_plate");
+inv_add_item("large_armor_plate",-laphas);
+int mdhas=inv_item_number("meteorite_defuser");
+inv_add_item("meteorite_defuser",-mdhas);
+int cphas=inv_item_number("creature_protector");
+inv_add_item("creature_protector",-cphas);
+int chas=inv_item_number("credit");
+inv_add_item("credit",-chas);
+if(string_contains(hitby, "bomb", 1)<0 and inv.get_size()>0)
+{
+string cid=randomstring(5);
+new_corpse(get_inv2(),cid);
+spawn_timeitem(x, y, z, map, "bag_of_"+name+"_"+cid);
+}
+inv.delete_all();
+send_reliable(players[i],"inv "+serialize(inv),0);
+inv_add_item("starter_pack",1);
+inv_add_item("teleporter",thas);
+inv_add_item("paid_gift",pghas);
+inv_add_item("marriage_ring",mrhas);
+inv_add_item("quick_thirst_fix_drug",qtfdhas);
+inv_add_item("quick_hunger_fix_snack",qhfshas);
+inv_add_item("xp_potion",xpptnhas);
+inv_add_item("armor",armorhas);
+inv_add_item("health_box",hbhas);
+inv_add_item("energy_box",ebhas);
+//inv_add_item("rocket_launcher",rhas);
+//inv_add_item("nak_nk1000_decimater",nakhas);
+inv_add_item("tlp_device",tdhas);
+inv_add_item("nuclear_bomb",nhas);
+inv_add_item("small_nuclear_bomb",smallnhas);
+inv_add_item("large_nuclear_bomb",largenhas);
+inv_add_item("large_armor_plate",laphas);
+inv_add_item("meteorite_defuser",mdhas);
+inv_add_item("creature_protector",cphas);
+inv_add_item("credit",chas);
+}
+roll_bandage=0;
+advanced_bone_repair_kit=0;
+bone_break=false;
+bonebreak="";
+bone_level=0;
+bullet_proof_vested=0;
+bullet_proof_vestshots=0;
+armored=0;
+armorshots=0;
+large_armor_plated=0;
+large_armor_plateshots=0;
+shielded=0;
+shieldshots=0;
+steel_shielded=0;
+steel_shieldshots=0;
+bra=0;
+short_fitting_dresses_with_deep_neckline=0;
+easy_summer_dress=0;
+short_fitting_top=0;
+denim_short_shorts=0;
+denim_shirt=0;
+t_shirt=0;
+sweat_pants=0;
+sports_jacket=0;
+baseball_cap=0;
+open_shoes_with_high_thin_heel=0;
+bathrobe=0;
+slippers=0;
+leather_pants=0;
+leather_fitting_short_dress=0;
+denim_short_skirt=0;
+long_light_skirt=0;
+blouse_tight_with_deep_neckline=0;
+female_closed_swimsuit=0;
+female_outdoor_swimsuit=0;
+male_bathing_panties=0;
+heavy_studded_leather_boots=0;
+classic_straight_pants=0;
+classic_jacket=0;
+classic_shirt=0;
+tie=0;
+classic_shoes=0;
+openwork_stockings=0;
+wedding_dress=0;
+wedding_wreath=0;
+mens_panties=0;
+womens_lace_panties=0;
+warm_knitted_hat=0;
+down_jacket=0;
+leather_jacket_with_fur_trim_on_collar_and_sleeves=0;
+fur_coat_short_with_a_hood=0;
+warm_male_boots=0;
+warm_High_Womens_High_Heel_Boots=0;
+warm_sports_jacket_with_hood=0;
+leather_cloak=0;
+warmed_sports_pants=0;
+mens_sweater=0;
+female_sweater_with_deep_neckline=0;
+warm_pants=0;
+warm_high_collar_sweater=0;
+soft_scarf=0;
+warm_leather_boots=0;
+capacetepolicia=0;
+anel=0;
+bracadeira=0;
+pulseira=0;
+coletesalvavida=0;
+colete_aprova_de_balas=0;
+naopodevestir=0;
+ncolete=0;
+casacopeles=0;
+oculosmizuno=0;
+coletemizuno=0;
+calcamizuno=0;
+botamizuno=0;
+coletemilitar=0;
+coletecamuflado=0;
+tenisnike=0;
+camisamalha=0;
+jaquetacouro=0;
+calcajeans=0;
+sapatoscarpin=0;
+sapatomagnetico=0;
+coturnomilitar=0;
+calcalegging=0;
+calcacamuflada=0;
+luvas=0;
+tenisadidas=0;
+pulseiraouro=0;
+pulseiraprata=0;
+pulseirabronze=0;
+chapeupanama=0;
+bonemizuno=0;
+relogio=0;
+if(is_admin()==false)
+{
+if(thirstt==1) thirstt=0;
+if(hungerr==1) hungerr=0;
+}
+hurtlevel=0;
+hurttimer.restart();
+healtimer.restart();
+if(sleeping==true) wake();
+poisoned=false;
+hurt=false;
+mask=0;
+underwater=false;
+cbombplacing=false;
+drunk=false;
+weapon_name="fists";
+is_dead=true;
+deaths+=1;
+nthirst=0;
+nhunger=0;
+thirst=random(100,900);
+hunger=random(100,900);
+energy=10000;
+sick=random(0,1);
+send_reliable(players[i],"resetwalktime",0);
+health=maxhealth;
+if(sleeping==true) wake();
+write_to(name, "mapavoltar.usr", mapavoltar);
+write_to(name,"lasthit.usr",hitby);
+write_to(name,"health.usr",health);
+statchangetimer.force(30000);
+int t=is_in_team(name);
+if(t>-1)
+{
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int l=random(200,400);
+if(are_teamed(name, hb)&&name!=hb) l=l*2;
+teams[t].points-=l;
+teams[t].transmit("This team has lost "+l+" points!");
+}
+for(uint i2=0; i2<arenas.length(); i2++)
+{
+if(map==arenas[i2].map and arenas[i2].length>1)
+{
+int newx=string_to_number(get_char_val(name,"oldx"));
+int newy=string_to_number(get_char_val(name,"oldy"));
+int newz=string_to_number(get_char_val(name,"oldz"));
+string charfolder="chars/"+name;
+scd(players[i]);
+if(inv.get_size()>0) inv.delete_all();
+file_copy(charfolder+"/oldinv.usr",charfolder+"/inv.usr",true);
+load_char_data(players[i],true);
+file_delete(charfolder+"/oldx.usr");
+file_delete(charfolder+"/oldy.usr");
+file_delete(charfolder+"/oldz.usr");
+file_delete(charfolder+"/oldmap.usr");
+file_delete(charfolder+"/oldinv.usr");
+move_player(players[i],"safezone",newx,newy,newz);
+health=maxhealth;
+bullet_proof_vested=0;
+bullet_proof_vestshots=0;
+armored=0;
+armorshots=0;
+large_armor_plated=0;
+large_armor_plateshots=0;
+shielded=0;
+shieldshots=0;
+steel_shielded=0;
+steel_shieldshots=0;
+hurtlevel=0;
+hurttimer.restart();
+healtimer.restart();
+poisoned=false;
+hurt=false;
+cbombplacing=false;
+drunk=false;
+weapon_name="fists";
+arenas[i2].joined--;
+int amath=arenas[i2].length-arenas[i2].joined;
+if(arenas[i2].length>1) send_reliable(0,"arena "+name+" has been defeated in "+arenas[i2].owner+"'s "+arenas[i2].type+" Arena. "+amath+"  participators stil left.",0);
+else send_reliable(0,"arena "+name+" has been defeated in "+arenas[i2].owner+"'s "+arenas[i2].type+" Arena",0);
+if(pvpd==1 and pvp==1)
+{
+pvp=0;
+send_reliable(players[i],"You are no longer pvp!",2);
+send_reliable(0,"play_s pvpoff.ogg",6);
+send_reliable(0,""+nickname+" is no longer pvp",2);
+titlecheck(players[i]);
+pvpd=0;
+}
+if(pvpd==3)
+{
+pvp=1;
+send_reliable(players[i],"You are now pvp!",2);
+send_reliable(0,"play_s pvpon.ogg",6);
+send_reliable(0,""+nickname+" is now pvp",2);
+titlecheck(players[i]);
+pvpd=2;
+}
+}
+}
+int v=is_part_of_event(name);
+if(v>-1)
+{
+map=events[v].map.name;
+x=events[v].joinx;
+y=events[v].joiny;
+z=events[v].joinz;
+}
+if(something2>-1 or pvp==1)
+{
+map=mapavoltar;
+}
+else
+{
+map="safezone";
+finishchallengemaptimer.force(0);
+finishchallengemaptimer.pause();
+}
+int mi=get_map_index(map);
+if((mi>-1))
+{
+x=random(maps[mi].dpminx,maps[mi].dpmaxx);
+y=random(maps[mi].dpminy,maps[mi].dpmaxy);
+z=random(maps[mi].dpminz,maps[mi].dpmaxz);
+}
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+if(players[k].name!=name)
+{
+int extracoins=20;
+players[k].inv_add_item("coins",extracoins);
+players[k].kills+=1;
+send_reliable(players[k],"tweetkill "+nickname,0);
+loosxp(players[i],random(1000, 8000)*reinforcement);
+givexp(players[k],random(1000, 8000)*players[k].reinforcement);
+int tm=is_in_team(players[k].name);
+if(tm>-1 and !are_teamed(name, players[k].name)) {
+int l=random(100,200);
+teams[tm].points+=l;
+teams[tm].transmit("This team just got "+l+" extra points!");
+teams[tm].teamkills+=1;
+}
+if(stunned)
+{
+send_reliable(players[i],"startmoving",0);
+stunned=false;
+}
+}
+}
+scd(players[i]);
+}
+}
+}
+void mute(player@p)
+{
+muted+="\r\n"+p.name;
+}
+bool unmute(string name)
+{
+string[] t=string_split(muted,"\r\n",false);
+string newmuted;
+bool succeeded=false;
+for (uint i=0; i<t.length(); i++)
+{
+if (t[i]!=name)
+newmuted+="\r\n"+t[i];
+else
+succeeded=true;
+}
+muted=newmuted;
+return succeeded;
+}
+void trust(player@p)
+{
+trusted+="\r\n"+p.name;
+}
+bool untrust(string name)
+{
+string[] t=string_split(trusted,"\r\n",false);
+string newtrusted;
+bool succeeded=false;
+for (uint i=0; i<t.length(); i++)
+{
+if (t[i]!=name)
+newtrusted+="\r\n"+t[i];
+else
+succeeded=true;
+}
+trusted=newtrusted;
+return succeeded;
+}
+bool is_muted(string name)
+{
+string[] t=string_split(muted,"\r\n",false);
+for (uint i=0; i<t.length(); i++)
+{
+if (t[i]==name)
+{
+return true;
+}
+}
+return false;
+}
+bool is_trusted(player@p)
+{
+string[] t=string_split(trusted,"\r\n",false);
+for (uint i=0; i<t.length(); i++)
+{
+if (t[i]==p.name)
+{
+return true;
+}
+}
+return false;
+}
+/*
+bool is_paid()
+{
+return true;
+}
+*/
+bool is_teammember(string n)
+{
+if(is_in_team(name)>-1 and n==teamname) return true;
+return false;
+}
+/*
+player@[] get_paid_online()
+{
+player@[] ret;
+for(int i=0; i<players.length(); i++)
+{
+if(players[i].is_paid()&&players[i].hidden==0)
+ret.insert_last(players[i]);
+}
+return ret;
+}
+*/
+void hit(int mindamage, int maxdamage)
+{
+if(this.safe==false and is_safe(this.x,this.y,this.z,maps[get_map_index(this.map)])==false) this.health-=random(mindamage,maxdamage);
+send_packet(6,"play v"+string_to_number(this.voice)+"hit"+random(1,5)+".ogg "+this.x+" "+this.y+" "+this.z,this.x,this.y,this.z,maps[get_map_index(this.map)]);
+}
+void hit(int damage)
+{
+if(this.safe==false and is_safe(this.x,this.y,this.z,maps[get_map_index(this.map)])==false) this.health-=damage;
+send_packet(6,"play v"+string_to_number(this.voice)+"hit"+random(1,5)+".ogg "+this.x+" "+this.y+" "+this.z,this.x,this.y,this.z,maps[get_map_index(this.map)]);
+}
+void wake(string msg="") {
+send_reliable(this.peer_id,"resetwalktime",0);
+send_reliable(this.peer_id,"startmoving",0);
+send_reliable(this.peer_id,"sleepstop",0);
+this.sleeping=false;
+this.sleepinglevel=0;
+if(msg!="") send_reliable(this.peer_id,msg,2);
+}
+void sleep(string msg="") {
+send_reliable(this.peer_id,"stopmoving",0);
+send_reliable(this.peer_id,"sleepstart",0);
+if(msg!="")
+send_reliable(this.peer_id,msg,2);
+this.sleeping=true;
+this.sleeptimer.restart();
+}
+bool is_arabiclcm()
+{
+return (this.arabiclcm or this.admin or this.manager or this.dev);
+}
+bool is_englishlcm()
+{
+return (this.englishlcm or this.admin or this.manager or this.dev);
+}
+bool is_germanlcm()
+{
+return (this.germanlcm or this.admin or this.manager or this.dev);
+}
+bool is_indonesianlcm()
+{
+return (this.indonesianlcm or this.admin or this.manager or this.dev);
+}
+bool is_malaylcm()
+{
+return (this.malaylcm or this.admin or this.manager or this.dev);
+}
+bool is_persianlcm()
+{
+return (this.persianlcm or this.admin or this.manager or this.dev);
+}
+bool is_polishlcm()
+{
+return (this.polishlcm or this.admin or this.manager or this.dev);
+}
+bool is_portugueselcm()
+{
+return (this.portugueselcm or this.admin or this.manager or this.dev);
+}
+bool is_russianlcm()
+{
+return (this.russianlcm or this.admin or this.manager or this.dev);
+}
+bool is_slovaklcm()
+{
+return (this.slovaklcm or this.admin or this.manager or this.dev);
+}
+bool is_spanishlcm()
+{
+return (this.spanishlcm or this.admin or this.manager or this.dev);
+}
+bool is_thailcm()
+{
+return (this.thailcm or this.admin or this.manager or this.dev);
+}
+bool is_turkishlcm()
+{
+return (this.turkishlcm or this.admin or this.manager or this.dev);
+}
+bool is_lcm()
+{
+return (this.arabiclcm or this.englishlcm or this.germanlcm or this.indonesianlcm or this.malaylcm or this.persianlcm or this.polishlcm or this.portugueselcm or this.russianlcm or this.slovaklcm or this.spanishlcm or this.thailcm or this.turkishlcm or this.admin or this.manager or this.dev);
+}
+bool is_only_lcm()
+{
+return (this.arabiclcm or this.englishlcm or this.germanlcm or this.indonesianlcm or this.malaylcm or this.persianlcm or this.polishlcm or this.portugueselcm or this.russianlcm or this.slovaklcm or this.spanishlcm or this.thailcm or this.turkishlcm);
+}
+bool is_builder()
+{
+return (this.builder or this.admin or this.manager or this.dev);
+}
+bool is_admin()
+{
+return (this.admin or this.manager or this.dev);
+}
+bool is_manager()
+{
+return (this.manager or this.dev);
+}
+int distancecheck(double xx,double yy,double zz)
+{
+return get_3d_distance(x,y,z,xx,yy,zz);
+}
+vector get_coords()
+{
+vector ret;
+ret.x=x;
+ret.y=y;
+ret.z=z;
+return ret;
+}
+void packet(const string pkt,const int chan=2,const bool r=true) {
+if(r)
+send_reliable(this.peer_id,pkt,chan);
+else
+send_reliable(this.peer_id,pkt,chan);
+}
+void stun(int ms,bool playafter=false,bool fall=false,int cooldown=0)
+{
+if(this.stunagaintimer.elapsed<=this.stunagaintime)
+{
+return;
+}
+else
+{
+this.stunagaintime=0;
+this.stunagaintimer.restart();
+}
+send_reliable(peer_id,"stopmoving",0);
+stunned=true;
+stuntime=ms;
+stuntimer.restart();
+this.stunagaintime=ms+cooldown;
+unstunplay=playafter;
+if(fall==true)
+{
+spawn_bodyfall(x,y,z,map,500,"gt",100,0,get_player_index_from(name));
+}
+}
+void sendpacket(string packet,int chan=2,bool reliable=true)
+{
+if(reliable) send_reliable(peer_id,packet,chan);
+else send_reliable(peer_id,packet,chan);
+}
+void add_log_entry(string n,string w)
+{
+log(name+"_"+n,name+"("+nickname+") "+w);
+}
+void write(string key, int value)
+{
+sd.add(key,value);
+}
+void write(string key, string value)
+{
+sd.add(key,value);
+}
+string read(string key)
+{
+return sd.read(key);
+}
+int readn(string key)
+{
+return sd.readn(key);
+}
+void inv_add_item(string item, double amount,bool singlegive=true)
+{
+double a;
+if (!inv.exists(item))
+{
+inv.set(item,amount);
+}
+else
+{
+inv.get(item,a);
+if (a+amount<=0)
+inv.delete(item);
+else
+{
+double b=(a+amount);
+inv.set(item,b);
+}
+}
+this.neg_inv_check();
+if(singlegive)
+{
+send_reliable(this.peer_id,"inv "+this.get_inv(),0);
+if(this.have_cycle_inventory==1)
+{
+string data=serialize(this.inv);
+send_reliable(this.peer_id,"invis "+data,0);
+}
+}
+}
+void neg_inv_check()
+{
+string[] k=inv.get_keys();
+for(uint i=0; i<k.length(); i++)
+{
+double v;
+inv.get(k[i],v);
+if(v<=0) inv.delete(k[i]);
+}
+}
+double inv_item_number(string item)
+{
+double ret;
+inv.get(item,ret);
+return ret;
+}
+string get_inv()
+{
+string ss;
+string[] ds;
+if(inv.get_size()==0) return "";
+ds=inv.get_keys();
+for(uint i=0; i<ds.length(); i++)
+{
+double val;
+inv.get(ds[i],val);
+ss+=ds[i]+"="+val+"\r\n";
+}
+return ss;
+}
+string get_inv2()
+{
+string ss;
+string[] ds;
+if(inv.get_size()==0) return "";
+ds=inv.get_keys();
+for(uint i=0; i<ds.length(); i++)
+{
+double val;
+inv.get(ds[i],val);
+ss+=ds[i]+"="+val+";";
+}
+return ss;
+}
+void send_inv()
+{
+string charfolder="chars/"+name;
+if(file_exists(charfolder+"/inv.usr")==false and has_locker(this.name)==-1)
+{
+f.open(charfolder+"/inv.usr","wb");
+f.close();
+}
+if(file_exists(charfolder+"/oldinv.usr"))
+{
+f.open(charfolder+"/oldinv.usr","rb");
+string inv=f.read();
+f.close();
+f.open(charfolder+"/inv.usr","wb");
+f.write(inv);
+f.close();
+file_delete(charfolder+"/oldinv.usr");
+}
+f.open(charfolder+"/inv.usr","rb");
+string inv=f.read();
+f.close();
+if(inv=="") return;
+string[] invvalues=string_split(inv,"\r\n",false);
+for(uint i=0; i<invvalues.length(); i++)
+{
+string[] invparser=string_split(invvalues[i],"=",false);
+if(invparser.length()>1)
+inv_add_item(invparser[0],string_to_number(invparser[1]));
+}
+}
+void send_negated_inv()
+{
+inv.delete_all();
+}
+void playsound(string sound, bool include_me=true)
+{
+if(include_me) send_reliable(peer_id,"play_s "+sound+".ogg",6);
+send_packetn(6,name,"play "+x+" "+y+" "+z+" "+map,x,y,z,maps[get_map_index(map)]);
+}
+void build_locker()
+{
+if(get_locker_at(this.x, this.y, this.z, maps[get_map_index(this.map)])>-1)
+{
+this.packet("Sorry, you can't build a locker here",0);
+return;
+}
+this.stun(this.lockerplacetime);
+this.lockerplacetimer.restart();
+this.lockerplacing=true;
+send_packet(6,"play locker_placing.ogg "+this.x+" "+this.y+" "+this.z, this.x,this.y,this.z,maps[get_map_index(this.map)]);
+}
+void build_fridge()
+{
+if(get_fridge_at(this.x, this.y, this.z, maps[get_map_index(this.map)])>-1)
+{
+this.packet("Sorry, you can't build a fridge here",0);
+return;
+}
+this.stun(this.fridgeplacetime);
+this.fridgeplacetimer.restart();
+this.fridgeplacing=true;
+send_packet(6,"play itemdrop.ogg "+this.x+" "+this.y+" "+this.z, this.x,this.y,this.z,maps[get_map_index(this.map)]);
+}
+void chat(string message)
+{
+if(langchan=="disable_chat") return;
+if(langchan!="free_channel") spammedmsgs++;
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].langchan==langchan and players[i].is_muted(name)==false)
+{
+send_reliable(players[i],"chat "+message,1);
+}
+}
+}
+
+}
+void spawn_player(int x, int y, int z, string map, string name,int pi, string cid, string ip, string ver, string ctext,int hid)
+{
+player p1(x,y,z,map,name,pi,cid,ip,ver,ctext,hid);
+players.insert_last(p1);
+int index=get_player_index_from(name);
+players[index].statchangetimer.force(100000);
+if(hid==0)
+send_reliable(0, "online "+x+" "+y+" "+z+" "+name+" "+map,0);
+connections++;
+}
+bool is_on_server(string name)
+{
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==name)
+{
+return true;
+}
+}
+return false;
+}
+int get_nearest_player(int px, int py, int pz, string pmap, int pindex=-1)
+{
+int current_distance=-1;
+int final_index=-1;
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].map!=pmap or i==pindex or players[i].is_dead and players[i].hidden!=0 or players[i].looker!="")
+{
+continue;
+}
+int dist=get_3d_distance(px, py, pz, players[i].x, players[i].y, players[i].z);
+if(current_distance==-1)
+{
+current_distance=dist;
+final_index=i;
+}
+else
+{
+if(dist<current_distance)
+{
+current_distance=dist;
+final_index=i;
+}
+}
+}
+return final_index;
+}
+void remove_player(string name,bool got_kicked=false,bool lost=false)
+{
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==name)
+{
+send_reliable(players[i], "hempty 1", 0);
+send_reliable(players[i], "hempty 2", 0);
+if(players[i].is_admin()==false)
+{
+if(players[i].thirstt==1) players[i].thirstt=0;
+if(players[i].hungerr==1) players[i].hungerr=0;
+}
+if(players[i].speedboost==true)
+{
+players[i].speedboost=false;
+send_packet(6,"play poisonstop.ogg "+players[i].x+" "+players[i].y+" "+players[i].z, players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+send_reliable(players[i], "that speed drink no longer have any effects on your boddy.", 2);
+send_reliable(players[i], "speed_drink0", 0);
+players[i].speedboosttimer=0;
+}
+int e=is_part_of_event(name);
+if(e>-1)
+{
+events[e].leave(players[i],true,true);
+}
+if(cheatercheck(players[i],lost) and !got_kicked)
+{
+write_to(players[i].name,"cheater.usr",players[i].name+" is a cheater! They closed the game in "+ms_to_readable_time(players[i].statchangetimer.elapsed)+" of being hit");
+send_reliable(0,players[i].name+" is a cheater!",2);
+}
+if(players[i].looking!="")
+{
+int ind=get_player_index_from(players[i].looking);
+if(ind>-1)
+{
+players[ind].looker="";
+send_reliable(players[i],"lookstop",0);
+players[i].looking="";
+int newx=string_to_number(get_char_val(players[i].name,"oldx"));
+int newy=string_to_number(get_char_val(players[i].name,"oldy"));
+int newz=string_to_number(get_char_val(players[i].name,"oldz"));
+string newmap=get_char_val(players[i].name,"oldmap");
+if(map_exists(newmap)==false)
+newmap="safezone";
+string charfolder="chars/"+players[i].name;
+file_delete(charfolder+"/oldx.usr");
+file_delete(charfolder+"/oldy.usr");
+file_delete(charfolder+"/oldz.usr");
+file_delete(charfolder+"/oldmap.usr");
+move_player(players[i],newmap,newx,newx,newz);
+send_packet(6,"play toggleoff.ogg "+players[i].x+" "+players[i].y+" "+players[i].z, players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].looking_on=false;
+}
+}
+if(players[i].looker!="")
+{
+int ind=get_player_index_from(players[i].looking);
+if(ind>-1)
+{
+players[ind].looker="";
+send_reliable(players[ind],"lookstop",0);
+players[i].looking="";
+int newx=string_to_number(get_char_val(players[ind].name,"oldx"));
+int newy=string_to_number(get_char_val(players[ind].name,"oldy"));
+int newz=string_to_number(get_char_val(players[ind].name,"oldz"));
+string newmap=get_char_val(players[ind].name,"oldmap");
+if(map_exists(newmap)==false)
+newmap="safezone";
+string charfolder="chars/"+players[ind].name;
+file_delete(charfolder+"/oldx.usr");
+file_delete(charfolder+"/oldy.usr");
+file_delete(charfolder+"/oldz.usr");
+file_delete(charfolder+"/oldmap.usr");
+move_player(players[ind],newmap,newx,newx,newz);
+send_packet(6,"play toggleoff.ogg "+players[ind].x+" "+players[ind].y+" "+players[ind].z, players[ind].x,players[ind].y,players[ind].z,maps[get_map_index(players[ind].map)]);
+players[ind].looking_on=false;
+}
+}
+int teamindex=is_in_team(name);
+if(teamindex>-1)
+teams[teamindex].remove_member(name,false,false);
+uint oldid=(players[i].disconnected ? 4294967294 : players[i].peer_id);
+if(got_kicked==true)
+{
+log("eventstream",players[i].name+" was kicked from the server");
+}
+disconnections++;
+scd(players[i]);
+if(players[i].hidden==0)
+{
+send_reliable(0, "offline "+players[i].x+" "+players[i].y+" "+players[i].z+" "+players[i].name+" "+players[i].map, 0);
+for(uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].readolmsg==1 and players[i2].name!="smart_bot")
+{
+send_reliable(players[i2], "connections "+players[i].offmsg+"",0);
+}
+}
+}
+else
+{
+if(!players[i].disconnected)
+send_reliable(players[i], "offline "+players[i].x+" "+players[i].y+" "+players[i].z+" "+players[i].name+" "+players[i].map, 0);
+for(uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].readolmsg==1 and players[i2].name!="smart_bot")
+{
+send_reliable(players[i2], "connections "+players[i].offmsg+"",0);
+}
+}
+}
+for(uint i2=0; i2<arenas.length(); i2++)
+{
+if(players[i].map==arenas[i2].map)
+{
+players[i].bullet_proof_vested=0;
+players[i].armored=0;
+players[i].armorshots=0;
+players[i].large_armor_plated=0;
+players[i].large_armor_plateshots=0;
+players[i].bullet_proof_vestshots=0;
+players[i].shielded=0;
+players[i].shieldshots=0;
+players[i].steel_shielded=0;
+players[i].steel_shieldshots=0;
+players[i].hurtlevel=0;
+players[i].hurttimer.restart();
+players[i].healtimer.restart();
+players[i].poisoned=false;
+players[i].hurt=false;
+players[i].cbombplacing=false;
+players[i].drunk=false;
+players[i].weapon_name="fists";
+send_reliable(players[i],"resetwalktime",0);
+int newx=string_to_number(get_char_val(players[i].name,"oldx"));
+int newy=string_to_number(get_char_val(players[i].name,"oldy"));
+int newz=string_to_number(get_char_val(players[i].name,"oldz"));
+string charfolder="chars/"+players[i].name;
+scd(players[i]);
+if(players[i].inv.get_size()>0) players[i].inv.delete_all();
+file_copy(charfolder+"/oldinv.usr",charfolder+"/inv.usr",true);
+load_char_data(players[i],true);
+file_delete(charfolder+"/oldx.usr");
+file_delete(charfolder+"/oldy.usr");
+file_delete(charfolder+"/oldz.usr");
+file_delete(charfolder+"/oldmap.usr");
+file_delete(charfolder+"/oldinv.usr");
+move_player(players[i],"safezone",newx,newy,newz);
+arenas[i2].joined--;
+players[i].bullet_proof_vested=0;
+players[i].bullet_proof_vestshots=0;
+players[i].armored=0;
+players[i].armorshots=0;
+players[i].large_armor_plated=0;
+players[i].large_armor_plateshots=0;
+players[i].shielded=0;
+players[i].shieldshots=0;
+players[i].steel_shielded=0;
+players[i].steel_shieldshots=0;
+players[i].hurtlevel=0;
+players[i].hurttimer.restart();
+players[i].healtimer.restart();
+players[i].poisoned=false;
+players[i].hurt=false;
+players[i].cbombplacing=false;
+players[i].drunk=false;
+players[i].weapon_name="fists";
+int amath=arenas[i2].length-arenas[i2].joined;
+if(arenas[i2].length>1) send_reliable(0,"arena "+players[i].name+" has escaped from "+arenas[i2].owner+"'s "+arenas[i2].type+" Arena. "+amath+" participators stil left.",0);
+else send_reliable(0,"arena "+players[i].name+" has escaped from "+arenas[i2].owner+"'s "+arenas[i2].type+" Arena",0);
+if(players[i].pvpd==1 and players[i].pvp==1)
+{
+players[i].pvp=0;
+send_reliable(players[i],"You are no longer pvp!",2);
+send_reliable(0,"play_s pvpoff.ogg",6);
+send_reliable(0,""+players[i].nickname+" is no longer pvp",2);
+titlecheck(players[i]);
+players[i].pvpd=0;
+}
+if(players[i].pvpd==3)
+{
+players[i].pvp=1;
+send_reliable(players[i],"You are now pvp!",2);
+send_reliable(0,"play_s pvpon.ogg",6);
+send_reliable(0,""+players[i].nickname+" is now pvp",2);
+titlecheck(players[i]);
+players[i].pvpd=2;
+}
+}
+}
+@players[i]=null;
+players.remove_at(i);
+if(oldid!=4294967294) send_reliable(oldid,"killclient",0);
+continue;
+}
+}
+}
+class pld
+{
+double tx,ty,tz;
+double sx,sy,sz;
+double dist;
+int index;
+pld(player@ p1, player@ p2)
+{
+sx=p1.x;sy=p1.y;sz=p1.z;
+tx=p2.x;ty=p2.y;tz=p2.z;
+index=get_player_index_from(p2.name);
+dist=get_3d_distance(sx,sy,sz,tx,ty,tz);
+}
+int opCmp(pld@ o)
+{
+if(o.dist<dist) return -1;
+if(o.dist>dist) return 1;
+return 0;
+}
+}
+string[] nearest_player_sorted_array(player@ p)
+{
+pld@[] t;
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==p.name||players[i].is_dead||p.map!=players[i].map||players[i].hidden==1||players[i].afk==true||players[i].away==true||players[i].looking!="") continue;
+pld temp(p,players[i]);
+t.insert_last(temp);
+}
+string[] blankret;
+if(t.is_empty()) return blankret;
+t.sort_descending();
+string[] names;
+for(uint i=0; i<t.length(); i++)
+{
+names.insert_last(players[t[i].index].name);
+}
+return names;
+}
+string[] nearest_player_sorted_arrayrobot(player@ p)
+{
+pld@[] t;
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==p.name||players[i].is_dead||p.map!=players[i].map||players[i].z!=p.z||are_teamed(players[i].name,p.name)||players[i].hidden==1||in_vehicle(players[i])>-1||in_motor(players[i])>-1||is_safe(players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)])||players[i].safe||players[i].pvp==0||players[i].away||players[i].afk||players[i].newb==1||players[i].looking!="") continue;
+pld temp(p,players[i]);
+t.insert_last(temp);
+}
+string[] blankret;
+if(t.is_empty()) return blankret;
+t.sort_descending();
+string[] names;
+for(uint i=0; i<t.length(); i++)
+{
+names.insert_last(players[t[i].index].name);
+}
+return names;
+}
+string[] nearest_player_sorted_arrayto(player@ p)
+{
+pld@[] t;
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].hidden==1) continue;
+pld temp(p,players[i]);
+t.insert_last(temp);
+}
+string[] blankret;
+if(t.is_empty()) return blankret;
+t.sort_descending();
+string[] names;
+for(uint i=0; i<t.length(); i++)
+{
+if(players[t[i].index].age<18)
+{
+if(players[t[i].index].gender==0) names.insert_last(""+players[t[i].index].name+" (male)");
+else if(players[t[i].index].gender==1) names.insert_last(""+players[t[i].index].name+" (female)");
+}
+else if(players[t[i].index].partner=="" and players[t[i].index].ex_partner=="")
+{
+if(players[t[i].index].gender==0) names.insert_last(""+players[t[i].index].name+" (male, single)");
+else if(players[t[i].index].gender==1) names.insert_last(""+players[t[i].index].name+" (female, single)");
+}
+else if(players[t[i].index].partner=="" and players[t[i].index].ex_partner!="")
+{
+if(players[t[i].index].gender==0) names.insert_last(""+players[t[i].index].name+" (male, devorced from "+players[t[i].index].ex_partner+")");
+else if(players[t[i].index].gender==1) names.insert_last(""+players[t[i].index].name+" (female, devorced from "+players[t[i].index].ex_partner+")");
+}
+else if(players[t[i].index].partner!="" and players[t[i].index].ex_partner=="")
+{
+if(players[t[i].index].gender==0) names.insert_last(""+players[t[i].index].name+" (male, married to "+players[t[i].index].partner+")");
+else if(players[t[i].index].gender==1) names.insert_last(""+players[t[i].index].name+" (female, married to "+players[t[i].index].partner+")");
+}
+}
+return names;
+}
+string cn2n(string pname,bool vi=false)
+{
+string ret=pname;
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==pname)
+{
+ret=players[i].nickname;
+if(vi)
+{
+for(uint v=0; v<vs.length(); v++)
+{
+if(vs[v].owner==pname) ret+="'s "+vs[v].type;
+}
+}
+}
+}
+if(ret==pname&&file_exists("chars/"+pname+"/nickname.usr"))
+{
+ret=get_char_val(pname,"nickname");
+}
+return ret;
+}
+bool are_teamed(string pn1, string pn2)
+{
+int x1=get_player_index_from(pn1);
+int x2=get_player_index_from(pn2);
+if(x1==-1||x2==-1) return false;
+int tx1=is_in_team(pn1);
+int tx2=is_in_team(pn2);
+if(tx1==-1||tx2==-1) return false;
+if(tx1==tx2 or teams[tx1].is_member(pn2) or teams[tx2].is_member(pn1)) return true;
+return false;
+}
+string getdisables(string[] f)
+{
+dictionary temp;
+for(uint i=0; i<f.length(); i++)
+{
+temp.set(f[i],"d");
+}
+return serialize(temp);
+}
+string[] setdisables(string temp)
+{
+dictionary t=deserialize(temp);
+return t.get_keys();
+}
+int antibiotic(int ch)
+{
+double limit=80000,scaler=100;
+if(ch<=5000&&ch>=3500) 
+{
+scaler=70;
+limit=40000;
+}
+else if(ch<3500&&ch>=2000)
+{
+scaler=50;
+limit=30000;
+}
+else if(ch<2000&&ch>1000)
+{
+scaler=25;
+limit=20000;
+}
+else if(ch<=1000)
+{
+scaler=15;
+limit=15000;
+}
+if(ch==0) return 10000;
+else ch+=floor((limit/ch)*scaler);
+return ch;
+}
+bool cheatercheck(player@p, bool excludepaid=false)
+{
+if(file_exists("chars/"+p.name+"/cheater.usr")) return false;
+bool ainear=false;
+for(uint i=0; i<ais.length(); i++)
+{
+int aidist=p.distancecheck(ais[i].x,ais[i].y,ais[i].z);
+if(ais[i].target==p.name and ais[i].map.name==p.map and aidist<=ais[i].range+100)
+{
+ainear=true;
+}
+}
+if(ainear==true)
+{
+if(!excludepaid) return true;
+else if(excludepaid) return true;
+}
+return false;
+}
+class chartime
+{
+string name,extrainfo;
+float lastlog;
+chartime(string name, float lastlog)
+{
+this.name=name;
+this.lastlog=lastlog;
+}
+int opCmp(chartime@ otherlog)
+{
+if(this.lastlog==otherlog.lastlog) return 0;
+else if(this.lastlog<otherlog.lastlog) return -1;
+else return 1;
+}
+}

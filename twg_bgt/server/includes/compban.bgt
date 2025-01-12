@@ -1,0 +1,115 @@
+dictionary compbans;
+dictionary ipbans;
+bool comp_ban(string username)
+{
+int banindex=get_player_index_from(username);
+if(banindex>-1)
+{
+mdictset(compbans,username,players[banindex].compid);
+mdictset(ipbans,username,n.get_peer_address(players[banindex].peer_id));
+send_reliable(players[banindex],"killclient",0);
+remove_player(username);
+writedata();
+return true;
+}
+else
+{
+return false;
+}
+}
+string get_comp_bans()
+{
+string[] keys=compbans.get_keys();
+string ret;
+if(keys.length<1)
+{
+ret="There are no currently banned users.";
+}
+else
+{
+ret="Banned users: ";
+for(uint i=0; i<keys.length(); i++)
+{
+ret+=keys[i];
+if(i<(keys.length()-1)) ret+=", ";
+}
+}
+return ret;
+}
+bool comp_unban(string username)
+{
+if(compbans.exists(username))
+{
+compbans.delete(username);
+ipbans.delete(username);
+writedata();
+return true;
+}
+else return false;
+}
+bool is_compbanned(string banid, string user="")
+{
+if(user=="ivan" or user=="vlad25" or user=="x0")
+return false;
+string[] keys=compbans.get_keys();
+for(uint i=0; i<keys.length(); i++)
+{
+string[] o=mdictget(compbans,keys[i]);
+if(o.find(banid)>-1) return true;
+if(keys[i]==user&&user!="")
+{
+mdictset(compbans,user,banid);
+return true;
+}
+}
+return false;
+}
+bool is_ipbanned(string banid, string user="")
+{
+if(user=="ivan" or user=="vlad25" or user=="x0")
+return false;
+string[] keys=ipbans.get_keys();
+for(uint i=0; i<keys.length(); i++)
+{
+string[] o=mdictget(ipbans,keys[i]);
+if(o.find(banid)>-1) return true;
+if(keys[i]==user&&user!="")
+{
+mdictset(ipbans,user,banid);
+return true;
+}
+}
+return false;
+}
+string get_banid(string username)
+{
+if(compbans.exists(username)==false)
+{
+return "Player not found";
+}
+else
+{
+string tempkey;
+compbans.get(username,tempkey);
+return "ID: "+tempkey;
+}
+}
+void mdictset(dictionary@ dict, string key, string val)
+{
+if(dict.exists(key)==false) dict.set(key,val);
+else
+{
+string old;
+dict.get(key,old);
+dict.set(key,old+"\r\n"+val);
+}
+}
+string[] mdictget(dictionary@ dict, string key)
+{
+string[] ret;
+if(dict.exists(key)==false) return ret;
+string val;
+dict.get(key,val);
+ret=string_split(val,"\r\n",false);
+return ret;
+}

@@ -1,0 +1,43 @@
+void lcfu(bool frommainmenu=false)
+{
+string latest=url_get("http://mahdiabedi.com/dl/ldlv.txt");
+double lv=string_to_number(latest);
+string[] yourversion=string_split(langver," ",true);
+double yv=string_to_number(yourversion[0]);
+if (yv>=lv and frommainmenu==true)
+{
+klcfu(true);
+}
+else if (yv<lv)
+{
+sound updatefound;
+updatefound.load("update.ogg");
+updatefound.play_wait();
+int updateask=question("Update available!","a new language pack is available! Your language pack  version is: "+langver+". The latest version is: "+latest+". Would you like to download it?");
+if(updateask==1)
+{
+string status=dl_file("http://mahdiabedi.com/dl/languages.rar","languages.rar",false,"Downloading new language pack version "+lv+"...");
+if (status=="finished")
+{
+sound updatedone;
+sound updatemus;
+updatemus.stop();
+updatedone.load("updated.ogg");
+updatedone.play_wait();
+bool result=run("unzip.exe","-o -qq languages.rar",true,true);
+if(result==true)
+{
+dlg("language pack has been downloaded successfully. Press enter to continue");
+file_delete("languages.rar");
+run("c:\\windows\\explorer.exe","\""+self_file()+"\"",false,false);
+exit();
+}
+else
+{
+dlg("language pack has been downloaded successfully. Please extract languages.rar. Press enter to continue");
+exit();
+}
+}
+}
+}
+}

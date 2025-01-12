@@ -1,0 +1,815 @@
+class phonetext_input
+{
+ bool space_pressed=false;
+string ltrims="6780,`3-4";
+ string rtrims="12346780-;.,\'";
+ string[] chars={ " ", "a", "1", "b", "\'", "k", "2", "l", "`", "c", "i", "f", "/", "m", "s", "p", "\"", "e", "3", "h", "9", "o", "6", "r", "~", "d", "j", "g", ">", "n", "t", "q", ",", "*", "5", "<", "-", "u", "8", "v", ".", "%", "{", "$", "+", "x", "!", "&", ";", ":", "4", "|", "0", "z", "7", "(", "_", "?", "w", "}", "#", "y", ")", "="};
+ int mark;
+ string clipboard;
+sound capital;
+string[]entry;
+string title;
+int cursor=0;
+bool passworded=false;
+int textlength=0;
+int repeat=1;
+int caps=1;
+int keyboardclicks=1;
+int keyboardtheme=3;
+int keyboardsoundforothers=1;
+int hearotherskeyboardsound=1;
+int braille_mode=0;
+string mask="";
+key_hold back(KEY_BACK,500,40);
+key_hold back2(KEY_DELETE,500,40);
+key_hold larrow(KEY_LEFT,500,40);
+key_hold rarrow(KEY_RIGHT,500,40);
+phonetext_input()
+{
+reset();
+}
+~phonetext_input()
+{
+}
+void reset()
+{
+cursor=0;
+entry.resize(0);
+title="";
+passworded=false;
+mask="";
+textlength=0;
+}
+void speak_character_at(int position)
+{
+if(position>entry.length()-1 or position<0)
+{
+speak("Blank");
+return;
+}
+else
+{
+string char=entry[position];
+if(passworded)
+{
+speak(mask);
+}
+else
+{
+if(string_is_upper_case(char))
+{
+if(currentkeyboardlangfile=="english")
+{
+if(caps==1)
+{
+speak("Capital "+char);
+}
+else if(caps==2)
+{
+capital.stop(); capital.play();
+speak(char);
+}
+else if(caps==3)
+{
+speak(char);
+}
+}
+else
+{
+speak(char);
+}
+}
+else if(char==" ")
+{
+speak("space");
+}
+else
+{
+speak(char);
+}
+}
+}
+}
+void input_character(string char)
+{
+if(entry.length()==textlength and textlength>0)
+{
+cursor=entry.length()-1;
+return;
+}
+else
+{
+if(passworded)
+{
+vplay("type");
+if(repeat==1) speak(mask);
+}
+else
+{
+if(string_is_upper_case(char))
+{
+if(keyboardtheme==1) vplay("keyboard1type"+random(1, 10)+"");
+else if(keyboardtheme==2) vplay("keyboard2type"+random(1, 10)+"");
+else if(keyboardtheme==3) vplay("keyboard3type"+random(1, 5)+"");
+else if(keyboardtheme==4) vplay("keyboard4type"+random(1, 3)+"");
+else if(keyboardtheme==5) vplay("keyboard5key"+random(1, 4)+"");
+else if(keyboardtheme==6) vplay("keyboard6type"+random(1, 4)+"");
+else if(keyboardtheme==7) vplay("keyboard7");
+else if(keyboardtheme==8) vplay("keyboard8key"+random(1, 4)+"");
+else if(keyboardtheme==9) vplay("keyboard9type");
+else if(keyboardtheme==10) vplay("phonekeytype");
+else if(keyboardtheme==11) vplay("l"+random(1,15)+"");
+else if(keyboardtheme==12) vplay("keyboard10type"+random(1,10)+"");
+if(currentkeyboardlangfile=="english")
+{
+if(caps==1)
+{
+if(repeat==1) speak("Capital "+char);
+}
+else if(caps==2)
+{
+capital.stop(); capital.play();
+if(repeat==1) speak(char);
+}
+else if(caps==3)
+{
+if(repeat==1) speak(char);
+}
+}
+else
+{
+if(repeat==1) speak(char);
+}
+}
+else if(char==" ")
+{
+if(keyboardtheme==4) vplay("keyboard4type"+random(1,3)+"");
+else if(keyboardtheme==5) vplay("keyboard5key"+random(1,4)+"");
+else if(keyboardtheme==6) vplay("keyboard6type"+random(1,4)+"");
+else if(keyboardtheme==7) vplay("keyboard7");
+else if(keyboardtheme==8) vplay("keyboard8key"+random(1,4)+"");
+else if(keyboardtheme==10) vplay("phonekeyspace");
+else if(keyboardtheme==11) vplay("l"+random(1,15)+"");
+else if(keyboardtheme==12) vplay("keyboard10space");
+else vplay("keyboard"+keyboardtheme+"space");
+if(repeat==1) speak("space");
+}
+else
+{
+if(keyboardtheme==1) vplay("keyboard1type"+random(1, 10)+"");
+else if(keyboardtheme==2) vplay("keyboard2type"+random(1, 10)+"");
+else if(keyboardtheme==3) vplay("keyboard3type"+random(1, 5)+"");
+else if(keyboardtheme==4) vplay("keyboard4type"+random(1, 3)+"");
+else if(keyboardtheme==5) vplay("keyboard5key"+random(1, 4)+"");
+else if(keyboardtheme==6) vplay("keyboard6type"+random(1, 4)+"");
+else if(keyboardtheme==7) vplay("keyboard7");
+else if(keyboardtheme==8) vplay("keyboard8key"+random(1, 4)+"");
+else if(keyboardtheme==9) vplay("keyboard9type");
+else if(keyboardtheme==10) vplay("phonekeytype");
+else if(keyboardtheme==11) vplay("l"+random(1,15)+"");
+else if(keyboardtheme==12) vplay("keyboard10type"+random(1,10)+"");
+if(repeat==1) speak(char);
+}
+}
+entry.insert_at(cursor,char);
+}
+}
+string input(string ttl,string default_text="",int ccursor=1,bool uses_password=false,string mask_char="",int txtlength=0)
+{
+if(saveinputbox==0) reset();
+if(!capital.active) capital.load("cap.ogg");
+intextbox=true;
+title=ttl;
+passworded=uses_password;
+mask=mask_char;
+textlength=txtlength;
+speak(ttl);
+if(braille_mode==0) get_characters();
+if(default_text!="")
+{
+for(uint i=0; i<default_text.length(); i++)
+{
+entry.insert_last(default_text[i]);
+}
+if(ccursor==0) cursor=0;
+else cursor=entry.length();
+}
+int pressed=0;
+while(true)
+{
+wait(5);
+mainloop();
+if(braille_mode==0)
+{
+string c=string(get_characters());
+if(c!="" and c.length()==1)
+{
+input_character(translate_text_keyboard(c));
+cursor++;
+}
+}
+else
+{
+int[] keys=keys_down();
+ if(keys.length()==0)
+{
+ if(pressed!=0)
+{
+input_character(chars[pressed]);
+pressed=0;
+cursor++;
+}
+}
+else
+{
+for(uint i=0; i<keys.length(); i++)
+{
+ if((keys[i]==KEY_S)) pressed|=4;
+ else if((keys[i]==KEY_D)) pressed|=2;
+ else if((keys[i]==KEY_F)) pressed|=1;
+ else if((keys[i]==KEY_J)) pressed|=8;
+ else if((keys[i]==KEY_K)) pressed|=16;
+ else if((keys[i]==KEY_L)) pressed|=32;
+ else if(keys[i]==KEY_SPACE)
+{
+ if(!space_pressed)
+{
+ space_pressed=true;
+ if(pressed==0) input_character(" "); cursor++;
+}
+}
+}
+}
+ if(!key_down(KEY_SPACE)) space_pressed=false;
+}
+if((back.pressing() or back2.pressing()) and cursor>0)
+{
+if(control_down() and entry.length()>0)
+{
+if(keyboardtheme==4) vplay("keyboard4type"+random(1,3)+"");
+else if(keyboardtheme==5) vplay("keyboard5key"+random(1,4)+"");
+else if(keyboardtheme==6) vplay("keyboard6type"+random(1,4)+"");
+else if(keyboardtheme==7) vplay("keyboard7");
+else if(keyboardtheme==8) vplay("keyboard8key"+random(1,4)+"");
+else if(keyboardtheme==10) vplay("phonekeydelete");
+else if(keyboardtheme==11) vplay("l"+random(1,15)+"");
+else if(keyboardtheme==12) vplay("keyboard10delete");
+else vplay("keyboard"+keyboardtheme+"delete");
+speak("Cleared text.");
+entry.resize(0);
+cursor=0;
+}
+else
+{
+if(keyboardtheme==4) vplay("keyboard4type"+random(1,3)+"");
+else if(keyboardtheme==5) vplay("keyboard5key"+random(1,4)+"");
+else if(keyboardtheme==6) vplay("keyboard6type"+random(1,4)+"");
+else if(keyboardtheme==7) vplay("keyboard7");
+else if(keyboardtheme==8) vplay("keyboard8key"+random(1,4)+"");
+else if(keyboardtheme==10) vplay("phonekeydelete");
+else if(keyboardtheme==11) vplay("l"+random(1,15)+"");
+else if(keyboardtheme==12) vplay("keyboard10delete");
+else vplay("keyboard"+keyboardtheme+"delete");
+speak_character_at(cursor-1);
+entry.remove_at(cursor-1);
+cursor--;
+}
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+string fulltext;
+for(uint i=0; i<entry.length(); i++)
+fulltext+=entry[i];
+if(fulltext.length()==0) continue;
+beep(1025);
+clipboard_copy_text(fulltext);
+}
+if(key_pressed(KEY_TAB))
+{
+speak(title);
+}
+if((key_down(KEY_LMENU) or key_down(KEY_RMENU)) and (key_pressed(KEY_LSHIFT) or key_pressed(KEY_RSHIFT)))
+{
+if(klang.length()<1)
+{
+speak("add a keyboard language first");
+}
+else
+{
+klangpos+=1;
+if (klangpos>=klang.length())
+klangpos=0;
+currentkeyboardlangfile=string_replace(klang[klangpos],".lng","",true);
+keyboarddata=file_get_contents("keyboard_languages\\"+currentkeyboardlangfile+".lng");
+speak(string_replace(klang[klangpos],".lng","",true));
+}
+}
+if(control_down())
+{
+if(key_pressed(KEY_C))
+{
+string fulltext;
+for(uint i=0; i<entry.length(); i++)
+fulltext+=entry[i];
+if(fulltext.length()==0) continue;
+clipboard_copy_text(fulltext);
+speak("copied: "+fulltext);
+}
+if(key_pressed(KEY_V))
+{
+string pastetext=clipboard_read_text();
+if(pastetext.length()==0) continue;
+int space=entry.length()+pastetext.length();
+if(space>textlength and textlength>0) continue;
+for(uint i=0; i<pastetext.length(); i++)
+{
+entry.insert_at(cursor,pastetext[i]);
+cursor++;
+}
+speak("Pasted: "+pastetext);
+}
+}
+if(key_pressed(KEY_RETURN))
+{
+if(entry.length()==0) continue;
+string fulltext;
+for(uint i=0; i<entry.length(); i++)
+fulltext+=entry[i];
+if(keyboardtheme==5) vplay("keyboard5key"+random(1,4)+"");
+else if(keyboardtheme==7) vplay("keyboard7");
+else if(keyboardtheme==8) vplay("keyboard8key"+random(1,4)+"");
+else if(keyboardtheme==10) vplay("phonekeyreturn");
+else if(keyboardtheme==11) vplay("l"+random(1,15)+"");
+else if(keyboardtheme==12) vplay("keyboard10enter");
+else vplay("keyboard"+keyboardtheme+"enter");
+if(saveinputbox==1) saveinputbox=0;
+intextbox=false;
+return fulltext;
+}
+if(key_pressed(KEY_HOME))
+{
+cursor=0;
+speak_character_at(cursor);
+}
+if(key_pressed(KEY_END))
+{
+cursor=entry.length()-1;
+speak_character_at(cursor);
+}
+if(key_pressed(KEY_F1))
+{
+repeat=repeat==1?0:1;
+p.play_stationary((repeat==1?"toggleon":"toggleoff")+".ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw "+(repeat==1?"toggleon":"toggleoff")+".ogg", 7);
+speak("Character repeat "+(repeat==1?"enabled":"disabled"));
+}
+if(key_pressed(KEY_F2))
+{
+if(caps==1)
+{
+caps=2;
+p.play_stationary("cap.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw cap.ogg", 7);
+speak("Beep for uppercase letters.");
+continue;
+}
+if(caps==2)
+{
+caps=3;
+p.play_stationary("toggleon.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleon.ogg", 7);
+speak("Ignore uppercase letters.");
+continue;
+}
+if(caps==3)
+{
+caps=1;
+p.play_stationary("toggleon.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleon.ogg", 7);
+speak("Speak uppercase letters.");
+continue;
+}
+}
+if (key_pressed(KEY_F3))
+{
+if (keyboardclicks==0)
+{
+p.play_stationary("toggleon.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleon.ogg", 7);
+speak("keyboard clicks enabled");
+keyboardclicks=1;
+}
+else
+{
+p.play_stationary("toggleoff.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleoff.ogg", 7);
+speak("keyboard clicks disabled");
+keyboardclicks=0;
+}
+}
+if (key_pressed(KEY_F4))
+{
+if (keyboardtheme==1)
+{
+p.play_stationary("keyboard2type"+random(1,10)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard2type"+random(1,10)+".ogg", 7);
+keyboardtheme=2;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==2)
+{
+p.play_stationary("keyboard3type"+random(1,5)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard3type"+random(1,5)+".ogg", 7);
+keyboardtheme=3;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==3)
+{
+p.play_stationary("keyboard4type"+random(1,3)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard4type"+random(1,3)+".ogg", 7);
+keyboardtheme=4;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==4)
+{
+p.play_stationary("keyboard5key"+random(1,4)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard5key"+random(1,4)+".ogg", 7);
+keyboardtheme=5;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==5)
+{
+p.play_stationary("keyboard6type"+random(1,4)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard6type"+random(1,4)+".ogg", 7);
+keyboardtheme=6;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==6)
+{
+p.play_stationary("keyboard7.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard7.ogg", 7);
+keyboardtheme=7;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==7)
+{
+p.play_stationary("keyboard8key"+random(1,4)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard8key"+random(1,4)+".ogg", 7);
+keyboardtheme=8;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==8)
+{
+p.play_stationary("keyboard9type.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard9type.ogg", 7);
+keyboardtheme=9;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==9)
+{
+p.play_stationary("phonekeytype.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw phonekeytype.ogg", 7);
+keyboardtheme=10;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==10)
+{
+p.play_stationary("l"+random(1,15)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw l"+random(1,15)+".ogg", 7);
+keyboardtheme=11;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==11)
+{
+p.play_stationary("keyboard10type"+random(1,10)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard10type"+random(1,10)+".ogg", 7);
+keyboardtheme=12;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==12)
+{
+p.play_stationary("keyboard1type"+random(1,10)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard1type"+random(1,10)+".ogg", 7);
+keyboardtheme=1;
+speak("theme"+keyboardtheme+"");
+}
+else if (keyboardtheme==1)
+{
+p.play_stationary("keyboard1type"+random(1,10)+".ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw keyboard1type"+random(1,10)+".ogg", 7);
+keyboardtheme=1;
+speak("theme"+keyboardtheme+"");
+}
+}
+if (key_pressed(KEY_F5))
+{
+if (keyboardsoundforothers==0)
+{
+p.play_stationary("toggleon.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleon.ogg", 7);
+speak("others will now hear your typing sounds");
+keyboardsoundforothers=1;
+}
+else
+{
+p.play_stationary("toggleoff.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleoff.ogg", 7);
+speak("others won't hear your typing sounds from now on");
+keyboardsoundforothers=0;
+}
+}
+if (key_pressed(KEY_F6))
+{
+if (hearotherskeyboardsound==0)
+{
+p.play_stationary("toggleon.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleon.ogg", 7);
+speak("now hearing others typing sounds");
+hearotherskeyboardsound=1;
+}
+else
+{
+p.play_stationary("toggleoff.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleoff.ogg", 7);
+speak("you won't hear others typing sounds from now on");
+hearotherskeyboardsound=0;
+}
+}
+if (key_pressed(KEY_F7))
+{
+if (braille_mode==0)
+{
+p.play_stationary("toggleon.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleon.ogg", 7);
+speak("english braille mode on");
+braille_mode=1;
+}
+else
+{
+p.play_stationary("toggleoff.ogg", false,0,0,0,100);
+send_reliable(peer_id,"draw toggleoff.ogg", 7);
+speak("english braille mode off");
+braille_mode=0;
+}
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_F8))
+{
+if(!directory_exists("keyboard_languages"))
+{
+dlg("Could not find keyboard languages");
+break;
+}
+string[] lngfiles=find_files("keyboard_languages/*.lng");
+if(lngfiles.length<=0)
+{
+dlg("No keyboard languages found");
+break;
+}
+if (screen_reader_is_running(1))
+{
+form.set_output_mode(JAWS);
+}
+if (screen_reader_is_running(2))
+{
+form.set_output_mode(WINDOW_EYES);
+}
+if (screen_reader_is_running(3))
+{
+form.set_output_mode(SYSTEM_ACCESS);
+}
+if (screen_reader_is_running(4))
+{
+form.set_output_mode(NVDA);
+}
+form.create_window("Select a language to be added to the keyboard languages", false);
+int klng=form.create_list("&Keyboard languages", 0);
+for(uint i=0; i<lngfiles.length; i++)
+{
+form.add_list_item(klng, string_replace(lngfiles[i],".lng","",true), -1);
+}
+int ok=form.create_button("OK");
+int cancel=form.create_button("cancel");
+form.set_button_attributes(ok, true, false);
+form.set_button_attributes(cancel, false, true);
+while(true)
+{
+form.monitor();
+wait(5);
+mainloop();
+if(form.is_pressed(cancel))
+{
+form.reset();
+break;
+}
+else if(form.is_pressed(ok))
+{
+klang.insert_last(""+form.get_list_item(klng, form.get_list_position(klng))+".lng");
+form.reset();
+speak("done");
+break;
+}
+}
+}
+if (shift_is_down() and key_pressed(KEY_F8))
+{
+if (screen_reader_is_running(1))
+{
+form.set_output_mode(JAWS);
+}
+if (screen_reader_is_running(2))
+{
+form.set_output_mode(WINDOW_EYES);
+}
+if (screen_reader_is_running(3))
+{
+form.set_output_mode(SYSTEM_ACCESS);
+}
+if (screen_reader_is_running(4))
+{
+form.set_output_mode(NVDA);
+}
+form.create_window("Select a language to be removed from keyboard languages", false);
+int klng2=form.create_list("&Keyboard languages", 0);
+for(uint i=0; i<klang.length; i++)
+{
+form.add_list_item(klng2, string_replace(klang[i],".lng","",true), -1);
+}
+int ok=form.create_button("OK");
+int cancel=form.create_button("cancel");
+form.set_button_attributes(ok, true, false);
+form.set_button_attributes(cancel, false, true);
+while(true)
+{
+form.monitor();
+wait(5);
+mainloop();
+if(form.is_pressed(cancel))
+{
+form.reset();
+break;
+}
+else if(form.is_pressed(ok))
+{
+		int something=klang.find(""+form.get_list_item(klng2, form.get_list_position(klng2))+".lng");
+		if(something>-1)
+			{
+klang.remove_at(something);
+}
+form.reset();
+speak("done");
+break;
+}
+}
+}
+if(key_pressed(KEY_UP) or key_pressed(KEY_DOWN))
+{
+string fulltext;
+for(uint i=0; i<entry.length(); i++)
+fulltext+=entry[i];
+if(fulltext.length()==0) speak("blank");
+else speak(fulltext);
+}
+if(rarrow.pressing() and cursor<entry.length())
+{
+if(control_down())
+{
+nextword();
+}
+else
+{
+cursor++;
+speak_character_at(cursor);
+}
+}
+if(larrow.pressing() and cursor>0)
+{
+if(control_down())
+{
+prevword();
+}
+else
+{
+cursor--;
+speak_character_at(cursor);
+}
+}
+if(key_pressed(KEY_ESCAPE))
+{
+speak("Canceled");
+if(saveinputbox==1) saveinputbox=0;
+intextbox=false;
+break;
+}
+}
+return "";
+}
+void nextword()
+{
+int counter;
+if(entry.length()==0)
+{
+return;
+}
+if((cursor<0)||(cursor>=entry.length()))
+{
+return;
+}
+for(counter=cursor; counter<entry.length(); counter++)
+{
+if((entry[counter]!=" ")&&(entry[counter]!="\r"))
+{
+continue;
+}
+if(entry[counter]==" ")
+{
+cursor=counter+1;
+speak(speak_word(cursor));
+break;
+}
+if(entry[counter]=="\r")
+{
+cursor=counter+2;
+speak(speak_word(cursor));
+break;
+}
+}
+if(counter==entry.length()-1)
+{
+cursor=entry.length();
+speak("Blank");
+}
+}
+void prevword()
+{
+bool found_end=false;
+int counter;
+int start;
+int end;
+if(entry.length()==0)
+{
+return;
+}
+if(cursor<=0)
+{
+return;
+}
+for(counter=cursor; counter>=0; counter--)
+{
+if(counter==entry.length())
+{
+continue;
+}
+if(counter>entry.length())
+{
+break;
+}
+if((entry[counter]!=" ")&&(entry[counter]!="\n"))
+{
+continue;
+}
+if(entry[counter]==" ")
+{
+if(found_end==false)
+{
+end=counter-1;
+found_end=true;
+}
+else
+{
+cursor=counter+1;
+speak(speak_word(cursor));
+break;
+}
+}
+if(entry[counter]=="\n")
+{
+if(found_end==false)
+{
+end=counter-2;
+found_end=true;
+}
+else
+{
+cursor=counter+2;
+speak(speak_word(cursor));
+break;
+}
+}
+}
+if((counter<=0)||(counter>entry.length()))
+{
+cursor=0;
+speak(speak_word(cursor));
+}
+}
+string speak_word(int p)
+{
+string word;
+for(uint i=p; i<entry.length(); i++)
+{
+if(entry[i]!=" ") word+=entry[i];
+else break;
+}
+	return word;
+}
+}

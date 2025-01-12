@@ -1,0 +1,18 @@
+mapname:phone_booth
+minx:0
+maxx:15
+miny:0
+maxy:15
+minz:0
+maxz:15
+tile:0:15:0:15:0:0:0:100:concrete7
+litem:1
+starting_point:0:15:0:15:0:0
+deathpoint:0:15:0:15:0:0
+zone:0:15:0:15:0:15:phone booth
+src:0:15:0:15:0:15:0:100:vent4.ogg
+travelpoint:0:0:0:0:0:0:main:150:250:0:welcome back:door1s.ogg:door20open.ogg:door20close.ogg
+zone:0:0:0:0:0:0:exit door. Press shift enter to go outside:trackme
+zone:13:13:13:13:0:0:telephone:trackme
+
+owner:mad-gamer

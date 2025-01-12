@@ -1,0 +1,43 @@
+toilet@[] toilets(0);
+class toilet
+{
+int minx, maxx, miny, maxy, minz, maxz, descarga=0;
+string map;
+toilet(int tminx, int tmaxx, int tminy, int tmaxy, int tminz, int tmaxz, string tmap)
+{
+minx=tminx;
+maxx=tmaxx;
+miny=tminy;
+maxy=tmaxy;
+minz=tminz;
+maxz=tmaxz;
+map=tmap;
+}
+}
+void spawn_toilet(int minx, int maxx, int miny, int maxy, int minz, int maxz, string map)
+{
+toilet t(minx, maxx, miny, maxy, minz, maxz, map);
+toilets.insert_last(t);
+}
+void remove_toilet(int index)
+{
+if(index>-1)
+{
+@toilets[index]=null;
+toilets.remove_at(index);
+}
+}
+void remove_all_toilets()
+{
+for(uint i=0; i<toilets.length(); i++)
+{
+remove_toilet(i);
+}
+}
+void clear_toilets_on_map(string map)
+{
+for(uint i=0; i<toilets.length(); i+=1)
+{
+if(toilets[i].map==map) remove_toilet(i);
+}
+}

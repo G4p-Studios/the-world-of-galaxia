@@ -1,0 +1,48 @@
+string webdir="http://files.mad-gamer22.com/tk/motd";
+string motdhash;
+string mmode;
+string motdtext;
+string motdaudio;
+void getmotd()
+{
+mode=url_get(webdir+"/mode.txt");
+if(mode!="t" and mode!="a") return;
+if(mode=="t")
+{
+motdtext=url_get(webdir+"/text.txt");
+if(get_last_error()!=0)
+{
+dlg("No message of the day was found.");
+mainmenu();
+}
+if(string_hash(motdtext,2,false)!=motdhash)
+{
+motdhash=string_hash(motdtext,2,false);
+//p.play_stationary("motdstart.wav",false);
+dlg("Message of the Day: "+motdtext);
+/*
+sound m;
+m.load("motdend.wav");
+m.play_wait();
+m.close();
+*/
+return;
+}
+}
+if(mode=="a")
+{
+motdaudio=url_get(webdir+"/audio.ogg");
+if(get_last_error()!=0)
+{
+dlg("No message of the day was found.");
+mainmenu();
+}
+string hash=string_hash(motdaudio,2,false);
+if(hash!=motdhash)
+{
+motdhash=hash;
+speak("Message of the Day");
+dlgplay(motdaudio,false);
+}
+}
+}

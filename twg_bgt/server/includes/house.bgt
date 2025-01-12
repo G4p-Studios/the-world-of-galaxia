@@ -1,0 +1,442 @@
+house@[] houses(0);
+class house
+{
+int x, y, z, code, health, hackmode=-1, hacktime, canbell=0, security_boosts=0;
+string id, map, housemap, owner, hitby="nothing", hacker="noone", bellsound, itemdeleted="conex";
+bool hacking=false;
+timer hacktimer;
+savedata tempsd("");
+house(int hx, int hy, int hz, string hmap, string howner, int hcode, int hhealth, string hhousemap, string hitemdeleted, string hid="")
+{
+x=hx;
+y=hy;
+z=hz;
+map=hmap;
+owner=howner;
+code=hcode;
+health=hhealth;
+housemap=hhousemap;
+itemdeleted=hitemdeleted;
+id=hid;
+tempsd.fn="houses/"+id+".house";
+tempsd.key="dl_house";
+}
+void houseplay(string soundfile)
+{
+send_packet(6,"play locker_"+soundfile+".ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+}
+void house_save()
+{
+if(directory_exists("houses")==false)
+directory_create("houses");
+tempsd.add("x",x);
+tempsd.add("y",y);
+tempsd.add("z",z);
+tempsd.add("map",map);
+tempsd.add("owner",owner);
+tempsd.add("code",code);
+tempsd.add("health",health);
+tempsd.add("housemap",housemap);
+tempsd.add("security_boosts",security_boosts);
+tempsd.add("bellsound",bellsound);
+tempsd.add("canbell",canbell);
+tempsd.add("id",id);
+tempsd.add("itemdeleted",itemdeleted);
+tempsd.save();
+}
+void loop(int i)
+{
+if(health<=0)
+{
+send_packet(6,"play base_dest.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacket(6,"distsound base_destdist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+for(uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].map==housemap)
+{
+move_player(players[i2],map,x,y,z);
+send_reliable(players[i2],"exitplace",0);
+players[i2].health-=50000;
+}
+}
+for(uint i2=0; i2<msounds.length(); i2++)
+{
+if(msounds[i2].map==housemap)
+{
+msounds.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<ais.length(); i2++)
+{
+if(ais[i2].map.name==housemap)
+{
+if (ais[i2].voice!="" and ais[i2].rapidvoice==true) destroy_moving_sound(ais[i2].voice);
+ais.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<beehives.length(); i2++)
+{
+if(beehives[i2].map==housemap)
+{
+file_delete("beehives/"+beehives[i2].beehivemap+".beehive");
+remove_map(beehives[i2].beehivemap);
+beehives.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<lockers.length(); i2++)
+{
+if(lockers[i2].map==housemap)
+{
+file_delete("lockers/"+lockers[i2].id+".locker");
+lockers.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<microwaves.length(); i2++)
+{
+if(microwaves[i2].map==housemap)
+{
+destroy_moving_sound(microwaves[i2].midsound);
+file_delete("microwaves/"+microwaves[i2].id+".microwave");
+microwaves.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<air_conditioners.length(); i2++)
+{
+if(air_conditioners[i2].map==housemap)
+{
+destroy_moving_sound(air_conditioners[i2].mid);
+file_delete("air_conditioners/"+air_conditioners[i2].id+".air_conditioner");
+air_conditioners.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<steams.length(); i2++)
+{
+if(steams[i2].map==housemap)
+{
+destroy_moving_sound(steams[i2].mid);
+file_delete("steams/"+steams[i2].id+".steam");
+steams.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<fans.length(); i2++)
+{
+if(fans[i2].map==housemap)
+{
+destroy_moving_sound(fans[i2].mid);
+file_delete("fans/"+fans[i2].id+".fan");
+fans.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<fridges.length(); i2++)
+{
+if(fridges[i2].map==housemap)
+{
+destroy_moving_sound(fridges[i2].mid);
+file_delete("fridges/"+fridges[i2].id+".fridge");
+fridges.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<timeitems.length(); i2++)
+{
+if(timeitems[i2].map==housemap)
+{
+timeitems.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<objs.length(); i2++)
+{
+if(objs[i2].map.name==housemap)
+{
+objs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<silenceobjs.length(); i2++)
+{
+if(silenceobjs[i2].map.name==housemap)
+{
+silenceobjs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<bodyfalls.length(); i2++)
+{
+if(bodyfalls[i2].map==housemap)
+{
+bodyfalls.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<weapons.length(); i2++)
+{
+if(weapons[i2].map.name==housemap)
+{
+weapons.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<censor_bombs.length(); i2++)
+{
+if(censor_bombs[i2].map.name==housemap)
+{
+censor_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<nuclear_bombs.length(); i2++)
+{
+if(nuclear_bombs[i2].map.name==housemap)
+{
+nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<small_nuclear_bombs.length(); i2++)
+{
+if(small_nuclear_bombs[i2].map.name==housemap)
+{
+small_nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<large_nuclear_bombs.length(); i2++)
+{
+if(large_nuclear_bombs[i2].map.name==housemap)
+{
+large_nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<time_bombs.length(); i2++)
+{
+if(time_bombs[i2].map.name==housemap)
+{
+time_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<grenades.length(); i2++)
+{
+if(grenades[i2].map.name==housemap)
+{
+grenades.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<canisters.length(); i2++)
+{
+if(canisters[i2].map.name==housemap)
+{
+canisters.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<snares.length(); i2++)
+{
+if(snares[i2].map.name==housemap)
+{
+snares.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<rockets.length(); i2++)
+{
+if(rockets[i2].map.name==housemap)
+{
+rockets.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<rpgs.length(); i2++)
+{
+if(rpgs[i2].map.name==housemap)
+{
+rpgs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<turrets.length(); i2++)
+{
+if(turrets[i2].map.name==housemap)
+{
+turrets.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<mines.length(); i2++)
+{
+if(mines[i2].map.name==housemap)
+{
+mines.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<robots.length(); i2++)
+{
+if(robots[i2].map.name==housemap)
+{
+destroy_moving_sound(robots[i2].mid);
+robots.remove_at(i2);
+continue;
+}
+}
+file_delete("houses/"+id+".house");
+remove_map(housemap);
+send_reliable(0, "kills "+killmsg3(owner+"'s "+itemdeleted, hitby, get_zone_at(x,y,z,maps[get_map_index(map)])), 0);
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int index=get_player_index_from(hb);
+if(index>-1)
+{
+givexp(players[index],random(100, 300)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+houses.remove_at(i);
+return;
+}
+if(hacking==true)
+{
+if(hacktimer.elapsed>hacktime)
+{
+int h=get_player_index_from(hacker);
+if(h>-1)
+{
+string packet;
+if(hackmode==1)
+{
+if(security_boosts>=0) security_boosts-=random(1, 100);
+packet="Hack successfull! The house code is "+code;
+}
+else
+{
+if(security_boosts>=0) security_boosts-=random(1, 100);
+packet="The hack did not complete successfully";
+}
+send_reliable(players[h],packet,2);
+send_reliable(players[h],"startmoving",0);
+}
+hacking=false;
+}
+}
+}
+}
+void spawn_house(int x, int y, int z, string map, string owner, int code, int health, string housemap, string itemdeleted, string id)
+{
+house h(x, y, z, map, owner, code, health, housemap, itemdeleted, id);
+houses.insert_last(h);
+}
+void load_house(string t)
+{
+int x, y, z, code, health, canbell, security_boosts=0;
+string id, map, housemap, owner, bellsound, itemdeleted;
+savedata tsd("houses/"+t+".house","dl_house");
+tsd.load();
+if(tsd.d.exists("x"))
+x=tsd.readn("x");
+if(tsd.d.exists("y"))
+y=tsd.readn("y");
+if(tsd.d.exists("z"))
+z=tsd.readn("z");
+if(tsd.d.exists("map"))
+map=tsd.read("map");
+if(tsd.d.exists("owner"))
+owner=tsd.read("owner");
+if(tsd.d.exists("code"))
+code=tsd.readn("code");
+if(tsd.d.exists("health"))
+health=tsd.readn("health");
+if(tsd.d.exists("housemap"))
+housemap=tsd.read("housemap");
+if(tsd.d.exists("id"))
+id=tsd.read("id");
+if(tsd.d.exists("security_boosts"))
+security_boosts=tsd.readn("security_boosts");
+if(tsd.d.exists("bellsound"))
+bellsound=tsd.readn("bellsound");
+if(tsd.d.exists("canbell"))
+canbell=tsd.readn("canbell");
+if(tsd.d.exists("itemdeleted"))
+itemdeleted=tsd.read("itemdeleted");
+spawn_house(x, y, z, map, owner, code, health, housemap, itemdeleted, id);
+int hindex=get_house_index(t);
+houses[hindex].security_boosts=security_boosts;
+houses[hindex].bellsound=bellsound;
+houses[hindex].canbell=canbell;
+}
+void load_all_houses()
+{
+string[] housefiles=find_files("houses/*.house");
+for(uint i=0; i<housefiles.length(); i++)
+{
+load_house(string_trim_right(housefiles[i],6));
+}
+}
+int get_house_index(int x, int y, int z, mapdata@m)
+{
+for(uint i=0; i<houses.length(); i++)
+{
+if(houses[i].map==m.name and houses[i].x==x and houses[i].y==y and houses[i].z==z)
+{
+return i;
+}
+}
+return -1;
+}
+int in_house(player@p)
+{
+int index=get_player_index_from(p.name);
+if(index<0) return -1;
+for(uint x=0; x<houses.length(); x++)
+{
+if(players[index].map==houses[x].housemap) return x;
+}
+return -1;
+}
+int get_house_index(string id)
+{
+for(uint i=0; i<houses.length(); i++)
+{
+if(houses[i].id==id)
+{
+return i;
+}
+}
+return -1;
+}
+int has_house(string who)
+{
+for(uint i=0; i<houses.length(); i++)
+{
+int index=get_player_index_from(who);
+if(index>-1)
+{
+if(houses[i].owner==players[index].name or players[index].partner==houses[i].owner)
+{
+return i;
+}
+}
+}
+return -1;
+}

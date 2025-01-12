@@ -1,0 +1,361 @@
+int hack_successtime=13841;
+int hack_failedtime=19006;
+locker@[]lockers(0);
+class locker
+{
+double x,y,z,code,health, hackmode=-1, hacktime, security_boosts=0;
+string id, map, owner, hitby="nothing", hacker="noone";
+bool hacking=false;
+timer hacktimer;
+locker(int lx, int ly, int lz, string lmap, string lowner, int lcode, int lhealth, string lid="")
+{
+x=lx;
+y=ly;
+z=lz;
+map=lmap;
+owner=lowner;
+code=lcode;
+health=lhealth;
+id=lid;
+}
+dictionary inventory;
+double count_total_items()
+{
+double amount=0;
+for (uint i=0; i<inventory.get_keys().length(); i++)
+{
+double a;
+inventory.get(inventory.get_keys()[i],a);
+amount+=a;
+}
+return amount;
+}
+double get_item_count(string item)
+{
+double amount=0;
+for (uint i=0; i<inventory.get_keys().length(); i++)
+{
+double a=0;
+if (inventory.get_keys()[i]==item)
+inventory.get(inventory.get_keys()[i],a);
+amount+=a;
+}
+return amount;
+}
+string invdic_to_string(bool showall=true)
+{
+string ss;
+string[] ds;
+if(inventory.get_keys().length()<=0)
+return "";
+ds=inventory.get_keys();
+for(uint i=0; i<ds.length(); i++)
+{
+double val;
+inventory.get(ds[i],val);
+ss+=ds[i]+"="+val+"\r\n";
+}
+return ss;
+}
+void main_ui(player@pl)
+{
+if(@pl==null) return;
+server_menu m;
+m.initial_packet="lockcommand";
+m.intro="Welcome to your locker! Select an option";
+m.add("Get items", "g");
+m.add("store items", "s");
+if(pl.name==owner) m.add("change locker code", "c");
+m.send(pl.peer_id);
+}
+void give(string item, double amount)
+{
+double a;
+if (!inventory.exists(item))
+{
+inventory.set(item,amount);
+}
+else
+{
+inventory.get(item,a);
+if (a+amount<=0)
+inventory.delete(item);
+else
+{
+double b=(a+amount);
+inventory.set(item,b);
+}
+}
+this.neg_inv_check();
+}
+void neg_inv_check()
+{
+string[] k=inventory.get_keys();
+for(uint i=0; i<k.length(); i++)
+{
+double v;
+inventory.get(k[i],v);
+if(v<=0) inventory.delete(k[i]);
+}
+}
+void command(string cmd,int peer)
+{
+string[] parsed=string_split(cmd," ",false);
+if(parsed[0]=="g")
+{
+if(inventory.get_size()==0)
+{
+send_reliable(peer,"You look at the locker, but there's nothing inside",0);
+return;
+}
+else
+{
+string menuitems;
+string items=invdic_to_string();
+string[] p=string_split(items,"\r\n",false);
+menuitems+="the entire items:invall[]";
+for(uint i=0; i<p.length(); i++)
+{
+string[] another_p=string_split(p[i],"=",false);
+menuitems+=another_p[0]+", "+another_p[1]+":"+another_p[0]+"[]";
+}
+send_menu(peer,"Select the item you would like to take out of the locker ","lockertake",menuitems);
+}
+}
+else if(parsed[0]=="s")
+{
+int index=get_player_index(peer);
+if(auction==true and auctionwho==players[index].name)
+{
+send_reliable(players[index],"you can't do this while putting something for auction",2);
+return;
+}
+if(auction==true and auctionwho2==players[index].name)
+{
+send_reliable(players[index],"you can't do this while bidding",2);
+return;
+}
+string menuitems;
+string items=dict_to_ini(players[index].inv);
+if(items=="")
+{
+send_reliable(peer,"Sorry, your inventory is empty",0);
+return;
+}
+string[] p=string_split(items,"\r\n",false);
+menuitems="Your entire inventory:invall[]";
+for(uint i=0; i<p.length(); i++)
+{
+string[] another_p=string_split(p[i],"=",false);
+string[] a=string_split(file_get_contents("notadg.svr"),"\r\n",false);
+if((file_exists("foods_and_drinks/"+another_p[0]+".fad") or another_p[0]=="creamy_ice_cream" or another_p[0]=="vanilla_ice_cream" or another_p[0]=="caramel_ice_cream" or another_p[0]=="smoothie" or another_p[0]=="iced_tea" or another_p[0]=="lemonade" or another_p[0]=="lime_cordial" or another_p[0]=="milkshake" or another_p[0]=="orange_squash" or another_p[0]=="squash" or another_p[0]=="cocoa" or another_p[0]=="coffee" or another_p[0]=="black_coffee" or another_p[0]=="decaffeinated_coffee" or another_p[0]=="fruit_tea" or another_p[0]=="green_tea" or another_p[0]=="herbal_tea" or another_p[0]=="hot_chocolate" or another_p[0]=="tea" or another_p[0]=="fruit_juice" or another_p[0]=="grapefruit_juice" or another_p[0]=="orange_juice" or another_p[0]=="pineapple_juice" or another_p[0]=="tomato_juice" or another_p[0]=="cola" or another_p[0]=="opened_cola" or another_p[0]=="sos" or another_p[0]=="ice" or another_p[0]=="snow" or another_p[0]=="cup_of_water" or another_p[0]=="cup_of_cola" or another_p[0]=="glass_of_water" or another_p[0]=="cup_of_boiling_water" or another_p[0]=="glass_of_boiling_water" or another_p[0]=="cup_of_beer" or another_p[0]=="glass_of_cola" or another_p[0]=="glass_of_beer" or another_p[0]=="water_bottle" or another_p[0]=="beer_bottle" or string_contains(another_p[0],"cooked_",1)>-1 or string_contains(another_p[0],"gutted_",1)>-1 or string_contains(another_p[0],"eatable_",1)>-1 or string_contains(another_p[0],"skillit_with_",1)>-1 or another_p[0]=="open_water_bottle" or another_p[0]=="open_beer_bottle" or another_p[0]=="pot_of_water" or another_p[0]=="fish" or another_p[0]=="hotdog" or another_p[0]=="hamburger" or another_p[0]=="cheeseburger" or another_p[0]=="chicken_sandwich" or another_p[0]=="piece_of_hotdog" or another_p[0]=="piece_of_hamburger" or another_p[0]=="piece_of_cheeseburger" or another_p[0]=="piece_of_chicken_sandwich" or another_p[0]=="hotdog_with_sos" or another_p[0]=="hamburger_with_sos" or another_p[0]=="cheeseburger_with_sos" or another_p[0]=="chicken_sandwich_with_sos" or another_p[0]=="piece_of_hotdog_with_sos" or another_p[0]=="piece_of_hamburger_with_sos" or another_p[0]=="piece_of_cheeseburger_with_sos" or another_p[0]=="piece_of_chicken_sandwich_with_sos" or another_p[0]=="piece_of_cake" or another_p[0]=="cake" or another_p[0]=="apple" or another_p[0]=="watermelon" or another_p[0]=="orange" or another_p[0]=="pear" or another_p[0]=="cherry" or another_p[0]=="strawberry" or another_p[0]=="berry" or another_p[0]=="nectarine" or another_p[0]=="grape" or another_p[0]=="mango" or another_p[0]=="blueberry" or another_p[0]=="pomegranate" or another_p[0]=="carambola" or another_p[0]=="plum" or another_p[0]=="banana" or another_p[0]=="raspberry" or another_p[0]=="mandarin" or another_p[0]=="jackfruit" or another_p[0]=="papaya" or another_p[0]=="kiwi" or another_p[0]=="pineapple" or another_p[0]=="lime" or another_p[0]=="lemon" or another_p[0]=="apricot" or another_p[0]=="grapefruit" or another_p[0]=="melon" or another_p[0]=="coconut" or another_p[0]=="avocado" or another_p[0]=="peach" or another_p[0]=="green_almond" or another_p[0]=="tamarind" or another_p[0]=="cornelian_cherry" or another_p[0]=="rhubarb" or another_p[0]=="persimmon" or another_p[0]=="fig" or another_p[0]=="sour_cherry" or another_p[0]=="sour_grapes" or another_p[0]=="sitron" or another_p[0]=="sour_orange" or another_p[0]=="mushroom" or another_p[0]=="broccoli" or another_p[0]=="cucumber" or another_p[0]=="red_pepper" or another_p[0]=="tomato" or another_p[0]=="swede" or another_p[0]=="carrot" or another_p[0]=="brussels_sprout" or another_p[0]=="pumpkin" or another_p[0]=="cabbage" or another_p[0]=="potato" or another_p[0]=="eggplant" or another_p[0]=="sweet_potato" or another_p[0]=="turnip" or another_p[0]=="courgette" or another_p[0]=="green_chilli" or another_p[0]=="onion" or another_p[0]=="lettuce" or another_p[0]=="radish" or another_p[0]=="pea" or another_p[0]=="asparagus" or another_p[0]=="selery" or another_p[0]=="green_pepper" or another_p[0]=="french_beans" or another_p[0]=="spinach" or another_p[0]=="beetroot" or another_p[0]=="red_chillies" or another_p[0]=="bean" or another_p[0]=="cilantro" or another_p[0]=="artichoke" or another_p[0]=="rosemary" or another_p[0]=="bay_leaves" or another_p[0]=="mint_leaves" or another_p[0]=="basil" or another_p[0]=="clove" or another_p[0]=="olive" or another_p[0]=="shallot" or another_p[0]=="turmeric" or another_p[0]=="garlic" or another_p[0]=="ginger" or another_p[0]=="spring_onions" or another_p[0]=="lemongrass" or another_p[0]=="chives" or another_p[0]=="nut" or string_contains(another_p[0],"piece_of_bread",1)>-1) and string_contains(another_p[0],"corrupted_",1)<0 and string_contains(another_p[0],"heated_",1)<0 and a.find(another_p[0])<0) continue;
+menuitems+=another_p[0]+", "+another_p[1]+":"+another_p[0]+"[]";
+}
+send_menu(peer,"What would you like to put inside the locker ?","lockergive",menuitems);
+}
+else if(parsed[0]=="c")
+{
+int index=get_player_index(peer);
+if(players[index].name==owner)
+{
+send_serverbox(players[index].peer_id,2,0,1,4,"changelockcode", "enter the new code you wish your locker will have");
+}
+else
+{
+send_reliable(players[index], "you seem to not be the owner of the locker.", 2);
+}
+}
+else if(parsed[0]=="[cncel]")
+{
+lockplay("doorclose");
+send_reliable(peer,"You slide the  door closed",0);
+}
+}
+void lockplay(string soundfile)
+{
+send_packet(6,"play locker_"+soundfile+".ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+}
+void loop(int i)
+{
+if(health<=0)
+{
+send_packet(6,"play explode28.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacket(6,"distsound explode18 "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+file_delete("lockers/"+id+".locker");
+send_reliable(0, "kills "+killmsg3(owner+"'s_locker", hitby, get_zone_at(x,y,z,maps[get_map_index(map)])), 0);
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int index=get_player_index_from(hb);
+if(index>-1)
+{
+givexp(players[index],random(100, 300)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+lockers.remove_at(i);
+return;
+}
+if(hacking==true)
+{
+if(hacktimer.elapsed>hacktime)
+{
+int h=get_player_index_from(hacker);
+if(h>-1)
+{
+string packet;
+if(hackmode==1)
+{
+if(security_boosts>=0) security_boosts-=random(1, 100);
+packet="Hack successfull! The locker code is "+code;
+}
+else
+{
+if(security_boosts>=0) security_boosts-=random(1, 100);
+packet="The hack did not complete successfully";
+}
+send_reliable(players[h],packet,2);
+send_reliable(players[h],"startmoving",0);
+}
+hacking=false;
+}
+}
+}
+}
+void spawn_locker(int x, int y, int z, string map, string owner, int code, int health, string id)
+{
+locker lock1(x,y,z,map,owner,code,health,id);
+lockers.insert_last(lock1);
+}
+int find_locker(string i)
+{
+for(uint l=0; l<lockers.length(); l++)
+{
+if(lockers[l].id==i)
+{
+return l;
+}
+}
+return -1;
+}
+int get_locker_at(int x,int y,int z,mapdata@m)
+{
+for(uint i=0; i<lockers.length(); i++)
+{
+if(lockers[i].map==m.name and lockers[i].x==x and lockers[i].y==y and lockers[i].z==z)
+{
+return i;
+}
+}
+return -1;
+}
+int has_locker(string who)
+{
+for(uint i=0; i<lockers.length(); i++)
+{
+if(lockers[i].owner==who)
+{
+return i;
+}
+}
+return -1;
+}
+void savelockers()
+{
+file lfile;
+if(directory_exists("lockers")==false)
+directory_create("lockers");
+for(uint i=0; i<lockers.length(); i++)
+{
+string inv=lockers[i].invdic_to_string();
+inv=string_replace(inv,"\r\n",";",true);
+lfile.open("lockers/"+lockers[i].id+".locker","wb");
+lfile.write("id:"+lockers[i].id+"\r\nx:"+lockers[i].x+"\r\ny:"+lockers[i].y+"\r\nz:"+lockers[i].z+"\r\nmap:"+lockers[i].map+"\r\nowner:"+lockers[i].owner+"\r\ncode:"+lockers[i].code+"\r\nhealth:"+lockers[i].health+"\r\nsecurity_boosts:"+lockers[i].security_boosts);
+if(inv!="") lfile.write("\r\ninventory:"+inv);
+lfile.close();
+}
+}
+void load_locker(string n)
+{
+if(n=="") return;
+double x, y, z, code, health, security_boosts=0;
+string id, map, owner;
+string[] invvalues;
+if(string_contains(n,".",1)>-1)
+{
+return;
+}
+file f;
+f.open("lockers/"+n+".locker","rb");
+string[] sdata=string_split(f.read(),"\r\n",false);
+f.close();
+for(uint i=0; i<sdata.length(); i++)
+{
+string[] parsed=string_split(sdata[i],":",false);
+if(parsed[0]=="id" and parsed.length>1)
+{
+id=parsed[1];
+}
+else if(parsed[0]=="x")
+{
+x=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="y")
+{
+y=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="z")
+{
+z=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="map")
+{
+map=parsed[1];
+}
+else if(parsed[0]=="owner")
+{
+owner=parsed[1];
+}
+else if(parsed[0]=="code")
+{
+code=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="health")
+{
+health=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="security_boosts")
+{
+security_boosts=string_to_number(parsed[1]);
+}
+if(parsed[0]=="inventory" and parsed.length()>1)
+{
+invvalues=string_split(parsed[1],";",false);
+}
+}
+locker lock(x,y,z,map,owner,code,health,id);
+lock.x=string_to_number(x);
+lock.y=string_to_number(y);
+lock.z=string_to_number(z);
+lock.map=map;
+lock.owner=owner;
+lock.code=string_to_number(code);
+lock.health=health;
+lock.security_boosts=string_to_number(security_boosts);
+for(uint i=0; i<invvalues.length(); i++)
+{
+string[] parsed=string_split(invvalues[i],"=",false);
+lock.give(parsed[0],string_to_number(parsed[1]));
+}
+lockers.insert_last(lock);
+}

@@ -1,0 +1,16 @@
+dynamic_menu dmi;
+string create_menu(string []items, string open, string return_if_press_escape) {
+int r;
+setupmenu();
+dmi.net=true;
+for(int i=0; i<items.length(); i++)
+dmi.add_item(items[i]);
+r=dmi.run(open);
+if(r==0)
+return return_if_press_escape;
+for(int i=1; i<items.length()+1; i++) {
+if(r==i)
+return items[i-1];
+}
+return "";
+}

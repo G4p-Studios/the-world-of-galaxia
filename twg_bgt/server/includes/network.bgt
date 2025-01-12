@@ -1,0 +1,72 @@
+send_through_time []stt;
+class send_through_time {
+int time;
+timer send_timer;
+int id;
+string message;
+int channel;
+bool reliable;
+send_through_time() {
+}
+send_through_time(int t, int i, string m, int ch, bool rl=false) {
+time=t;
+id=i;
+message=m;
+channel=ch;
+reliable=rl;
+}
+bool check() {
+if(send_timer.elapsed>time) {
+if(reliable)
+n.send_reliable(id, message, channel);
+else
+n.send_unreliable(id, message, channel);
+return true;
+}
+return false;
+}
+}
+void add_send_through_time(int time, int id, string message, int channel, bool reliable=false) {
+send_through_time sas(time, id, message, channel, reliable);
+stt.insert_last(sas);
+}
+void send_to_all_on_map_except(string map, int not_send_id, string package, int channel, bool reliable=false) {
+for(int i=0; i<players.length(); i++) {
+if(players[i].map==map and players[i].id!=not_send_id) {
+if(!reliable)
+n.send_unreliable(players[i].id, package, channel);
+else
+n.send_reliable(players[i].id, package, channel);
+}
+}
+}
+void send_to_all_except(int not_send_id, string package, int channel, bool reliable=false) {
+for(int i=0; i<players.length(); i++) {
+if(players[i].id!=not_send_id) {
+if(!reliable)
+n.send_unreliable(players[i].id, package, channel);
+else
+n.send_reliable(players[i].id, package, channel);
+}
+}
+}
+void send_to_player_and_map(string sm, int id, string package, int channel, bool  reliable=false) {
+for(int i=0; i<players.length(); i++) {
+if(players[i].id==id and players[i].map==sm) {
+if(reliable)
+n.send_reliable(players[i].id, package, channel);
+else
+n.send_unreliable(players[i].id, package, channel);
+}
+}
+}
+void send_to_map(string sm, string package, int channel, bool  reliable=false) {
+for(int i=0; i<players.length(); i++) {
+if(sm==players[i].map) {
+if(reliable)
+n.send_reliable(players[i].id, package, channel);
+else
+n.send_unreliable(players[i].id, package, channel);
+}
+}
+}

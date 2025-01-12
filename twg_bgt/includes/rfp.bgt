@@ -1,0 +1,13 @@
+string rfp(string filename, string key)
+{
+file f;
+if(pf.file_exists(filename)==false) return "File not found";
+pf.extract_file(filename,DIRECTORY_TEMP+"\\"+filename);
+file_decrypt(DIRECTORY_TEMP+"\\"+filename,DIRECTORY_TEMP+"\\dec_"+filename,key);
+f.open(DIRECTORY_TEMP+"\\dec_"+filename,"rb");
+string ret=f.read();
+f.close();
+file_delete(DIRECTORY_TEMP+"\\"+filename);
+file_delete(DIRECTORY_TEMP+"\\dec_"+filename);
+return ret;
+}

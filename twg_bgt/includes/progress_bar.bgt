@@ -1,0 +1,44 @@
+class progress_bar
+{
+progress_bar()
+{
+synth.reset();
+low=131;
+high=2096;
+}
+
+bool set_frequency_range(double low, double high)
+{
+if((low<100)||(low>250)) return false;
+if((high<350)||(high>2500)) return false;
+this.low=low;
+this.high=high;
+return true;
+}
+
+bool feedback(double percent)
+{
+if((percent<0)||(percent>100)) return false;
+synth.reset();
+synth.waveform_type=4;
+synth.volume=-6;
+synth.freq_ms(convert(percent), 50);
+@beep=synth.write_wave_sound();
+beep.play();
+return true;
+}
+
+private double convert(double percent)
+{
+double range=high-low;
+double result=((range/100)*percent)+low;
+result=round(result, 1);
+return result;
+}
+
+private tone_synth synth;
+private sound@ beep;
+
+private double high;
+private double low;
+}

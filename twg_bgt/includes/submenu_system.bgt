@@ -1,0 +1,296 @@
+class sub_menu_system
+{
+sub_menu@[]subs;
+int subcounter=0;
+int level=0;
+bool say_sub_menu=true;
+bool letters_autospeak=true;
+bool letters_autoactivate;
+bool speak_letter;
+bool enable_first_letter_navigation;
+bool enable_multi_letter_navigation;
+bool click_at_edge;
+bool repeat_items_at_edges;
+bool music_added=false;
+timer multinav_timer;
+int voltime=100;
+timer voltimer;
+sound music;
+int volkeyup=KEY_PRIOR;
+int volkeydown=KEY_NEXT;
+int volkeycheck=KEY_V;
+string open_sound;
+string click_sound;
+string edge_sound;
+string close_sound; 
+string wrap_sound;
+string enter_sound;
+bool enable_numbers;
+bool enable_space;
+bool enable_enter;
+bool enable_joystick;
+bool enable_mouse;
+bool speak_position_information;
+bool position;
+bool enable_side_scrolling;
+bool pp;
+bool sspp;
+bool wrap;
+bool allow_escape;
+bool force_sapi;
+bool enable_home_and_end;
+bool enable_up_and_down;
+bool enable_left_and_right;
+sub_menu_system()
+{
+this.say_sub_menu=true;
+}
+void set_volume_keys(int key1, int key2, int key3)
+{
+volkeyup=key1;
+volkeydown=key2;
+volkeycheck=key3;
+}
+void fade_music(int value1)
+{
+fade(music,-50,value1);
+music.stop();
+}
+void stop_music()
+{
+music.stop();
+}
+void play_music()
+{
+if (music.playing==false)
+music.play_looped();
+}
+void add_music(string musicpath)
+{
+if (music.playing==false)
+{
+music.load(musicpath);
+music_added=true;
+}
+}
+void play_click_sound()
+{
+if (click_sound!="" or !file_exists(click_sound))
+{
+p.play_stationary(click_sound,false,0,0,0,100);
+if(connected) send_reliable(peer_id,"xplay "+click_sound,0);
+}
+}
+void play_edge_sound()
+{
+if (edge_sound!="" or !file_exists(edge_sound))
+{
+p.play_stationary(edge_sound,false,0,0,0,100);
+}
+}
+void play_enter_sound()
+{
+if (enter_sound!="" or !file_exists(enter_sound))
+{
+p.play_stationary(enter_sound,false,0,0,0,100);
+if(connected) send_reliable(peer_id,"xplay "+enter_sound,0);
+}
+}
+void reset()
+{
+subs.resize(0);
+letters_autospeak=true;
+letters_autoactivate=false;
+speak_letter=false;
+enable_first_letter_navigation=true;
+click_at_edge=false;
+repeat_items_at_edges=false;
+music_added=false;
+volkeyup=KEY_PRIOR;
+volkeydown=KEY_NEXT;
+enable_space=false;
+enable_enter=true;
+enable_joystick=true;
+enable_mouse=true;
+speak_position_information=false;
+open_sound="";
+edge_sound="";
+music.close();
+click_sound="";
+force_sapi=false;
+enable_up_and_down=false;
+enable_left_and_right=false;
+wrap=true;
+allow_escape=true;
+enable_home_and_end=false;
+close_sound="";
+}
+int get_sub_index(string subname)
+{
+for(uint i=0; i<subs.length(); i++)
+{
+if(subs[i].title==subname) return i;
+}
+return -1;
+}
+void add_sub_menu(string menuname)
+{
+if(get_sub_index(menuname)>-1) return;
+sub_menu temp(menuname);
+subs.insert_last(temp);
+}
+void add_sub_menu_item(string subname,string itemname)
+{
+int s=get_sub_index(subname);
+if(s<=-1) return;
+subs[s].items.insert_last(itemname);
+}
+string run(string title)
+{
+music.volume=menumusvol;
+p.play_stationary(open_sound,false,0,0,0,100);
+music.play_looped();
+if(title!="") speak(title);
+while(true)
+{
+wait(5);
+if(shift_is_down() and key_pressed(KEY_TAB))
+{
+if(subcounter<=0)
+{
+subcounter=subs.length()-1;
+}
+else
+{
+subcounter--;
+}
+p.play_stationary("menuenter27.ogg",false,0,0,0,100);
+speak(subs[subcounter].title+(say_sub_menu?" subMenu":""));
+subs[subcounter].itmcount=0;
+level=0;
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_TAB))
+{
+if(subcounter>=subs.length()-1)
+{
+subcounter=0;
+}
+else
+{
+subcounter++;
+}
+p.play_stationary("menuenter27.ogg",false,0,0,0,100);
+speak(subs[subcounter].title+(say_sub_menu?" subMenu":""));
+subs[subcounter].itmcount=0;
+level=0;
+}
+if(enable_up_and_down==true and key_pressed(KEY_DOWN)==false and down.pressing())
+{
+if(subs[subcounter].itmcount>=subs[subcounter].items.length()-1)
+{
+subs[subcounter].itmcount=0;
+}
+else
+{
+subs[subcounter].itmcount++;
+}
+play_click_sound();
+speak(subs[subcounter].items[subs[subcounter].itmcount]);
+level=1;
+}
+if(enable_up_and_down==true and key_pressed(KEY_UP)==false and up.pressing())
+{
+if(subs[subcounter].itmcount<=0)
+{
+subs[subcounter].itmcount=subs[subcounter].items.length()-1;
+}
+else
+{
+subs[subcounter].itmcount--;
+}
+play_click_sound();
+speak(subs[subcounter].items[subs[subcounter].itmcount]);
+level=1;
+}
+if (enable_left_and_right==true and key_pressed(KEY_RIGHT)==false and right.pressing())
+{
+if(subs[subcounter].itmcount>=subs[subcounter].items.length()-1)
+{
+subs[subcounter].itmcount=0;
+}
+else
+{
+subs[subcounter].itmcount++;
+}
+play_click_sound();
+speak(subs[subcounter].items[subs[subcounter].itmcount]);
+level=1;
+}
+if (enable_left_and_right==true and key_pressed(KEY_LEFT)==false and left.pressing())
+{
+if(subs[subcounter].itmcount<=0)
+{
+subs[subcounter].itmcount=subs[subcounter].items.length()-1;
+}
+else
+{
+subs[subcounter].itmcount--;
+}
+play_click_sound();
+speak(subs[subcounter].items[subs[subcounter].itmcount]);
+level=1;
+}
+if(enable_home_and_end==true)
+{
+if(key_pressed(KEY_HOME))
+{
+subs[subcounter].itmcount=1;
+play_click_sound();
+speak(subs[subcounter].items[subs[subcounter].itmcount]);
+}
+if(key_pressed(KEY_END))
+{
+subs[subcounter].itmcount=subs[subcounter].items.length();
+play_click_sound();
+speak(subs[subcounter].items[subs[subcounter].itmcount]);
+}
+}
+if (key_pressed(volkeycheck) and music_added==true)
+{
+speak("music volume: "+music.volume);
+}
+if (key_down(volkeydown) and voltimer.elapsed>=voltime)
+{
+music.volume=music.volume-1;
+menumusvol=music.volume;
+voltimer.restart();
+speak("music volume: "+music.volume);
+}
+if (key_down(volkeyup) and voltimer.elapsed>=voltime)
+{
+music.volume=music.volume+1;
+menumusvol=music.volume;
+voltimer.restart();
+speak("music volume: "+music.volume);
+}
+if(key_pressed(KEY_RETURN) and level==1)
+{
+play_enter_sound();
+return subs[subcounter].title+":"+subs[subcounter].items[subs[subcounter].itmcount];
+}
+if(key_pressed(KEY_ESCAPE))break;
+}
+p.play_stationary(close_sound,false,0,0,0,100);
+return "";
+}
+}
+class sub_menu
+{
+string title;
+string[]items;
+int itmcount;
+sub_menu(string ttl)
+{
+title=ttl;
+}
+}

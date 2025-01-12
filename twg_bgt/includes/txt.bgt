@@ -1,0 +1,39 @@
+txt@[] txts(0);
+class txt
+{
+int minx, maxx, miny, maxy, minz, maxz;
+string text;
+txt(int mintxtx, int maxtxtx, int mintxty, int maxtxty, int mintxtz, int maxtxtz, string tx)
+{
+minx=mintxtx;
+maxx=maxtxtx;
+miny=mintxty;
+maxy=maxtxty;
+minz=mintxtz;
+maxz=maxtxtz;
+text=tx;
+}
+}
+void destroy_txt(int d)
+{
+txts.remove_at(d);
+}
+void destroy_all_txts()
+{
+txts.resize(0);
+}
+void spawn_txt(int mintxtx, int maxtxtx, int mintxty, int maxtxty, int mintxtz, int maxtxtz, string text)
+{
+txt txt1(mintxtx, maxtxtx, mintxty, maxtxty, mintxtz, maxtxtz, text);
+txts.insert_last(txt1);
+}
+void checktxt()
+{
+for (uint i=0; i<txts.length(); i++)
+{
+if(me.x>=txts[i].minx and me.x<=txts[i].maxx and me.y>=txts[i].miny and me.y<=txts[i].maxy and me.z>=txts[i].minz and me.z<=txts[i].maxz)
+{
+speak(txts[i].text);
+}
+}
+}

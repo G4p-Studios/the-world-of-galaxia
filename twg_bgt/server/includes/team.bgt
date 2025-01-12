@@ -1,0 +1,309 @@
+team@[]teams(0);
+class team
+{
+string[] teammembers,buffermembers;
+string teamname;
+string invited_player="";
+bool invited=false;
+bool public=false;
+int maxmembers=5;
+double teamkills=0;
+int points=100;
+timer pointstimer;
+string teamleader;
+string password;
+savedata tempsd("");
+team(string tn, string tl, string tpw)
+{
+teamname=tn;
+teamleader=tl;
+password=tpw;
+int index=get_player_index_from(teamleader);
+if(index>-1)
+players[index].teamname=tn;
+teammembers.insert_last(teamleader);
+tempsd.fn="teams/"+teamname+".team";
+tempsd.key="tk_team";
+}
+void loop(int i)
+{
+if(teammembers.length<=0&&buffermembers.length<=0)
+{
+file_delete("teams/"+teamname+".team");
+teams.remove_at(i);
+return;
+}
+if(points<=0)
+{
+transmit("This team has ran out of points and is now being canceled");
+destruct(false);
+send_reliable(0,"The "+teamname+" team ran out of points and has been canceled!",2);
+}
+if(pointstimer.elapsed>60000)
+{
+pointstimer.restart();
+if(points>=10000) points-=1*(points/10000);
+else points--;
+}
+buffercheck();
+}
+void buffercheck()
+{
+for(uint j=0; j<teammembers.length(); j++)
+{
+if(is_on_server(teammembers[j])==false)
+{
+if(buffermembers.find(teammembers[j])<0) buffermembers.insert_last(teammembers[j]);
+teammembers.remove_at(j);
+return;
+}
+}
+}
+bool passcheck(string pass)
+{
+if(password==pass)
+{
+return true;
+}
+return false;
+}
+string list_members()
+{
+string final;
+final="There are "+teammembers.length()+" online members in your team and there are "+buffermembers.length()+" offline members. ";
+if(teammembers.length()>0)
+{
+final+="online members: ";
+for(uint i=0; i<teammembers.length()-1; i++)
+{
+final+=teammembers[i]+", ";
+}
+final+=" and "+teammembers[teammembers.length()-1];
+}
+final+=". ";
+if(buffermembers.length()>0)
+{
+ final+="offline members: ";
+for(int i=0; i<buffermembers.length()-1; i++)
+{
+final+=buffermembers[i]+", ";
+}
+final+="and "+buffermembers[buffermembers.length()-1];
+}
+return final;
+}
+bool is_member(string name)
+{
+return (teammembers.find(name)>-1 or buffermembers.find(name)>-1);
+}
+bool remove_member(string name,bool r=true,bool message=true)
+{
+if(teammembers.find(name)<0 and buffermembers.find(name)<0) return false;
+int index=get_player_index_from(name);
+for(uint t=0; t<teammembers.length(); t++)
+{
+if(teammembers[t]==name)
+{
+teammembers.remove_at(t);
+if(index>-1)
+{
+players[index].teamname="";
+}
+if(r==false) buffermembers.insert_last(name);
+if(r==true)
+{
+write_to(name,"team.usr","");
+}
+}
+}
+if(message )
+{
+transmit(name+" was just removed from the team!");
+transmit("play_s teamkick"+random(1,2)+".ogg",false,6);
+}
+if(r==true)
+{
+if(buffermembers.find(name)>-1) buffermembers.remove_at(buffermembers.find(name));
+write_to(name,"team.usr","");
+}
+return true;
+}
+bool leave(string name)
+{
+int index=get_player_index(e.peer_id);
+if(index>-1)
+{
+for(uint t=0; t<teammembers.length(); t++)
+{
+if(teammembers[t]==name)
+{
+teammembers.remove_at(t);
+transmit(name+" left the team!");
+transmit("play_s teamleave"+random(1,2)+".ogg",false,6);
+players[index].teamname="";
+write_to(players[index].name,"team.usr",players[index].teamname);
+return true;
+}
+}
+}
+return false;
+}
+void team_save()
+{
+if(directory_exists("teams")==false)
+directory_create("teams");
+tempsd.add("leader",teamleader);
+tempsd.add("teamname",teamname);
+tempsd.add("teampoints",points);
+tempsd.add("maxmembers",maxmembers);
+tempsd.add("teammembers",linear(teammembers));
+tempsd.add("buffermembers",linear(buffermembers));
+tempsd.add("teampassword",password);
+tempsd.add("teamkills",teamkills);
+tempsd.save();
+}
+void transmit(string t, bool chat=false, int channel=2)
+{
+for(uint i=0; i<teammembers.length(); i++)
+{
+int dex=get_player_index_from(teammembers[i]);
+if(dex>-1)
+{
+if(chat==true)
+{
+send_reliable(players[dex],"teamchat "+t,0);
+}
+else
+send_reliable(players[dex],t,channel);
+}
+}
+}
+void add_member(string name,bool message=true)
+{
+int index=get_player_index_from(name);
+if(index>-1)
+{
+players[index].teamname=teamname;
+if(message)
+{
+transmit("play_s teamadd.ogg",false,6);
+transmit(name+" was added to your team!");
+send_reliable(players[index],"You have been added to the "+teamname+" team!",2);
+send_reliable(players[index],"play_s teamjoin.ogg",6);
+}
+write_to(players[index].name,"team.usr",players[index].teamname);
+if(buffermembers.find(name)>-1) buffermembers.remove_at(buffermembers.find(name));
+if(!is_member(name)) teammembers.insert_last(name);
+}
+}
+void destruct(bool message=true)
+{
+if(message)
+{
+transmit("play_s teamdistroy.ogg",false,6);
+transmit("this team has been canceled!");
+}
+if(teammembers.length>0)
+{
+do
+{
+remove_member(teammembers[0],true,false);
+}
+while(teammembers.length()>0);
+}
+for(uint i=0; i<buffermembers.length(); i++)
+{
+file_delete("chars/"+buffermembers[i]+"/team.usr");
+}
+buffermembers.resize(0);
+}
+}
+int is_in_team(string n)
+{
+for(uint t=0; t<teams.length(); t++)
+{
+if(teams[t].teammembers.find(n)>-1 or teams[t].buffermembers.find(n)>-1) return t;
+}
+return -1;
+}
+void create_team(string t, string tpw, string tl)
+{
+team t1(t, tpw, tl);
+teams.insert_last(t1);
+}
+int get_team_index(string name)
+{
+for(uint i=0; i<teams.length(); i++)
+{
+if(teams[i].teamname==name)
+return i;
+}
+return -1;
+}
+bool team_exists(string t)
+{
+for(uint i=0; i<teams.length(); i++)
+{
+if(teams[i].teamname==t)
+{
+return true;
+}
+}
+return false;
+}
+void load_team(string t)
+{
+string tl,tpw,tm,bm;
+double points;
+double kls,bss,mxm;
+savedata tsd("teams/"+t+".team","tk_team");
+tsd.load();
+if(tsd.d.exists("leader"))
+tl=tsd.read("leader");
+if(tsd.d.exists("teampassword"))
+tpw=tsd.read("teampassword");
+if(tsd.d.exists("teampoints"))
+points=tsd.readn("teampoints");
+if(tsd.d.exists("maxmembers"))
+mxm=tsd.readn("maxmembers");
+if(tsd.d.exists("teammembers"))
+tm=tsd.read("teammembers");
+if(tsd.d.exists("buffermembers"))
+bm=tsd.read("buffermembers");
+if(tsd.d.exists("teamkills"))
+kls=tsd.readn("teamkills");
+create_team(t,tpw,tl);
+int x=get_team_index(t);
+teams[x].teamleader=tl;
+teams[x].teammembers=delinear(tm);
+for(uint i=0; i<teams[x].teammembers.length(); i++)
+{
+if(teams[x].teammembers[i]=="" or teams[x].teammembers[i]==" ") teams[x].teammembers.remove_at(i);
+}
+teams[x].maxmembers=mxm;
+teams[x].points=points;
+teams[x].buffermembers=delinear(bm);
+for(uint i=0; i<teams[x].buffermembers.length(); i++)
+{
+if(teams[x].buffermembers[i]=="" or teams[x].buffermembers[i]==" ") teams[x].buffermembers.remove_at(i);
+}
+teams[x].password=tpw;
+teams[x].buffercheck();
+teams[x].teamkills=kls;
+}
+void load_all_teams()
+{
+string[] teamfiles=find_files("teams/*.team");
+for(uint i=0; i<teamfiles.length(); i++)
+{
+load_team(string_trim_right(teamfiles[i],5));
+}
+}
+bool is_part_of_team(string playername, string teamname)
+{
+int ti=get_team_index(teamname);
+if(ti<0) return false;
+int pi=get_player_index_from(playername);
+if(pi<0) return false;
+return teams[ti].is_member(playername);
+}

@@ -1,0 +1,169 @@
+microwave@[] microwaves(0);
+class microwave
+{
+int x, y, z, health, battery, foodonit, on, readytotake;
+string id, map, owner, hitby="nothing", midsound, foodtype;
+timer waitingtimer;
+savedata tempsd("");
+microwave(int mx, int my, int mz, string mmap, string mowner, int mhealth, string mid="")
+{
+x=mx;
+y=my;
+z=mz;
+map=mmap;
+owner=mowner;
+health=mhealth;
+id=mid;
+tempsd.fn="microwaves/"+id+".microwave";
+tempsd.key="dl_microwave";
+}
+void microwave_save()
+{
+if(directory_exists("microwaves")==false)
+directory_create("microwaves");
+tempsd.add("id",id);
+tempsd.add("x",x);
+tempsd.add("y",y);
+tempsd.add("z",z);
+tempsd.add("map",map);
+tempsd.add("owner",owner);
+tempsd.add("health",health);
+tempsd.add("battery",battery);
+tempsd.add("foodonit",foodonit);
+tempsd.add("foodtype",foodtype);
+tempsd.add("on",on);
+tempsd.add("readytotake",readytotake);
+tempsd.save();
+}
+void loop(int i)
+{
+if(waitingtimer.elapsed>=56080 and on==1)
+{
+destroy_moving_sound(midsound);
+midsound="";
+readytotake=1;
+on=0;
+battery--;
+waitingtimer.restart();
+}
+if(health<=0)
+{
+send_packet(6,"play explode28.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacket(6,"distsound explode28 "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+destroy_moving_sound(midsound);
+file_delete("microwaves/"+id+".microwave");
+send_reliable(0, "kills "+killmsg3(owner+"'s_microwave", hitby, get_zone_at(x,y,z,maps[get_map_index(map)])), 0);
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int index=get_player_index_from(hb);
+if(index>-1)
+{
+givexp(players[index],random(100, 300)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+microwaves.remove_at(i);
+return;
+}
+}
+}
+void spawn_microwave(int x, int y, int z, string map, string owner, int health, string id)
+{
+microwave m(x, y, z, map, owner, health,id);
+microwaves.insert_last(m);
+}
+void remove_microwave(int index)
+{
+if(index>-1)
+{
+@microwaves[index]=null;
+microwaves.remove_at(index);
+}
+}
+void remove_all_microwaves()
+{
+for(uint i=0; i<microwaves.length(); i++)
+{
+remove_microwave(i);
+}
+}
+void load_microwave(string t)
+{
+int x, y, z, health, battery, foodonit, on, readytotake;
+string id, map, owner, foodtype;
+savedata tsd("microwaves/"+t+".microwave","dl_microwave");
+tsd.load();
+if(tsd.d.exists("id"))
+id=tsd.read("id");
+if(tsd.d.exists("x"))
+x=tsd.readn("x");
+if(tsd.d.exists("y"))
+y=tsd.readn("y");
+if(tsd.d.exists("z"))
+z=tsd.readn("z");
+if(tsd.d.exists("map"))
+map=tsd.read("map");
+if(tsd.d.exists("owner"))
+owner=tsd.read("owner");
+if(tsd.d.exists("health"))
+health=tsd.readn("health");
+if(tsd.d.exists("battery"))
+battery=tsd.readn("battery");
+if(tsd.d.exists("foodonit"))
+foodonit=tsd.readn("foodonit");
+if(tsd.d.exists("foodtype"))
+foodtype=tsd.read("foodtype");
+if(tsd.d.exists("on"))
+on=tsd.readn("on");
+if(tsd.d.exists("readytotake"))
+readytotake=tsd.readn("readytotake");
+spawn_microwave(x, y, z, map, owner, health, id);
+int mindex=get_microwave_index(t);
+microwaves[mindex].battery=battery;
+microwaves[mindex].foodonit=foodonit;
+microwaves[mindex].foodtype=foodtype;
+microwaves[mindex].on=on;
+microwaves[mindex].readytotake=readytotake;
+}
+void load_all_microwaves()
+{
+string[] microwavefiles=find_files("microwaves/*.microwave");
+for(uint i=0; i<microwavefiles.length(); i++)
+{
+load_microwave(string_trim_right(microwavefiles[i],10));
+}
+}
+int get_microwave_index(int x, int y, int z, mapdata@m)
+{
+
+for(uint i=0; i<microwaves.length(); i++)
+{
+if(microwaves[i].map==m.name and microwaves[i].x==x and microwaves[i].y==y and microwaves[i].z==z)
+{
+return i;
+}
+}
+return -1;
+}
+int get_microwave_index(string id)
+{
+for(uint i=0; i<microwaves.length(); i++)
+{
+if(microwaves[i].id==id)
+{
+return i;
+}
+}
+return -1;
+}

@@ -1,0 +1,31 @@
+timesound@[] timesounds(0);
+class timesound
+{
+string name;
+int slot;
+timesound(string sn)
+{
+name=sn;
+}
+}
+void add_sound(string name)
+{
+timesound s1(name);
+timesounds.insert_last(s1);
+}
+void timesoundloop()
+{
+for(uint i=0; i<timesounds.length(); i++)
+{
+if(file_exists(timesounds[i].name)==false and string_contains(timesounds[i].name,"users/",1)>-1) timesounds[i].name="users/bot.ogg";
+if(i==0)
+{
+if(p.sound_is_playing(timesounds[i].slot)==false)
+{
+timesounds[i].slot=p.play_stationary(timesounds[i].name,false,0,0,0,100);
+timesounds.remove_at(i);
+}
+break;
+}
+}
+}

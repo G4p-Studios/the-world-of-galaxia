@@ -1,0 +1,21 @@
+void initialise_game(string window_title, string logo_filename, int interrupt_key)
+{
+sound logo;
+if(logo_filename!="")
+{
+logo.stream(logo_filename);
+if(logo.active==true)
+{
+logo.play();
+while(logo.playing==true)
+{
+if(key_down(interrupt_key))
+{
+break;
+}
+wait(10);
+mainloop();
+}
+}
+}
+}

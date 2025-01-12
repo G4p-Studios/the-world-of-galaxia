@@ -1,0 +1,50 @@
+auto_healer@[] auto_healers(0);
+class auto_healer
+{
+int x, y, z;
+timer healtimer, uptimer, stimer;
+mapdata@map;
+auto_healer(int ax, int ay, int az, mapdata@m)
+{
+x=ax;
+y=ay;
+z=az;
+@map=m;
+}
+void loop(int i)
+{
+if(@map==null)
+{
+auto_healers.remove_at(i);
+return;
+}
+if(stimer.elapsed>=2234)
+{
+send_packet(6,"play auto_healer_loop.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+stimer.restart();
+}
+if(uptimer.elapsed>=45000)
+{
+send_packet(6,"play auto_healer_stop.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+auto_healers.remove_at(i);
+return;
+}
+if(healtimer.elapsed>=2500)
+{
+healtimer.restart();
+for(uint i2=0; i2<players.length(); i2++)
+{
+if (players[i2].map==map.name and get_3d_distance(x,y,z,players[i2].x,players[i2].y,players[i2].z)<=7)
+{
+players[i2].health+=random(50,150);
+}
+}
+}
+}
+}
+void spawn_auto_healer(int x, int y, int z, mapdata@m)
+{
+auto_healer a(x, y, z, m);
+if(@a.map==null) return;
+else auto_healers.insert_last(a);
+}

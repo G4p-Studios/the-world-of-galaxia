@@ -1,0 +1,538 @@
+#include "volume.bgt";
+sound shake, roll, remove, win, lose;
+tts_voice stbspeech;
+bool[] numbers(9);
+bool[] rolls(11);
+ushort i;
+short last = -1, lowest = -1;
+bool inroll = false;
+void shuttheboxmain()
+{
+stbspeech.speak("Welcome to Shut the Box version 1.0. Presented by the A T Guys.");
+shake.load("shake.ogg");
+roll.load("roll.ogg");
+remove.load("remove.ogg");
+win.load("win2.ogg");
+lose.load("lose2.ogg");
+new_game();
+}
+void new_game()
+{
+for(i=0; i<9; i++)
+numbers[i] = true;
+stbspeech.speak("Let's play! ");
+start();
+}
+void start()
+{
+update_good_rolls();
+inroll = false;
+ushort sum = current_total();
+if(sum == 1)
+{
+stbspeech.speak("You only have a 1 remaining.");
+you_lose();
+}
+if(sum == 8 || sum == 11) stbspeech.speak("If you roll an " + sum + ", you'll win.");
+else if(sum <= 12) stbspeech.speak("If you roll a " + sum + ", you'll win.");
+stbspeech.speak("Press space to roll the dice..");
+shake.load("shake.ogg");
+int pos = random(0,2000);
+shake.seek(pos);
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_down(KEY_LMENU) && key_pressed(KEY_F4)) goodbye();
+if(!key_down(KEY_LMENU) && !key_down(KEY_LCONTROL) && !key_down(KEY_RCONTROL) && !key_down(KEY_LSHIFT) && !key_down(KEY_RSHIFT) && !key_down(KEY_RMENU) && !key_down(KEY_LWIN) && !key_down(KEY_RWIN))
+{
+if(key_pressed(KEY_F1)) help();
+if(key_pressed(KEY_N)) good_numbers();
+if(key_pressed(KEY_T)) speak_current_total();
+if(key_pressed(KEY_L)) speak_last_score();
+if(key_pressed(KEY_O)) speak_lowest_score();
+if(key_pressed(KEY_G)) good_rolls();
+if(key_pressed(KEY_B)) bad_rolls();
+if(key_pressed(KEY_ESCAPE))
+{
+goodbye();
+break;
+}
+if(key_pressed(KEY_F11)) vvolume_menu();
+if(!key_down(KEY_LMENU) && !key_down(KEY_LCONTROL) && !key_down(KEY_RCONTROL) && !key_down(KEY_LSHIFT) && !key_down(KEY_RSHIFT) && !key_down(KEY_RMENU) && !key_down(KEY_LWIN) && !key_down(KEY_RWIN))
+{
+if(key_down(KEY_SPACE))
+{
+stbspeech.stop();
+shake.play_looped();
+send_reliable(peer_id,"draw shake.ogg", 7);
+while(key_down(KEY_SPACE))
+shake.stop();
+roll.play_wait();
+send_reliable(peer_id,"draw roll.ogg", 7);
+dice_roll();
+break;
+}
+}
+}
+}
+}
+void dice_roll()
+{
+ushort die1, die2, total;
+die1 = random(1,6);
+die2 = random(1,6);
+inroll = true;
+speak_roll(die1, die2);
+total = die1+die2;
+if(rolls[total-2] == false) you_lose();
+stbspeech.speak("Choose your move");
+bool[] selected(9, false);
+ushort sum;
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_down(KEY_LMENU) && key_pressed(KEY_F4)) goodbye();
+if(!key_down(KEY_LMENU) && !key_down(KEY_LCONTROL) && !key_down(KEY_RCONTROL) && !key_down(KEY_LSHIFT) && !key_down(KEY_RSHIFT) && !key_down(KEY_RMENU) && !key_down(KEY_LWIN) && !key_down(KEY_RWIN))
+{
+if(key_pressed(KEY_F1)) help();
+if(key_pressed(KEY_N)) good_numbers();
+if(key_pressed(KEY_T)) speak_current_total();
+if(key_pressed(KEY_L)) speak_last_score();
+if(key_pressed(KEY_O)) speak_lowest_score();
+if(key_pressed(KEY_G)) good_rolls();
+if(key_pressed(KEY_B)) bad_rolls();
+if(key_pressed(KEY_ESCAPE))
+{
+goodbye();
+break;
+}
+if(key_pressed(KEY_F11)) vvolume_menu();
+if(!key_down(KEY_LMENU) && !key_down(KEY_LCONTROL) && !key_down(KEY_RCONTROL) && !key_down(KEY_LSHIFT) && !key_down(KEY_RSHIFT) && !key_down(KEY_RMENU) && !key_down(KEY_LWIN) && !key_down(KEY_RWIN))
+{
+if(key_pressed(KEY_R)) speak_roll(die1, die2);
+if(key_pressed(KEY_BACK))
+{
+ushort j;
+for(j=0; j<9; j++)
+selected[j] = false;
+stbspeech.speak_interrupt("Try again.");
+}
+i = 0;
+if(key_pressed(KEY_1)) i=1;
+if(key_pressed(KEY_2)) i=2;
+if(key_pressed(KEY_3)) i=3;
+if(key_pressed(KEY_4)) i=4;
+if(key_pressed(KEY_5)) i=5;
+if(key_pressed(KEY_6)) i=6;
+if(key_pressed(KEY_7)) i=7;
+if(key_pressed(KEY_8)) i=8;
+if(key_pressed(KEY_9)) i=9;
+if (i > 0)
+{
+stbspeech.speak_interrupt(i + "");
+if(numbers[i-1] == false)
+{
+ushort j;
+for(j=0; j<9; j++)
+selected[j] = false;
+stbspeech.speak("That number is already eliminated.");
+}
+else if(selected[i-1] == true)
+{
+ushort j;
+for(j=0; j<9; j++)
+selected[j] = false;
+stbspeech.speak("You can't use the same number more than once. Please try again.");
+}
+else
+{
+selected[i-1] = true;
+sum=0;
+ushort j;
+for(j=0; j<9; j++)
+if(selected[j] == true) sum += j+1;
+if(sum > total)
+{
+for(j=0; j<9; j++)
+selected[j] = false;
+stbspeech.speak("That's an invalid move. Please try again.");
+}
+if(sum == total)
+{
+for(j=0; j<9; j++)
+if(selected[j] == true)
+{
+remove.play_wait();
+send_reliable(peer_id,"draw remove.ogg", 7);
+numbers[j] = false;
+}
+bool win = true;
+for(j=0; j<9; j++)
+if(numbers[j] == true)
+{
+win = false;
+break;
+}
+if(win == true)
+{
+you_win();
+break;
+}
+start();
+break;
+}
+}
+}
+}
+}
+}
+}
+void speak_roll(int die1, int die2)
+{
+stbspeech.speak("you rolled a " + die1 + " and a " + die2 + ", for a total of " + (die1+die2));
+}
+void you_lose()
+{
+while(stbspeech.speaking == true) wait(5);
+wait(5);
+mainloop();
+lose.play_wait();
+send_reliable(peer_id,"draw lose2.ogg", 7);
+last = current_total();
+if(last > 1) stbspeech.speak("I'm sorry, that's not a valid roll.");
+stbspeech.speak("Your score was" + last + ". Better luck next time.");
+if(last < lowest || lowest == -1) lowest = last;
+another_game();
+}
+void you_win()
+{
+win.play_wait();
+send_reliable(peer_id,"draw win2.ogg", 7);
+stbspeech.speak("You won!");
+last = 0;
+lowest = 0;
+another_game();
+}
+void another_game()
+{
+stbspeech.speak("Press escape to quit.");
+new_game();
+}
+void goodbye()
+{
+stbspeech.speak_interrupt_wait("Thanks for playing. Come back soon.");
+entertainment_centermenu();
+}
+void good_numbers()
+{
+stbspeech.speak_interrupt("Numbers remaining are: ");
+for(i=0; i<9; i++)
+{
+if(numbers[i] == true)
+stbspeech.speak(i+1 + ", ");
+}
+}
+void speak_last_score()
+{
+if(last == -1) stbspeech.speak_interrupt("No last score");
+else stbspeech.speak_interrupt("Your last score was " + last);
+}
+void speak_lowest_score()
+{
+if(lowest == -1) stbspeech.speak_interrupt("No lowest score");
+else stbspeech.speak_interrupt("Your lowest score was " + lowest);
+}
+void speak_current_total()
+{
+ushort sum = current_total();
+stbspeech.speak_interrupt(sum + " points remaining");
+}
+ushort current_total()
+{
+ushort sum = 0;
+for(i=0; i<9; i++)
+{
+if(numbers[i] == true)
+sum+= i+1;
+}
+return sum;
+}
+void good_rolls()
+{
+string text;
+stbspeech.speak_interrupt("Good rolls are: ");
+bool all_good = true;
+for(i=0; i<11; i++)
+{
+if(rolls[i] == true)
+text+= i+2 + ", ";
+else all_good = false;
+}
+if(all_good == true) text = "all";
+stbspeech.speak(text);
+}
+void bad_rolls()
+{
+string text;
+stbspeech.speak_interrupt("bad rolls are: ");
+bool all_good = true;
+for(i=0; i<11; i++)
+{
+if(rolls[i] != true)
+{
+text+= i+2 + ", ";
+all_good = false;
+}
+}
+if(all_good == true) text = "none";
+stbspeech.speak(text);
+}
+void update_good_rolls()
+{
+for(i=0; i<=10; i++)
+{
+rolls[i] = false;
+}
+for(i=1; i<9; i++)
+{
+if(numbers[i] == true)
+rolls[i-1] = true;
+}
+int j;
+for(j=0; j<5; j++)
+if(numbers[j] == true)
+{
+for(i=j+1; i<9; i++)
+if(numbers[i] == true && i+j <= 10)
+rolls[i+j] = true;
+}
+int k;
+for(k=0; k<4; k++)
+if(numbers[k] == true)
+{
+for(j=k+1; j<9; j++)
+if(numbers[j] == true)
+{
+for(i=j+1; i<9; i++)
+if(numbers[i] == true && i+j+k <= 9)
+rolls[i+j+k+1] = true;
+}
+}
+if(numbers[0] == true)
+{
+for(k=1; k<4; k++)
+if(numbers[k] == true)
+{
+for(j=k+1; j<9; j++)
+if(numbers[j] == true)
+{
+for(i=j+1; i<9; i++)
+if(numbers[i] == true && i+j+k <= 8)
+rolls[i+j+k+2] = true;
+}
+}
+}
+}
+void help()
+{
+stbspeech.speak_interrupt("Keyboard shortcuts:");
+if(inroll == true)
+stbspeech.speak("1 through 9: select number,
+Backspace: clear numbers you typed,
+R: Repeat current roll, ");
+else stbspeech.speak("space: roll dice, ");
+stbspeech.speak("G: Speak good rolls,
+B: Speak bad rolls,
+N: Speak numbers remaining,
+T: Speak total score remaining,
+l: Speak score of last game,
+O: Speak lowest score this session,
+F11: Adjust speech volume,
+Escape or alt F4: quit.");
+}

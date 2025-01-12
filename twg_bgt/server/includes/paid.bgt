@@ -1,0 +1,297 @@
+paid_account@[]paid_accounts(0);
+class paid_account
+{
+double time=2592000000;
+timer paid_accounttimer;
+string username;
+paid_account(string user, double tm)
+{
+username=user;
+time=tm;
+}
+}
+void paid_accountloop()
+{
+for(uint i=0; i<paid_accounts.length(); i++)
+{
+if(paid_accounts[i].paid_accounttimer.elapsed>paid_accounts[i].time)
+{
+string[] charfolders=find_directories("chars/*");
+int found=charfolders.find(paid_accounts[i].username);
+if(found>-1)
+{
+write_to(charfolders[found], "paid.usr", 0);
+send_reliable(0,paid_accounts[i].username+" is no longer paid!",0);
+@paid_accounts[i]=null;
+paid_accounts.remove_at(i);
+continue;
+}
+}
+}
+}
+void create_paid_account(string user, double time=2592000000, double elapsed=0)
+{
+paid_account pa1(user,time);
+pa1.paid_accounttimer.force(elapsed);
+paid_accounts.insert_last(pa1);
+}
+void remove_paid_account(player@p)
+{
+for(uint i=0; i<paid_accounts.length(); i++)
+{
+if(paid_accounts[i].username==p.name)
+{
+@paid_accounts[i]=null;
+paid_accounts.remove_at(i);
+}
+}
+}
+bool paid_accountcheck(string u)
+{
+for(uint i=0; i<paid_accounts.length(); i++)
+{
+if(paid_accounts[i].username==u)
+{
+return true;
+}
+}
+return false;
+}
+int get_paid_account_index(string user)
+{
+for(uint i=0; i<paid_accounts.length(); i++)
+{
+if(paid_accounts[i].username==user)
+{
+return i;
+}
+}
+return -1;
+}
+void save_paid_accounts()
+{
+string final;
+for(uint i=0; i<paid_accounts.length(); i++)
+{
+final+=paid_accounts[i].username+"="+paid_accounts[i].time+"="+paid_accounts[i].paid_accounttimer.elapsed+"\r\n";
+}
+file_put_contents("paid_accounts.svr",final,250);
+}
+void load_all_paid_accounts()
+{
+file pa;
+if(!pa.open("paid_accounts.svr", "rb"))
+{
+return;
+}
+string padata=pa.read();
+pa.close();
+if(padata=="")
+{
+return;
+}
+string[] tpas=string_split(padata, "\r\n", false);
+for(uint i=0; i<tpas.length(); i++)
+{
+string[] parsed=string_split(tpas[i], "=", false);
+create_paid_account(parsed[0], string_to_number(parsed[1]),string_to_number(parsed[2]));
+}
+}
+paid_rocket_launcher@[]paid_rocket_launchers(0);
+class paid_rocket_launcher
+{
+double time=2592000000;
+timer paid_rocket_launchertimer;
+string username;
+paid_rocket_launcher(string user,  double tm)
+{
+username=user;
+time=tm;
+}
+}
+void paid_rocket_launcherloop()
+{
+for(uint i=0; i<paid_rocket_launchers.length(); i++)
+{
+if(paid_rocket_launchers[i].paid_rocket_launchertimer.elapsed>paid_rocket_launchers[i].time)
+{
+string[] charfolders=find_directories("chars/*");
+int found=charfolders.find(paid_rocket_launchers[i].username);
+if(found>-1)
+{
+write_to(charfolders[found], "paid.usr", 0);
+send_reliable(0,paid_rocket_launchers[i].username+" is no longer paid!",0);
+@paid_rocket_launchers[i]=null;
+paid_rocket_launchers.remove_at(i);
+continue;
+}
+}
+}
+}
+void create_paid_rocket_launcher(string user,  double time=2592000000, double elapsed=0)
+{
+paid_rocket_launcher pa1(user,time);
+pa1.paid_rocket_launchertimer.force(elapsed);
+paid_rocket_launchers.insert_last(pa1);
+}
+void remove_paid_rocket_launcher(player@p)
+{
+for(uint i=0; i<paid_rocket_launchers.length(); i++)
+{
+if(paid_rocket_launchers[i].username==p.name)
+{
+@paid_rocket_launchers[i]=null;
+paid_rocket_launchers.remove_at(i);
+}
+}
+}
+bool paid_rocket_launchercheck(string u)
+{
+for(uint i=0; i<paid_rocket_launchers.length(); i++)
+{
+if(paid_rocket_launchers[i].username==u)
+{
+return true;
+}
+}
+return false;
+}
+int get_paid_rocket_launcher_index(string user)
+{
+for(uint i=0; i<paid_rocket_launchers.length(); i++)
+{
+if(paid_rocket_launchers[i].username==user)
+{
+return i;
+}
+}
+return -1;
+}
+void save_paid_rocket_launchers()
+{
+string final;
+for(uint i=0; i<paid_rocket_launchers.length(); i++)
+{
+final+=paid_rocket_launchers[i].username+"="+paid_rocket_launchers[i].time+"="+paid_rocket_launchers[i].paid_rocket_launchertimer.elapsed+"\r\n";
+}
+file_put_contents("paid_rocket_launchers.svr",final,250);
+}
+void load_all_paid_rocket_launchers()
+{
+file pa;
+if(!pa.open("paid_rocket_launchers.svr", "rb"))
+{
+return;
+}
+string padata=pa.read();
+pa.close();
+if(padata=="")
+{
+return;
+}
+string[] tpas=string_split(padata, "\r\n", false);
+for(uint i=0; i<tpas.length(); i++)
+{
+string[] parsed=string_split(tpas[i], "=", false);
+create_paid_rocket_launcher(parsed[0], string_to_number(parsed[1]),string_to_number(parsed[2]));
+}
+}
+paid_nak_nk1000_decimater@[]paid_nak_nk1000_decimaters(0);
+class paid_nak_nk1000_decimater
+{
+double time=2592000000;
+timer paid_nak_nk1000_decimatertimer;
+string username;
+paid_nak_nk1000_decimater(string user,  double tm)
+{
+username=user;
+time=tm;
+}
+}
+void paid_nak_nk1000_decimaterloop()
+{
+for(uint i=0; i<paid_nak_nk1000_decimaters.length(); i++)
+{
+if(paid_nak_nk1000_decimaters[i].paid_nak_nk1000_decimatertimer.elapsed>paid_nak_nk1000_decimaters[i].time)
+{
+string[] charfolders=find_directories("chars/*");
+int found=charfolders.find(paid_nak_nk1000_decimaters[i].username);
+if(found>-1)
+{
+write_to(charfolders[found], "paid.usr", 0);
+send_reliable(0,paid_nak_nk1000_decimaters[i].username+" is no longer paid!",0);
+@paid_nak_nk1000_decimaters[i]=null;
+paid_nak_nk1000_decimaters.remove_at(i);
+continue;
+}
+}
+}
+}
+void create_paid_nak_nk1000_decimater(string user,  double time=2592000000, double elapsed=0)
+{
+paid_nak_nk1000_decimater pa1(user,time);
+pa1.paid_nak_nk1000_decimatertimer.force(elapsed);
+paid_nak_nk1000_decimaters.insert_last(pa1);
+}
+void remove_paid_nak_nk1000_decimater(player@p)
+{
+for(uint i=0; i<paid_nak_nk1000_decimaters.length(); i++)
+{
+if(paid_nak_nk1000_decimaters[i].username==p.name)
+{
+@paid_nak_nk1000_decimaters[i]=null;
+paid_nak_nk1000_decimaters.remove_at(i);
+}
+}
+}
+bool paid_nak_nk1000_decimatercheck(string u)
+{
+for(uint i=0; i<paid_nak_nk1000_decimaters.length(); i++)
+{
+if(paid_nak_nk1000_decimaters[i].username==u)
+{
+return true;
+}
+}
+return false;
+}
+int get_paid_nak_nk1000_decimater_index(string user)
+{
+for(uint i=0; i<paid_nak_nk1000_decimaters.length(); i++)
+{
+if(paid_nak_nk1000_decimaters[i].username==user)
+{
+return i;
+}
+}
+return -1;
+}
+void save_paid_nak_nk1000_decimaters()
+{
+string final;
+for(uint i=0; i<paid_nak_nk1000_decimaters.length(); i++)
+{
+final+=paid_nak_nk1000_decimaters[i].username+"="+paid_nak_nk1000_decimaters[i].time+"="+paid_nak_nk1000_decimaters[i].paid_nak_nk1000_decimatertimer.elapsed+"\r\n";
+}
+file_put_contents("paid_nak_nk1000_decimaters.svr",final,250);
+}
+void load_all_paid_nak_nk1000_decimaters()
+{
+file pa;
+if(!pa.open("paid_nak_nk1000_decimaters.svr", "rb"))
+{
+return;
+}
+string padata=pa.read();
+pa.close();
+if(padata=="")
+{
+return;
+}
+string[] tpas=string_split(padata, "\r\n", false);
+for(uint i=0; i<tpas.length(); i++)
+{
+string[] parsed=string_split(tpas[i], "=", false);
+create_paid_nak_nk1000_decimater(parsed[0], string_to_number(parsed[1]),string_to_number(parsed[2]));
+}
+}

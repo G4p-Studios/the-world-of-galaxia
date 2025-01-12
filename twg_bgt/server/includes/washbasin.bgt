@@ -1,0 +1,80 @@
+washbasin@[] washbasins(0);
+class washbasin
+{
+int minx, maxx, miny, maxy, minz, maxz;
+bool aberta=false;
+string map;
+timer fechar, fechando;
+washbasin(int wminx, int wmaxx, int wminy, int wmaxy, int wminz, int wmaxz, string wmap)
+{
+minx=wminx;
+maxx=wmaxx;
+miny=wminy;
+maxy=wmaxy;
+minz=wminz;
+maxz=wmaxz;
+map=wmap;
+fechar.force(0);
+fechar.pause();
+fechando.force(0);
+fechando.pause();
+}
+void loop()
+{
+if(aberta&&fechar.elapsed>=7960)
+{
+aberta=false;
+for(uint i2=0; i2<players.length(); i2++)
+{
+if(map==players[i2].map and minx<=players[i2].x and maxx>=players[i2].x and miny<=players[i2].y and maxy>=players[i2].y and minz<=players[i2].z and maxz>=players[i2].z)
+{
+send_reliable(players[i2],"startmoving",0);
+}
+}
+fechando.force(0);
+fechando.pause();
+fechar.force(0);
+fechar.pause();
+}
+if(aberta&&fechando.elapsed>=1960)
+{
+fechando.restart();
+for(uint i2=0;i2<players.length();i2++)
+{
+if(map==players[i2].map and minx<=players[i2].x and maxx>=players[i2].x and miny<=players[i2].y and maxy>=players[i2].y and minz<=players[i2].z and maxz>=players[i2].z)
+{
+players[i2].dirty-=0.5;
+players[i2].wet+=1;
+players[i2].temperaturelevel-=random(0,1);
+}
+}
+}
+}
+}
+void spawn_washbasin(int minx, int maxx, int miny, int maxy, int minz, int maxz, string map)
+{
+washbasin w(minx, maxx, miny, maxy, minz, maxz, map);
+washbasins.insert_last(w);
+}
+void remove_washbasin(int index)
+{
+if(index>-1)
+{
+@washbasins[index]=null;
+washbasins.remove_at(index);
+}
+}
+void remove_all_washbasins()
+{
+for(uint i=0; i<washbasins.length(); i++)
+{
+remove_washbasin(i);
+}
+}
+void clear_washbasins_on_map(string map)
+{
+for(uint i=0; i<washbasins.length(); i+=1)
+{
+if(washbasins[i].map==map) remove_washbasin(i);
+}
+}

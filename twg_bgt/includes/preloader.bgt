@@ -1,0 +1,38 @@
+class preload
+{
+sound@ handle;
+string name;
+}
+preload[] preloads;
+// The following function takes a filename as its only argument and loads the sound as a preload.
+// It returns true on success and false on failure.
+// It will fail if the sound has already been loaded as a preload, or if something goes wrong while actually loading it.
+bool preload_add(string filename)
+{
+// Verify that the sound hasn't already been loaded as a preload by comparing the filenames.
+for(int i=0;i<preloads.length();i++)
+{
+if(preloads[i].name==filename)
+return false;
+}
+
+sound temp;
+//temp.load(filename);
+if(temp.active==false)
+{
+return false;
+}
+preload loader;
+@loader.handle=temp;
+loader.name=filename;
+preloads.insert_last(loader);
+garbage_collect();
+return true;
+}
+// The following function resets all of the preloads.
+void reset_preloads()
+{
+preloads.resize(0);
+// Call the garbage_collect function to ensure that all data is cleaned up immediately.
+garbage_collect();
+}

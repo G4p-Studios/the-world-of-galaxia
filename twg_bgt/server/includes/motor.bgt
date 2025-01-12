@@ -1,0 +1,4280 @@
+motor@[] mos;
+int generic_motorcyclespawn=3737, generic_motorcyclestop=3468, generic_motorcyclestart=4250, frog_motorcyclespawn=3737, frog_motorcyclestop=325, frog_motorcyclestart=3993, ducati_street_fighterspawn=3737, ducati_street_fighterstop=325, ducati_street_fighterstart=441, onda_cbr_600spawn=3737, onda_cbr_600stop=487, onda_cbr_600start=1555, yamaha_r6spawn=3737, yamaha_r6stop=325, yamaha_r6start=1835, motor_boatspawn=3737, motor_boatstop=6682, motor_boatstart=7884, aprilia_v4spawn=3737, aprilia_v4stop=371, aprilia_v4start=975, aprilia_rs660spawn=3737, aprilia_rs660stop=441, aprilia_rs660start=1068, ducati_diavelspawn=3737, ducati_diavelstop=208, ducati_diavelstart=812, yamaha_off_roadspawn=3737, yamaha_off_roadstop=348, yamaha_off_roadstart=394, kawasaki_hipersportspawn=3737, kawasaki_hipersportstop=208, kawasaki_hipersportstart=998, kawasaki_adventure_tourerspawn=3737, kawasaki_adventure_tourerstop=603, kawasaki_adventure_tourerstart=835, ducati_scrumblerspawn=3737, ducati_scrumblerstop=185, ducati_scrumblerstart=255, bmw_off_roadspawn=3737, bmw_off_roadstop=1137, bmw_off_roadstart=580;
+class motor
+{
+double x,y,z,facing,health,fuel=100;
+string type,owner,map,mid,doing,hitby="nothing";
+int speed=0,soundtime=0,fueltime,movetime,firetime,mmovetime,mfueltime,falldist;
+timer firetimer,movetimer,fueltimer,soundtimer,falltimer;
+bool lowfuel=false,lowhealth=false,falling=false;
+double pitch;
+vector min, max;
+motor(string vtype,int pind)
+{
+owner=players[pind].name;
+x=players[pind].x;y=players[pind].y;z=players[pind].z;facing=players[pind].facing;map=players[pind].map;
+min=get_min_values(map);
+max=get_max_values(map);
+type=vtype;
+send_reliable(players[pind],"move "+x+" "+y+" "+z,7);
+send_packet(6,"play generic_motorcycle_spawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_reliable(players[pind],"mospawning "+type,0);
+}
+//bgt bitches at you if you don't have something here, even though subclasses define it.
+void mocommand(string cmd, bool force=false, int i=-1)
+{
+}
+void loop(int i)
+{
+}
+void hit(int damage,string hb,string type="")
+{
+this.health-=damage;
+this.hitby=hb;
+playsound("locker_hit"+random(1,6)+"",true,false);
+}
+void playsound(string sound, bool ext=true, bool alt=true)
+{
+playint(sound+(alt==true&&ext==true ? "" : ""),owner);
+if(ext) playext(sound+(alt==true&&ext==true ? "" : ""),x,y,z,maps[get_map_index(map)],owner);
+}
+}
+void spawn_motor(string type, int pind)
+{
+if(type=="generic_motorcycle")
+{
+generic_motorcycle v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="frog_motorcycle")
+{
+frog_motorcycle v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="ducati_street_fighter")
+{
+ducati_street_fighter v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="onda_cbr_600")
+{
+onda_cbr_600 v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="yamaha_r6")
+{
+yamaha_r6 v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="motor_boat")
+{
+motor_boat v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="aprilia_v4")
+{
+aprilia_v4 v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="aprilia_rs660")
+{
+aprilia_rs660 v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="ducati_diavel")
+{
+ducati_diavel v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="yamaha_off_road")
+{
+yamaha_off_road v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="kawasaki_hipersport")
+{
+kawasaki_hipersport v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="kawasaki_adventure_tourer")
+{
+kawasaki_adventure_tourer v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="ducati_scrumbler")
+{
+ducati_scrumbler v1(pind);
+mos.insert_last(v1);
+}
+else if(type=="bmw_off_road")
+{
+bmw_off_road v1(pind);
+mos.insert_last(v1);
+}
+}
+int in_motor(player@p)
+{
+for(uint i=0; i<mos.length(); i++)
+{
+if(mos[i].owner==p.name) return i;
+}
+return -1;
+}
+class aprilia_rs660 : motor
+{
+aprilia_rs660(int pind)
+{
+super("aprilia_rs660",pind);
+health=players[pind].aprilia_rs660health;
+fuel=players[pind].aprilia_rs660fuel;
+fueltime=16873;
+soundtime=aprilia_rs660spawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=aprilia_rs660start;
+if(doing=="stop") soundtime=aprilia_rs660stop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].aprilia_rs660health=health;
+players[index].aprilia_rs660fuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("aprilia_rs660_drive.ogg",x,y,z,map,owner);
+sendint("mostart aprilia_rs660_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("aprilia_rs660_idle.ogg",x,y,z,map,owner);
+sendint("mostart aprilia_rs660_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].aprilia_rs660fuel=100;
+players[index].aprilia_rs660health=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="aprilia_rs660" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("aprilia_rs660_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("aprilia_rs660_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class aprilia_v4 : motor
+{
+aprilia_v4(int pind)
+{
+super("aprilia_v4",pind);
+health=players[pind].aprilia_v4health;
+fuel=players[pind].aprilia_v4fuel;
+fueltime=16873;
+soundtime=aprilia_v4spawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=aprilia_v4start;
+if(doing=="stop") soundtime=aprilia_v4stop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].aprilia_v4health=health;
+players[index].aprilia_v4fuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("aprilia_v4_drive.ogg",x,y,z,map,owner);
+sendint("mostart aprilia_v4_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("aprilia_v4_idle.ogg",x,y,z,map,owner);
+sendint("mostart aprilia_v4_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].aprilia_v4fuel=100;
+players[index].aprilia_v4health=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="aprilia_v4" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("aprilia_v4_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("aprilia_v4_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class bmw_off_road : motor
+{
+bmw_off_road(int pind)
+{
+super("bmw_off_road",pind);
+health=players[pind].bmw_off_roadhealth;
+fuel=players[pind].bmw_off_roadfuel;
+fueltime=16873;
+soundtime=bmw_off_roadspawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=bmw_off_roadstart;
+if(doing=="stop") soundtime=bmw_off_roadstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].bmw_off_roadhealth=health;
+players[index].bmw_off_roadfuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("bmw_off_road_drive.ogg",x,y,z,map,owner);
+sendint("mostart bmw_off_road_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("bmw_off_road_idle.ogg",x,y,z,map,owner);
+sendint("mostart bmw_off_road_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].bmw_off_roadfuel=100;
+players[index].bmw_off_roadhealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="bmw_off_road" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("bmw_off_road_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("bmw_off_road_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class ducati_diavel : motor
+{
+ducati_diavel(int pind)
+{
+super("ducati_diavel",pind);
+health=players[pind].ducati_diavelhealth;
+fuel=players[pind].ducati_diavelfuel;
+fueltime=16873;
+soundtime=ducati_diavelspawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=ducati_diavelstart;
+if(doing=="stop") soundtime=ducati_diavelstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].ducati_diavelhealth=health;
+players[index].ducati_diavelfuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("ducati_diavel_drive.ogg",x,y,z,map,owner);
+sendint("mostart ducati_diavel_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("ducati_diavel_idle.ogg",x,y,z,map,owner);
+sendint("mostart ducati_diavel_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].ducati_diavelfuel=100;
+players[index].ducati_diavelhealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="ducati_diavel" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("ducati_diavel_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("ducati_diavel_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class ducati_scrumbler : motor
+{
+ducati_scrumbler(int pind)
+{
+super("ducati_scrumbler",pind);
+health=players[pind].ducati_scrumblerhealth;
+fuel=players[pind].ducati_scrumblerfuel;
+fueltime=16873;
+soundtime=ducati_scrumblerspawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=ducati_scrumblerstart;
+if(doing=="stop") soundtime=ducati_scrumblerstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].ducati_scrumblerhealth=health;
+players[index].ducati_scrumblerfuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("ducati_scrumbler_drive.ogg",x,y,z,map,owner);
+sendint("mostart ducati_scrumbler_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("ducati_scrumbler_idle.ogg",x,y,z,map,owner);
+sendint("mostart ducati_scrumbler_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].ducati_scrumblerfuel=100;
+players[index].ducati_scrumblerhealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="ducati_scrumbler" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("ducati_scrumbler_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("ducati_scrumbler_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class ducati_street_fighter : motor
+{
+ducati_street_fighter(int pind)
+{
+super("ducati_street_fighter",pind);
+health=players[pind].ducati_street_fighterhealth;
+fuel=players[pind].ducati_street_fighterfuel;
+fueltime=16873;
+soundtime=ducati_street_fighterspawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=ducati_street_fighterstart;
+if(doing=="stop") soundtime=ducati_street_fighterstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].ducati_street_fighterhealth=health;
+players[index].ducati_street_fighterfuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("ducati_street_fighter_drive.ogg",x,y,z,map,owner);
+sendint("mostart ducati_street_fighter_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("ducati_street_fighter_idle.ogg",x,y,z,map,owner);
+sendint("mostart ducati_street_fighter_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].ducati_street_fighterfuel=100;
+players[index].ducati_street_fighterhealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="ducati_street_fighter" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("ducati_street_fighter_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("ducati_street_fighter_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class frog_motorcycle : motor
+{
+frog_motorcycle(int pind)
+{
+super("frog_motorcycle",pind);
+health=players[pind].frog_motorcyclehealth;
+fuel=players[pind].frog_motorcyclefuel;
+fueltime=16873;
+soundtime=frog_motorcyclespawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=frog_motorcyclestart;
+if(doing=="stop") soundtime=frog_motorcyclestop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].frog_motorcyclehealth=health;
+players[index].frog_motorcyclefuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("frog_motorcycle_drive.ogg",x,y,z,map,owner);
+sendint("mostart frog_motorcycle_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("frog_motorcycle_idle.ogg",x,y,z,map,owner);
+sendint("mostart frog_motorcycle_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].frog_motorcyclefuel=100;
+players[index].frog_motorcyclehealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="frog_motorcycle" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("frog_motorcycle_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("frog_motorcycle_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class generic_motorcycle : motor
+{
+generic_motorcycle(int pind)
+{
+super("generic_motorcycle",pind);
+health=players[pind].generic_motorcyclehealth;
+fuel=players[pind].generic_motorcyclefuel;
+fueltime=16873;
+soundtime=generic_motorcyclespawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=generic_motorcyclestart;
+if(doing=="stop") soundtime=generic_motorcyclestop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].generic_motorcyclehealth=health;
+players[index].generic_motorcyclefuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("generic_motorcycle_drive.ogg",x,y,z,map,owner);
+sendint("mostart generic_motorcycle_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("generic_motorcycle_idle.ogg",x,y,z,map,owner);
+sendint("mostart generic_motorcycle_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].generic_motorcyclefuel=100;
+players[index].generic_motorcyclehealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="generic_motorcycle" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("generic_motorcycle_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("generic_motorcycle_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class kawasaki_adventure_tourer : motor
+{
+kawasaki_adventure_tourer(int pind)
+{
+super("kawasaki_adventure_tourer",pind);
+health=players[pind].kawasaki_adventure_tourerhealth;
+fuel=players[pind].kawasaki_adventure_tourerfuel;
+fueltime=16873;
+soundtime=kawasaki_adventure_tourerspawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=kawasaki_adventure_tourerstart;
+if(doing=="stop") soundtime=kawasaki_adventure_tourerstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].kawasaki_adventure_tourerhealth=health;
+players[index].kawasaki_adventure_tourerfuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("kawasaki_adventure_tourer_drive.ogg",x,y,z,map,owner);
+sendint("mostart kawasaki_adventure_tourer_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("kawasaki_adventure_tourer_idle.ogg",x,y,z,map,owner);
+sendint("mostart kawasaki_adventure_tourer_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].kawasaki_adventure_tourerfuel=100;
+players[index].kawasaki_adventure_tourerhealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="kawasaki_adventure_tourer" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("kawasaki_adventure_tourer_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("kawasaki_adventure_tourer_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class kawasaki_hipersport : motor
+{
+kawasaki_hipersport(int pind)
+{
+super("kawasaki_hipersport",pind);
+health=players[pind].kawasaki_hipersporthealth;
+fuel=players[pind].kawasaki_hipersportfuel;
+fueltime=16873;
+soundtime=kawasaki_hipersportspawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=kawasaki_hipersportstart;
+if(doing=="stop") soundtime=kawasaki_hipersportstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].kawasaki_hipersporthealth=health;
+players[index].kawasaki_hipersportfuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("kawasaki_hipersport_drive.ogg",x,y,z,map,owner);
+sendint("mostart kawasaki_hipersport_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("kawasaki_hipersport_idle.ogg",x,y,z,map,owner);
+sendint("mostart kawasaki_hipersport_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].kawasaki_hipersportfuel=100;
+players[index].kawasaki_hipersporthealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="kawasaki_hipersport" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("kawasaki_hipersport_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("kawasaki_hipersport_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class onda_cbr_600 : motor
+{
+onda_cbr_600(int pind)
+{
+super("onda_cbr_600",pind);
+health=players[pind].onda_cbr_600health;
+fuel=players[pind].onda_cbr_600fuel;
+fueltime=16873;
+soundtime=onda_cbr_600spawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=onda_cbr_600start;
+if(doing=="stop") soundtime=onda_cbr_600stop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].onda_cbr_600health=health;
+players[index].onda_cbr_600fuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("onda_cbr_600_drive.ogg",x,y,z,map,owner);
+sendint("mostart onda_cbr_600_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("onda_cbr_600_idle.ogg",x,y,z,map,owner);
+sendint("mostart onda_cbr_600_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].onda_cbr_600fuel=100;
+players[index].onda_cbr_600health=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="onda_cbr_600" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("onda_cbr_600_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("onda_cbr_600_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class yamaha_off_road : motor
+{
+yamaha_off_road(int pind)
+{
+super("yamaha_off_road",pind);
+health=players[pind].yamaha_off_roadhealth;
+fuel=players[pind].yamaha_off_roadfuel;
+fueltime=16873;
+soundtime=yamaha_off_roadspawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=yamaha_off_roadstart;
+if(doing=="stop") soundtime=yamaha_off_roadstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].yamaha_off_roadhealth=health;
+players[index].yamaha_off_roadfuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("yamaha_off_road_drive.ogg",x,y,z,map,owner);
+sendint("mostart yamaha_off_road_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("yamaha_off_road_idle.ogg",x,y,z,map,owner);
+sendint("mostart yamaha_off_road_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].yamaha_off_roadfuel=100;
+players[index].yamaha_off_roadhealth=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="yamaha_off_road" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("yamaha_off_road_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("yamaha_off_road_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class yamaha_r6 : motor
+{
+yamaha_r6(int pind)
+{
+super("yamaha_r6",pind);
+health=players[pind].yamaha_r6health;
+fuel=players[pind].yamaha_r6fuel;
+fueltime=16873;
+soundtime=yamaha_r6spawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motorcycle must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=yamaha_r6start;
+if(doing=="stop") soundtime=yamaha_r6stop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].yamaha_r6health=health;
+players[index].yamaha_r6fuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("yamaha_r6_drive.ogg",x,y,z,map,owner);
+sendint("mostart yamaha_r6_drive.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("yamaha_r6_idle.ogg",x,y,z,map,owner);
+sendint("mostart yamaha_r6_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].yamaha_r6fuel=100;
+players[index].yamaha_r6health=30000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:motorcycle:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="yamaha_r6" ? 30000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("yamaha_r6_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("yamaha_r6_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if(movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+if(string_contains(tile, "wall", 1)<0) x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1)
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}
+class motor_boat : motor
+{
+motor_boat(int pind)
+{
+super("motor_boat",pind);
+health=players[pind].motor_boathealth;
+fuel=players[pind].motor_boatfuel;
+fueltime=16873;
+soundtime=motor_boatspawn;soundtimer.restart();
+mmovetime=825;
+mfueltime=500;
+}
+void mocommand(string cmd,bool force=false, int i=-1)
+{
+int index=get_player_index_from(owner);
+if(soundtimer.elapsed<soundtime&&(!force)) return;
+if(fuel<=0 and (cmd!="escape"&&cmd!="repair")) return;
+if(cmd=="repair")
+{
+if(speed>0)
+{
+sendint("speak your motor boat must be off to receive repairs.",owner);
+return;
+}
+sendint("speak just a sec...",owner);
+soundtime=repair;
+soundtimer.restart();
+playsound("vehicle_repair",true,false);
+doing="repair";
+}
+if(cmd=="enter")
+{
+doing=(speed==0 ? "start" : "stop");
+if(doing=="stop"&&speed>1&&!force)
+{
+sendint("speak your "+type+" must be idling before it can be shut off",owner);
+return;
+}
+if(doing=="start") soundtime=motor_boatstart;
+if(doing=="stop") soundtime=motor_boatstop;
+if(doing=="start" ) lowfuel=false;
+if(doing=="stop")
+{
+destroy_moving_sound(mid);
+mid="";
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+}
+soundtimer.restart();
+playsound(type+"_"+doing);
+speed=(speed==0 ? 1 : 0);
+return;
+}
+if(cmd=="escape")
+{
+if(speed!=0)
+{
+sendint("speak you cannot exit your motorcycle until it is completely off", owner);
+return;
+}
+sendint("mounspawn",owner);
+send_packet(6,"play generic_motorcycle_unspawn.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].motor_boathealth=health;
+players[index].motor_boatfuel=fuel;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+else if(cmd=="speedup"&&speed<5&&speed>0)
+{
+int prevspeed=speed;
+speed++;
+movetime=mmovetime/speed;
+if(speed==2)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("motor_boat_idle.ogg",x,y,z,map,owner);
+sendint("mostart motor_boat_idle.ogg 100",owner);
+this.pitch=100;
+}
+else if(speed>2)
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="speeddown"&&speed>1)
+{
+int prevspeed=speed;
+speed--;
+movetime=mmovetime/speed;
+if(speed==1)
+{
+destroy_moving_sound(mid);
+sendint("mostop",owner);
+mid=spawn_moving_sound("motor_boat_idle.ogg",x,y,z,map,owner);
+sendint("mostart motor_boat_idle.ogg 100",owner);
+this.pitch=100;
+}
+else
+{
+double pi=125;
+double inc=25;
+pi+=inc*(speed-2);
+update_moving_sound(mid,x,y,z,pi);
+this.pitch=pi;
+sendint("mopitch "+pitch,owner);
+}
+}
+else if(cmd=="turnleft"&&speed>0)
+{
+facing=snapleft(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+else if(cmd=="turnright"&&speed>0)
+{
+facing=snapright(facing,getdir(facing),45);
+int index=get_player_index_from(owner);
+if(index>-1) players[index].facing=facing;
+sendint("facing "+facing,owner);
+sendint("speak facing "+dir_to_string(getdir(facing)),owner);
+playsound("generic_motorcycle_turn",true,false);
+}
+}
+void loop(int i)
+{
+if(get_player_index_from(owner)<0)
+{
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(health<=0)
+{
+sendint("mostop",owner);
+sendint("mounspawn",owner);
+int index=get_player_index_from(owner);
+send_packet(6,"play generic_motorcycle_die.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_dpacketn(6,index,"distsound generic_motorcycle_diedist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+string hb=hitby;
+if(string_contains(hb,"'",1)>-1) hb=string_left(hb,string_contains(hb,"'",1));
+int k=get_player_index_from(hb);
+if(k>-1)
+{
+givexp(players[k],random(100, 300)*players[k].reinforcement);
+int t=is_in_team(players[k].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+if(index>-1)
+{
+players[index].motor_boatfuel=100;
+players[index].motor_boathealth=20000;
+send_reliable(0,"kills "+killmsg3(players[index].name+"'s "+type,hitby,get_zone_at(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)])),0);
+players[index].health-=random(20000, 50000);
+players[index].hitby="internal:"+type;
+}
+spawn_mmotor(x,y,z,map,owner,type,health,randomstring(6));
+if(mid!="") destroy_moving_sound(mid);
+mos.remove_at(i);
+return;
+}
+if(doing!=""&&soundtimer.elapsed>=soundtime)
+{
+if(doing=="repair")
+{
+health=(type=="motor_boat" ? 20000 : 5000);
+sendint("speak your "+type+" has been repaired!",owner);
+}
+if(doing=="start")
+{
+int pitch=100;
+mid=spawn_moving_sound(type+"_idle.ogg",x,y,z,map,owner,pitch);
+this.pitch=pitch;
+sendint("mostart "+type+"_idle.ogg "+pitch,owner);
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+if(doing=="stop")
+{
+sendint2("move "+x+" "+y+" "+z,owner);
+int index=get_player_index_from(owner);
+if(index>-1) {players[index].x=x;players[index].y=y;players[index].z=z;}
+}
+doing="";
+}
+if(fueltimer.elapsed>=(fueltime-(mfueltime*(speed-1)))&&speed>0)
+{
+fuel-=0.1;
+fuel=round(fuel,1);
+fueltimer.restart();
+}
+if(fuel<=2.5&&lowfuel==false&&speed>0)
+{
+lowfuel=true;
+sendint("molowfuel",owner);
+}
+if(fuel<=0&&doing!="fall"&&speed>0)
+{
+sendint("mogoodfuel",owner);
+sendint("mostop",owner);
+destroy_moving_sound(mid);
+playext("motor_boat_stop",x,y,z,maps[get_map_index(map)],owner);
+playint("motor_boat_stop",owner);
+mid="";
+speed=0;
+}
+string tile=get_tile_at(x,y,z,maps[get_map_index(map)]);
+if(falling&&falltimer.elapsed>=70)
+{
+falltimer.restart();
+if(tile=="" or tile=="air")
+{
+z--;
+falldist++;
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+else
+{
+falling=false;
+hit(falldist*random(180,300),"gravity","artillery");
+falldist=0;
+}
+}
+if((tile=="water" or tile=="water2" or tile=="water3" or tile=="water4" or tile=="water5" or tile=="water6" or tile=="water7" or tile=="water8" or tile=="water9" or tile=="water10" or tile=="puddle" or tile=="deepwater" or tile=="swim" or tile=="swimming" or tile=="swimming2" or tile=="spring" or tile=="spring2" or tile=="wallboat") and movetimer.elapsed>=movetime&&soundtimer.elapsed>=soundtime&&speed>1&&!falling)
+{
+movetimer.restart();
+vector m=move(x,y,0,facing,0,0.0,0);
+x=m.x;y=m.y;
+if(x<min.x) x=min.x;
+if(y<min.y) y=min.y;
+if(x>max.x) x=max.x;
+if(y>max.y) y=max.y;
+if(string_contains(tile, "wall", 1)>-1 and tile!="wallboat")
+{
+playext("vehicle_c"+random(5,6)+"",x,y,z,maps[get_map_index(map)],owner);
+playint("vehicle_c"+random(1,4)+"",owner);
+send_dpacketn(6,players[get_player_index_from(owner)].peer_id,"distsound vehicle_c"+random(5,6)+" "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+this.health-=random(100,1000);
+sendint("mostop",owner);
+sendint("mogoodfuel",owner);
+destroy_moving_sound(mid);
+mid="";
+speed=0;
+return;
+}
+if(tile=="" or tile=="air" and not falling)
+{
+falling=true;
+falldist=0;
+falltimer.restart();
+}
+update_moving_sound(mid,x,y,z,pitch);
+int index=get_player_index_from(owner);
+if(index>-1)
+{
+players[index].x=x;
+players[index].y=y;
+players[index].z=z;
+send_reliable(players[index],"move "+x+" "+y+" "+z,7);
+}
+}
+if(fuel>2.5&&lowfuel)
+{
+lowfuel=false;
+sendint("mogoodfuel",owner);
+}
+}
+}

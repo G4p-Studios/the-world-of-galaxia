@@ -1,0 +1,183 @@
+pack_file pfile;
+timer packagetimer;
+int packagetime;
+sound prog;
+bool encrypt;
+string encryption_key;
+string filename;
+string foldername;
+string[] fol;
+timer t;
+void main()
+{
+prog.load("progress.ogg");
+int pd=question("pack creator","would you like to use last saved settings?");
+if(pd!=1)
+{
+filename=input_box("pack creater", "enter the name of the pack you wish to create");
+if (filename=="")
+{
+exit();
+}
+foldername=input_box("pack creater", "enter the path that the files you wish to pack are contained.");
+if (foldername=="")
+{
+exit();
+}
+int answer=question("pack creater", "would you like these files to be encrypted");
+if (answer==1)
+{
+encrypt=true;
+encryption_key=input_box("file encrypter", "enter the encryption key you wish to use.");
+if (encryption_key=="")
+{
+exit();
+}
+}
+else
+{
+encrypt=false;
+}
+file f;
+f.open("packc.pdata","wb");
+f.write(filename+"\r\n"+foldername+"\r\n"+encrypt+"\r\n"+encryption_key);
+f.close();
+}
+else
+{
+file f;
+f.open("packc.pdata","rb");
+string[] parsed=string_split(f.read(),"\r\n",false);
+f.close();
+if(parsed.length==2) parsed.insert_last("");
+if(parsed.length==3) parsed.insert_last("");
+filename=parsed[0];
+foldername=parsed[1];
+int e=string_to_number(parsed[2]);
+if(e==1) encrypt=true;
+encryption_key=parsed[3];
+}
+show_game_window("working");
+pfile.create(filename);
+if (!directory_exists(foldername))
+{
+alert("error", "folder does not exist!");
+exit();
+}
+if (encrypt==true and !directory_exists(foldername+"/encrypted"))
+{
+directory_create(foldername+"/encrypted");
+}
+fill();
+alert("pack creater", "there are "+fol.length()+" files in the pack. Hit OK to start packing!");
+t.restart();
+packagetime=fol.length*50;
+int percent=-1;
+for (uint i=0; i<fol.length(); i++)
+{
+double l=fol.length,ind=i;
+int perc=ind/l*100.0;
+if(perc!=percent)
+{
+percent=perc;
+beep_percentage(percent);}
+if (encrypt==true)
+{
+file_encrypt(foldername+"/"+fol[i], foldername+"/encrypted/"+fol[i], keygen(encryption_key));
+pfile.add_file(foldername+"/encrypted/"+fol[i], fol[i]);
+}
+else
+{
+pfile.add_file(foldername+"/"+fol[i], fol[i]);
+}
+}
+if (encrypt==true)
+{
+directory_delete(foldername+"/encrypted");
+}
+t.pause();
+alert("success!", "Files were added successfully! The pack creater took "+t.elapsed+" ms");
+exit();
+}
+tone_synth progress_synth;
+sound@ progress_sound;
+void beep_percentage(double val)
+{
+val=round(val,0);
+if(val<0) val=0;
+if(val>100) val=100;
+double freq=110*2**(val/25);
+progress_synth.waveform_type=4;
+progress_synth.set_edge_fades(1,1);
+progress_synth.freq_ms(""+freq,40);
+@progress_sound=progress_synth.write_wave_sound();
+progress_synth.reset();
+progress_sound.play();
+}
+string keygen(string fn) {
+string key=fn;
+key=string_replace(key, "a","æ", true);
+key=string_replace(key, "l","¦", true);
+key=string_replace(key, " ","÷", true);
+key=string_reverse(key);
+key=string_hash(key, 2, true);
+key=string_encrypt(key, key);
+key=string_reverse(key);
+key=string_hash(string_base64_encode(key), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+return key;
+ }
+ 
+ string[] look_recursive_dirs(string foldername)
+ {
+ string[] ret;
+ string[] dirs=find_directories(foldername+"/*");
+ 
+ if(dirs.length>0)
+ {
+ for(int i=0; i<dirs.length(); i++)
+ {
+ ret.insert_last(dirs[i]);
+ }
+ }
+ for(int i=0; i<ret.length();i++)
+ {
+ string[]dirs2=find_directories(foldername+"/"+ret[i]+"/*");
+ if(dirs2.length()>0)
+ {
+ for(int i2=0; i2<dirs2.length();i2++)
+ {
+ ret[i]+="/"+dirs2[i2];
+ }
+ }
+ }
+ return ret;
+ }
+ void fill(string path="")
+{
+string[] dirs=find_directories(foldername+"/"+(path!=""?path+"/":"")+"*");
+string[] files=find_files(foldername+"/"+(path!=""?path+"/":"")+"*");
+if(dirs.length()>0)
+{
+for(uint i=0; i<dirs.length; i++)
+{
+fill(path+"/"+dirs[i]);
+}
+}
+for(uint i=0; i<files.length; i++)
+{
+fol.insert_last((path == "" ? files[i] : path+"/"+files[i]));
+}
+}

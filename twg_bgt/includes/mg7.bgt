@@ -1,0 +1,180 @@
+int mg7door, mg7door2;
+int wspeed=240;
+int weapondamage=25;
+int mg7doordefhp=50;
+int mg7doorhp=50;
+int mg7doorpos;
+int pos=0;
+int mg7doorlevel=1;
+timer wtim;
+void mg7()
+{
+pos=0;
+totalcoins=0;
+mg7doordefhp=50;
+mg7doorhp=mg7doordefhp;
+mg7doorspawn();
+p.play_stationary("house.ogg",true,0,0,0,100);
+while (true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if (key_pressed(KEY_ESCAPE))
+{
+p.destroy_all();
+send_reliable(peer_id, "acoins "+totalcoins, 0);
+add_buffer_item("entertainment_center", "you earned a total of "+totalcoins+" coins in this game!");
+entertainment_centermenu();
+return;
+}
+if (key_pressed(KEY_SPACE))
+{
+p.play_stationary("long_knife.ogg",false,0,0,0,100);
+if (pos>mg7doorpos-1 and pos<=mg7doorpos+1)
+{
+if (mg7doorhp>0)
+{
+mg7door2=p.play_1d("woodbox_pain1.ogg",pos,mg7doorpos,0,0,false,0,0,0,100);
+mg7doorhp-=weapondamage;
+}
+else if (mg7doorhp<=0)
+{
+p.play_1d("woodbox_kill.ogg",pos,mg7doorpos,0,0,false,0,0,0,100);
+p.destroy_sound(mg7door);
+mg7doordefhp+=random(5,15);
+mg7doorhp=mg7doordefhp;
+mg7doorlevel+=1;
+totalcoins+=random(1,2);
+mg7doorspawn();
+}
+}
+}
+if (key_pressed(KEY_D))
+{
+add_buffer_item("entertainment_center", "You are on door "+mg7doorlevel+" of 20.");
+}
+if (mg7doorlevel>=20)
+{
+p.destroy_all();
+send_reliable(peer_id, "acoins "+totalcoins, 0);
+add_buffer_item("entertainment_center", "you earned a total of "+totalcoins+" coins in this game!");
+entertainment_centermenu();
+return;
+}
+if (key_down(KEY_LEFT) and wtim.elapsed>=wspeed and pos>0)
+{
+wtim.restart();
+pos-=1;
+p.play_stationary("concrete28step"+random(1,5)+".ogg",false,0,0,0,100);
+}
+if (key_down(KEY_RIGHT) and wtim.elapsed>=wspeed and pos<50)
+{
+wtim.restart();
+pos+=1;
+p.play_stationary("concrete28step"+random(1,5)+".ogg",false,0,0,0,100);
+}
+mg7positions();
+wait(5);
+}
+}
+void mg7positions()
+{
+p.update_listener_3d(pos,0,0,0.0);
+}
+void mg7doorspawn()
+{
+mg7doorpos=random(0,50);
+mg7door=p.play_1d("woodbox_voice.ogg",pos,mg7doorpos,0,0,true,0,0,0,100);
+}

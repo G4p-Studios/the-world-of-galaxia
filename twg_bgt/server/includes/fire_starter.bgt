@@ -1,0 +1,87 @@
+fire_starter@[]fire_starters(0);
+class fire_starter
+{
+int x;
+int y;
+int z;
+int spread=5;
+int id;
+mapdata@map;
+string mid,fmid;
+bool dead=false;
+string smid;
+timer hurttimer, lifetimer;
+int hurttime=random(1000,1000);
+int lifetime=random(60000,300000);
+int health;
+fire_starter(int fx, int fy, int fz, mapdata@m, int fhealth, int fid)
+{
+x=fx;
+y=fy;
+z=fz;
+@map=m;
+health=fhealth;
+id=fid;
+send_reliable(0,"spawnfire_starter "+x+" "+y+" "+z+" "+map.name+" "+id,0);
+send_packet(6,"play firestart.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+fireon=true;
+send_packet(6,"play fire_starterstart.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+smid=spawn_moving_sound("fire_starterloop1.ogg",x,y,z,map.name);
+}
+void loop(int i)
+{
+if(@map==null)
+{
+send_reliable(0,"killfire_starter "+id,0);
+destroy_moving_sound(smid);
+fire_starters.remove_at(i);
+return;
+}
+if(hurttimer.elapsed>=hurttime)
+{
+hurttimer.restart();
+health--;
+for(uint i2=0;i2<players.length();i2++)
+{
+if(map.name==players[i2].map and x==players[i2].x and y==players[i2].y and z==players[i2].z)
+{
+players[i2].temperaturelevel+=random(0,1);
+}
+}
+}
+if(health<=0)
+{
+fireon=false;
+send_reliable(0,"killfire_starter "+id,0);
+destroy_moving_sound(smid);
+send_packet(6,"play fire_starterstop.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+fire_starters.remove_at(i);
+return;
+}
+}
+}
+void spawn_fire_starter(int x, int y, int z, mapdata@m, int health,int id=random(1000,9999))
+{
+if(string_contains(get_tile_at(x,y,z,maps[get_map_index(m.name)]),"water",1)>-1) return;
+fire_starter f1(x, y, z, m, health, id);
+if(@f1.map==null) return;
+else fire_starters.insert_last(f1);
+}
+void destroy_all_fire_starters()
+{
+fire_starters.resize(0);
+}
+bool starter_exist_on(int x, int y, int z, mapdata@m)
+{
+for(uint i=0; i<fire_starters.length(); i++)
+if(fire_starters[i].x==x and fire_starters[i].y==y and fire_starters[i].z==z and fire_starters[i].map.name==m.name) return true;
+return false;
+}
+bool is_on_fire(int x,int y,int z,mapdata@m)
+{
+for(uint i=0; i<fire_starters.length(); i++)
+{
+if(m.name==fire_starters[i].map.name and x==fire_starters[i].x and y==fire_starters[i].y and z==fire_starters[i].z) return true;
+}
+return false;
+}

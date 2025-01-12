@@ -1,0 +1,190 @@
+class phone
+{
+string input(string text)
+{
+int cursor;
+bool caiu;
+string message;
+if(text!="")speak(text);
+cursor=0;
+caiu=false;
+string[] ms;
+get_characters();
+sound phonecaiu;
+phonecaiu.load("phone2.ogg");
+while(true)
+{
+wait(5);
+mainloop();
+if(caiu==true)
+{
+phonecaiu.play_looped();
+}
+string char=get_characters();
+for (uint i=0; i<char.length(); i++)
+{
+string chars=char[i];
+if(chars!=""&&chars!="1"&&chars!="2"&&chars!="3"&&chars!="4"&&chars!="5"&&chars!="6"&&chars!="7"&&chars!="8"&&chars!="9"&&chars!="0"&&chars!="-"&&chars!="#"&&chars!="*"&&caiu==false)
+{
+caiu=true;
+}
+else if(caiu==false)
+{
+if(chars=="1")
+p.play_stationary("telephone1.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone1.ogg",7);
+if(chars=="2")
+p.play_stationary("telephone2.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone2.ogg",7);
+if(chars=="3")
+p.play_stationary("telephone3.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone3.ogg",7);
+if(chars=="4")
+p.play_stationary("telephone4.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone4.ogg",7);
+if(chars=="5")
+p.play_stationary("telephone5.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone5.ogg",7);
+if(chars=="6")
+p.play_stationary("telephone6.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone6.ogg",7);
+if(chars=="7")
+p.play_stationary("telephone7.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone7.ogg",7);
+if(chars=="8")
+p.play_stationary("telephone8.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone8.ogg",7);
+if(chars=="9")
+p.play_stationary("telephone9.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone9.ogg",7);
+if(chars=="0")
+p.play_stationary("telephone0.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone0.ogg",7);
+if(chars=="*")
+p.play_stationary("telephoneasterisco.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephoneasterisco.ogg",7);
+if(chars=="#")
+p.play_stationary("telephone#.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw telephone#.ogg",7);
+ms.insert_at(cursor,char);
+cursor+=1;
+}
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_ESCAPE))
+{
+return "";
+}
+else if(key_pressed(KEY_RETURN))
+{
+if (ms.length() > 0)
+{
+sound s;
+for (uint i=0; i<ms.length(); i++)
+{
+message+=ms[i];
+s.load("telephone"+ms[i]+".ogg");
+s.play_wait();
+}
+return message;
+}
+else if (ms.length()==0)
+{
+return "";
+}
+}
+}
+return "";
+}
+}

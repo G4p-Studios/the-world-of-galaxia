@@ -1,0 +1,202 @@
+int mg6y;
+int chanceswim=0;
+int swimy=0;
+sound readyset;
+sound splash;
+void mg6()
+{
+totalcoins=0;
+chanceswim=0;
+swimy=0;
+splash.load("swimmingfall.ogg");
+p.play_stationary("bubbles.ogg",true,0,0,0,100);
+splash.play();
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if (key_pressed(KEY_C))
+{
+add_buffer_item("entertainment_center", swimy);
+}
+if (key_pressed(KEY_ESCAPE))
+{
+p.destroy_all();
+send_reliable(peer_id, "acoins "+totalcoins, 0);
+add_buffer_item("entertainment_center", "you earned a total of "+totalcoins+" coins in this game!");
+entertainment_centermenu();
+return;
+}
+if (swimy>=500)
+{
+totalcoins+=5;
+p.destroy_all();
+send_reliable(peer_id, "acoins "+totalcoins, 0);
+add_buffer_item("entertainment_center", "you won! you earned a total of "+totalcoins+" coins in this game!");
+entertainment_centermenu();
+return;
+}
+if (key_pressed(KEY_UP) and mg6y<500)
+{
+p.play_stationary("swimming2step"+random(1,5)+".ogg",false,0,0,0,100);
+swimy+=1;
+swimchance();
+}
+if (key_pressed(KEY_DOWN) and mg6y>0)
+{
+p.play_stationary("swimming2step"+random(1,5)+".ogg",false,0,0,0,100);
+swimy-=1;
+swimchance();
+}
+}
+}
+void swimchance()
+{
+chanceswim=random(1,9);
+if (chanceswim==1)
+{
+swimchance1();
+}
+else if (chanceswim==2)
+{
+swimchance2();
+}
+}
+void swimchance1()
+{
+p.play_stationary("vinebeep1.ogg",false,0,0,0,100);
+while(true)
+{
+wait(5);
+if (key_pressed(KEY_LEFT))
+{
+p.play_stationary("swimming2step"+random(1,5)+".ogg",false,0,0,0,100);
+totalcoins+=1;
+return;
+}
+else if (key_pressed(KEY_UP) or key_pressed(KEY_RIGHT))
+{
+p.play_stationary("wallgrass2.ogg",false,0,0,0,100);
+p.play_stationary("tele.ogg",false,0,0,0,100);
+totalcoins-=random(1,2);
+mg6y=0;
+swimy=0;
+return;
+}
+}
+}
+void swimchance2()
+{
+p.play_stationary("vinebeep10.ogg",false,0,0,0,100);
+while(true)
+{
+wait(5);
+if (key_pressed(KEY_RIGHT))
+{
+p.play_stationary("swimming2step"+random(1,5)+".ogg",false,0,0,0,100);
+totalcoins+=0.5;
+return;
+}
+else if (key_pressed(KEY_UP) or key_pressed(KEY_LEFT))
+{
+p.play_stationary("wallgrass2.ogg",false,0,0,0,100);
+p.play_stationary("tele.ogg",false,0,0,0,100);
+totalcoins-=random(1,2);
+mg6y=0;
+swimy=0;
+return;
+}
+}
+}

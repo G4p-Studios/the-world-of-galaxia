@@ -1,0 +1,82 @@
+dictionary compjails;
+dictionary ipjails;
+bool comp_jail(string username)
+{
+int jailindex=get_player_index_from(username);
+if(jailindex>-1)
+{
+compjails.set(username,players[jailindex].computer_id);
+ipjails.set(username,n.get_peer_address(players[jailindex].peer_id));
+//send_reliable(0,"Player "+players[jailindex].charname+" has senbeen jailed from the server.",2);
+//send_reliable(players[jailindex].peer_id,"kill",0);
+return true;
+}
+else
+{
+return false;
+}
+}
+string get_comp_jails()
+{
+string[] keys=compjails.get_keys();
+string ret;
+if(keys.length<1)
+{
+ret="There are no currently jailed users.";
+}
+else
+{
+ret="jailed users: ";
+for(uint i=0; i<keys.length(); i++)
+{
+ret+=keys[i];
+if(i<(keys.length()-1)) ret+=", ";
+}
+}
+return ret;
+}
+bool comp_unjail(string username)
+{
+ipjails.delete(username);
+if(compjails.exists(username))
+{
+compjails.delete(username);
+return true;
+}
+else return false;
+}
+int is_compjailed(string jailid)
+{
+string[] keys=compjails.get_keys();
+for(uint i=0; i<keys.length(); i++)
+{
+string tempkey;
+compjails.get(keys[i],tempkey);
+if(tempkey==jailid) return i;
+}
+return -1;
+}
+int is_ipjailed(string ip)
+{
+string[] keys=ipjails.get_keys();
+for(uint i=0; i<keys.length(); i++)
+{
+string tempkey;
+ipjails.get(keys[i],tempkey);
+if(tempkey==ip) return i;
+}
+return -1;
+}
+string get_jailid(string username)
+{
+if(compjails.exists(username)==false)
+{
+return "Player not found";
+}
+else
+{
+string tempkey;
+compjails.get(username,tempkey);
+return "ID: "+tempkey;
+}
+}

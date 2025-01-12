@@ -1,0 +1,36 @@
+﻿sound daudio;
+void dlgmeu(string message, string dlgsound, bool dlgfade=false, int fadespeed=30)
+{
+wait(100);
+speak(message);
+daudio.load(dlgsound);
+daudio.play();
+while(daudio.playing)
+{
+wait(5);
+checarjanela();
+if (key_pressed(KEY_LEFT) or key_pressed(KEY_RIGHT) or key_pressed(KEY_UP) or key_pressed(KEY_DOWN))
+{
+speak(message);
+}
+if(key_pressed(KEY_RETURN))
+{
+if (dlgfade==true)
+{
+fade(daudio, -50, fadespeed);
+}
+daudio.stop();
+break;
+}
+if(key_pressed(KEY_SPACE))
+{
+if (dlgfade==true)
+{
+fade(daudio, -50, fadespeed);
+}
+daudio.stop();
+break;
+}
+
+}
+}

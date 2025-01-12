@@ -1,0 +1,28 @@
+/*
+The symplest fade in and out code in 1 function
+*/
+
+void fade_pool2(sound_pool@ handle, int final_volume, int delay)
+{
+for(uint i=0; i<handle.items.length(); i++)
+{
+if(@handle.items[i].handle==null) continue;
+if(handle.items[i].handle.volume == final_volume)
+{
+continue;
+}
+while (handle.items[i].handle.volume != final_volume)
+{
+e=n.request();
+if (handle.items[i].handle.volume > final_volume)
+{
+handle.items[i].handle.volume=handle.items[i].handle.volume-1;
+}
+else if (handle.items[i].handle.volume < final_volume)
+{
+handle.items[i].handle.volume=handle.items[i].handle.volume+1;
+}
+wait (delay);
+}
+}
+}

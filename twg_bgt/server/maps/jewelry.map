@@ -1,0 +1,27 @@
+mapname:jewelry
+minx:0
+maxx:25
+miny:0
+maxy:25
+minz:0
+maxz:10
+tile:0:25:0:25:0:0:0:100:concrete44
+litem:1
+starting_point:0:25:0:25:0:0
+deathpoint:0:25:0:25:0:0
+zone:0:25:0:25:0:10:jewelry
+src:0:25:0:25:0:10:0:100:calm.ogg
+travelpoint:13:15:0:0:0:0:harbor:311:310:0:welcome back:door1s.ogg:door75open.ogg:door75close.ogg
+zone:13:15:0:0:0:10:go back entrance. Press shift enter to go back:trackme
+rain:raininterior.ogg
+disable:house
+disable:beehive
+disable:store
+disable:locker
+disable:microwave
+disable:fridge
+disable:car
+disable:motor
+night:none.ogg
+
+owner:mad-gamer

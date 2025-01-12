@@ -1,0 +1,125 @@
+#include"downloader.bgt"
+downloader adl;
+string adl_file(string url, string disk_file, string text="")
+{
+adl.initiate_download(url, disk_file);
+if (text=="")
+speak("Downloading. Press Space for percentage, 1 2 and 3 keys for detailed progress, left and right aro to change music's pan, up and down aro to change music's volume, page up and page down  aro to change music's pitch, or escape to cancel");
+else
+speak(text);
+string status;
+double adlpercent=-1;
+sound updatemus;
+updatemus.load("drums2.ogg");
+updatemus.play_looped();
+int volumetime=40;
+int minvolume=-100;
+int maxvolume=300;
+int pitchtime=40;
+int minpitch=-350;
+int maxpitch=350;
+int pantime=30;
+int minpan=-100;
+int maxpan=100;
+timer pantimer,pitchtimer,volumetimer;
+while(adl.is_active())
+{
+adl.monitor();
+if (key_down(KEY_LEFT) and pantimer.elapsed>=pantime)
+{
+pantimer.restart();
+if (updatemus.pan>minpan)
+{
+updatemus.pan=updatemus.pan-1;
+}
+if (updatemus.pan==minpan)
+{
+speak("left");
+}
+}
+if (key_down(KEY_RIGHT) and pantimer.elapsed>=pantime)
+{
+pantimer.restart();
+if (updatemus.pan<maxpan)
+{
+updatemus.pan=updatemus.pan+1;
+}
+if (updatemus.pan==maxpan)
+{
+speak("right");
+}
+}
+if (key_down(KEY_DOWN) and volumetimer.elapsed>=volumetime)
+{
+volumetimer.restart();
+if (updatemus.volume>minvolume)
+{
+updatemus.volume=updatemus.volume-1;
+}
+}
+if (key_down(KEY_UP) and volumetimer.elapsed>=volumetime)
+{
+volumetimer.restart();
+if (updatemus.volume<maxvolume)
+{
+updatemus.volume=updatemus.volume+1;
+}
+}
+if (key_down(KEY_NEXT) and pitchtimer.elapsed>=pitchtime)
+{
+pitchtimer.restart();
+if (updatemus.pitch>minpitch)
+{
+updatemus.pitch=updatemus.pitch-1;
+}
+}
+if (key_down(KEY_PRIOR) and pitchtimer.elapsed>=pitchtime)
+{
+pitchtimer.restart();
+if (updatemus.pitch<maxpitch)
+{
+updatemus.pitch=updatemus.pitch+1;
+}
+}
+if (key_pressed(KEY_ESCAPE))
+{
+adl.abort();
+status="canceled";
+speak(status);
+wait(600);
+return status;
+}
+if (key_pressed(KEY_1))
+{
+string size=round(adl.get_total_size()/1024/1024, 2)+" MB ("+round(adl.get_total_size()/1024, 2)+" KB)";
+speak("File size: "+size);
+}
+if (key_pressed(KEY_2))
+{
+string size=round(adl.get_downloaded_size()/1024/1024, 2)+" MB ("+round(adl.get_downloaded_size()/1024, 2)+" KB)";
+speak("Total downloaded: "+size);
+}
+if (key_pressed(KEY_3))
+{
+string size=round(adl.get_remaining_size()/1024/1024, 2)+" MB ("+round(adl.get_remaining_size()/1024, 2)+" KB)";
+speak("Total remaining: "+size);
+}
+if(round(adl.get_percentage(),0)!=adlpercent)
+{
+adlpercent=round(adl.get_percentage(),0);
+beep_percentage(adlpercent);
+}
+if (key_pressed(KEY_SPACE))
+{
+speak(adl.get_percentage()+" percent");
+}
+}
+if (status!="canceled")
+{
+status="finished";
+speak(status);
+wait(600);
+return status;
+}
+return "";
+}

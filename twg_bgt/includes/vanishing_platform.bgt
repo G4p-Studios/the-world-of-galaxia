@@ -1,0 +1,64 @@
+vanishing_platform@[] vanishing_platforms(0);
+class vanishing_platform
+{
+int minx, maxx, miny, maxy, minz, maxz, vanishtime, vanishingsound, vtile;
+string vanishsound, tile;
+bool vanished;
+timer vanishtimer;
+vanishing_platform(int vminx, int vmaxx, int vminy, int vmaxy, int vminz, int vmaxz, int vvanishtime, string vtile, string vvanishsound)
+{
+minx=vminx;
+maxx=vmaxx;
+miny=vminy;
+maxy=vmaxy;
+minz=vminz;
+maxz=vmaxz;
+vanishtime=vvanishtime;
+tile=vtile;
+vanishsound=vvanishsound;
+}
+void loop()
+{
+if (vanished==false and vanishtimer.elapsed>=vanishtime)
+{
+vanishtimer.restart();
+spawn_tile(minx,maxx,miny,maxy,minz,maxz,0,100,tile);
+if(vanishsound!="silence" and sleepmode!=0) vanishingsound=p.play_3d(vanishsound, me.x, me.y, me.z, minx, miny, minz, facing,0,0,0,0,0,0,true,0,0,0,100);             
+p.update_sound_3d(vanishingsound, minx, miny, minz);
+p.update_sound_range_3d(vanishingsound, 0, maxx-minx, 0, maxy-miny, 0, maxz-minz);
+vanished=true;
+}
+else if (vanished==true and vanishtimer.elapsed>=vanishtime)
+{
+vanishtimer.restart();
+spawn_tile(minx,maxx,miny,maxy,minz,maxz,0,100,"air");
+if (vanishsound!="silence" and sleepmode!=0) p.destroy_sound(vanishingsound);
+vanished=false;
+}
+}
+}
+void vanishing_platformloop()
+{
+for (uint i=0; i<vanishing_platforms.length(); i++)
+{
+vanishing_platforms[i].loop();
+}
+}
+void spawn_vanishing_platform(int minx, int maxx, int miny, int maxy, int minz, int maxz, int vanishtime, string tile, string vanishsound)
+{
+vanishing_platform v(minx, maxx, miny, maxy, minz, maxz, vanishtime, tile, vanishsound);
+vanishing_platforms.insert_last(v);
+}
+void destroy_vanishing_platform(int v)
+{
+p.destroy_sound(vanishing_platforms[v].vanishingsound);
+vanishing_platforms.remove_at(v);
+}
+void destroy_all_vanishing_platforms()
+{
+for(uint i=0; i<vanishing_platforms.length(); i++)
+{
+p.destroy_sound(vanishing_platforms[i].vanishingsound);
+}
+vanishing_platforms.resize(0);
+}

@@ -1,0 +1,72 @@
+fire_starter@[]fire_starters(0);
+class fire_starter
+{
+int x,y,z;
+int id;
+bool dead=false;
+string map;
+fire_starter(int tx,int ty, int tz,string m,int tID)
+{
+x=tx;
+y=ty;
+z=tz;
+map=m;
+id=tID;
+}
+}
+void fire_starterloop()
+{
+for(uint i=0; i<fire_starters.length(); i++)
+{
+if(fire_starters[i].dead==true)
+{
+@fire_starters[i]=null;
+fire_starters.remove_at(i);
+i--;
+continue;
+}
+}
+}
+bool on_fire_starter(int x,int y,int z)
+{
+string map;
+for(uint i=0; i<fire_starters.length(); i++)
+{
+if(fire_starters[i].x==x and fire_starters[i].y==y and fire_starters[i].z==z and map==fire_starters[i].map)
+return true;
+}
+return false;
+}
+void spawn_fire_starter(int x,int y,int z,string map,int id=random(1000,9999))
+{
+fire_starter t1(x,y,z,map,id);
+fire_starters.insert_last(t1);
+}
+void remove_all_fire_starters()
+{
+for(uint i=0; i<fire_starters.length(); i++)
+{
+fire_starters[i].dead=true;
+}
+}
+int find_fire_starter(int id)
+{
+for(uint i=0; i<fire_starters.length(); i++)
+{
+if(fire_starters[i].id==id)
+return i;
+}
+return -1;
+}
+bool is_on_fire(int x, int y, int z)
+{
+string map;
+for(uint i=0; i<fire_starters.length(); i++)
+{
+if(x==fire_starters[i].x and y==fire_starters[i].y and z==fire_starters[i].z and map==fire_starters[i].map)
+{
+return true;
+}
+}
+return false;
+}

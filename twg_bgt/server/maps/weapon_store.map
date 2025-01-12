@@ -1,0 +1,31 @@
+mapname:weapon_store
+minx:0
+maxx:100
+miny:0
+maxy:100
+minz:0
+maxz:70
+tile:0:100:0:100:0:0:0:100:cave
+litem:1
+starting_point:0:100:0:100:0:0
+deathpoint:0:100:0:100:0:0
+src:0:100:0:100:0:10:0:100:cave4.ogg
+zone:0:100:0:100:0:10:explosive_store
+tile:0:1:0:1:1:54:0:100:wallmetal2
+src:0:100:0:100:11:55:0:100:calm.ogg
+tile:0:100:0:100:55:55:0:100:wall
+tile:0:50:0:50:55:55:0:100:hardwood6
+zone:0:50:0:50:55:70:weapon_store:trackme
+tile:0:0:0:0:0:55:0:100:concrete20
+zone:0:0:0:0:0:55:stairs between floors:trackme
+travelpoint:0:0:0:0:55:55:main:150:220:0:welcome back:silence.ogg:silence.ogg:silence.ogg
+zone:0:0:0:0:55:70:exit door. Press shift enter to go outside:trackme
+src:0:0:0:0:55:55:0:100:birds35.ogg
+src:0:0:0:0:55:55:0:100:birds36.ogg
+opening_hours:6:24
+rain:raininterior.ogg
+wind:none.ogg
+night:none.ogg
+item_usage_restriction:0:100:0:100:0:70:conex:partner_house:beehive:small_conex:locker:fridge:microwave:sky_racer:ford:sorento:dogan_slx:grayhound_bus:m60_tank:tank:truck:v4_by_4_jeep:dodge_charger:doom_buggy:ford_pickup_truck:mlk_mission_cruiser:muscle_car:generic_motorcycle:frog_motorcycle:ducati_street_fighter:onda_cbr_600:yamaha_r6:aprilia_v4:aprilia_rs660:ducati_diavel:yamaha_off_road:kawasaki_hipersport:kawasaki_adventure_tourer:ducati_scrumbler:bmw_off_road:motor_boat
+
+owner:mad-gamer

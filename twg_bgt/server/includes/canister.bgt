@@ -1,0 +1,187 @@
+canister@[] canisters(0);
+class canister
+{
+int z;
+mapdata@map;
+int x, y;
+int ms=1500;
+string type;
+timer actiontimer;
+canister(int cx,int cy,int cz, mapdata@m, string ctype)
+{
+x=cx;
+y=cy;
+z=cz;
+@map=m;
+type=ctype;
+send_packet(6,"play canisteruse.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+}
+void loop(int i)
+{
+if(@map==null)
+{
+canisters.remove_at(i);
+return;
+}
+if (actiontimer.elapsed>=ms)
+{
+actiontimer.restart();
+send_packet(6,"play canister.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+send_dpacket(6,"distsound canisterdist "+x+" "+y+" "+z+" "+map.name,maps[get_map_index(map.name)]);
+for (uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].afk==true || players[i2].is_dead==true||in_vehicle(players[i2])>-1) continue;
+if (players[i2].map==map.name and get_3d_distance(x,y,z,players[i2].x,players[i2].y,players[i2].z)<=3)
+{
+if(type=="antibiotic")
+{
+players[i2].health+=random(500, 1000);
+}
+else if(type=="gas")
+{
+players[i2].health-=random(100, 200);
+}
+else if(type=="air")
+{
+players[i2].air+=random(20,80);
+}
+else if(type=="energogenic")
+{
+players[i2].energy+=random(150,720);
+}
+else if(type=="energy_reducing_canister")
+{
+players[i2].energy-=random(125,650);
+}
+else if(type=="thirsting")
+{
+players[i2].thirst+=random(1,24);
+}
+else if(type=="starvogenic")
+{
+players[i2].hunger+=random(1,18);
+}
+else if(type=="pathogenic")
+{
+players[i2].sick+=1;
+}
+else if(type=="experience")
+{
+players[i2].xp-=random(50,520);
+}
+send_packet(6,"play canisterhit.ogg "+players[i2].x+" "+players[i2].y+" "+players[i2].z,players[i2].x,players[i2].y,players[i2].z,maps[get_map_index(players[i2].map)]);
+}
+}
+for (uint i2=0; i2<ais.length(); i2++)
+{
+if (ais[i2].map.name==map.name and get_3d_distance(x,y,z,ais[i2].x,ais[i2].y,ais[i2].z)<=30)
+{
+if(type=="antibiotic")
+{
+ais[i2].health+=random(100,200);
+}
+else if(type=="gas")
+{
+ais[i2].health-=random(100,200);
+}
+}
+}
+for (uint i2=0; i2<houses.length(); i2++)
+{
+if (houses[i2].map==map.name and get_3d_distance(x,y,z,houses[i2].x,houses[i2].y,houses[i2].z)<=30)
+{
+if(type=="antibiotic")
+{
+houses[i2].health+=random(100,200);
+}
+else if(type=="gas")
+{
+houses[i2].health-=random(100,200);
+}
+}
+}
+for (uint i2=0; i2<lockers.length(); i2++)
+{
+if (lockers[i2].map==map.name and get_3d_distance(x,y,z,lockers[i2].x,lockers[i2].y,lockers[i2].z)<=30)
+{
+if(type=="antibiotic")
+{
+lockers[i2].health+=random(100,200);
+}
+else if(type=="gas")
+{
+lockers[i2].health-=random(100,200);
+}
+}
+}
+for (uint i2=0; i2<microwaves.length(); i2++)
+{
+if (microwaves[i2].map==map.name and get_3d_distance(x,y,z,microwaves[i2].x,microwaves[i2].y,microwaves[i2].z)<=30)
+{
+if(type=="antibiotic")
+{
+microwaves[i2].health+=random(100,200);
+}
+else if(type=="gas")
+{
+microwaves[i2].health-=random(100,200);
+}
+}
+}
+for (uint i2=0; i2<fridges.length(); i2++)
+{
+if (fridges[i2].map==map.name and get_3d_distance(x,y,z,fridges[i2].x,fridges[i2].y,fridges[i2].z)<=30)
+{
+if(type=="antibiotic")
+{
+fridges[i2].health+=random(100,200);
+}
+else if(type=="gas")
+{
+fridges[i2].health-=random(100,200);
+}
+}
+}
+for (uint i2=0; i2<playerstores.length(); i2++)
+{
+if (playerstores[i2].map==map.name and get_3d_distance(x,y,z,playerstores[i2].x,playerstores[i2].y,playerstores[i2].z)<=30)
+{
+if(type=="antibiotic")
+{
+playerstores[i2].health+=random(100,200);
+}
+else if(type=="gas")
+{
+playerstores[i2].health-=random(100,200);
+}
+}
+}
+for (uint i2=0; i2<beehives.length(); i2++)
+{
+if (beehives[i2].map==map.name and get_3d_distance(x,y,z,beehives[i2].x,beehives[i2].y,beehives[i2].z)<=30)
+{
+if(type=="antibiotic")
+{
+beehives[i2].health+=random(100,200);
+}
+else if(type=="gas")
+{
+beehives[i2].health-=random(100,200);
+}
+}
+}
+canisters.remove_at(i);
+return;
+}
+}
+}
+void spawn_canister(int x,int y, int z, mapdata@m,string type)
+{
+canister can1(x,y,z,m,type);
+if(@can1.map==null) return;
+else canisters.insert_last(can1);
+}
+void destroy_all_canisters()
+{
+canisters.resize(0);
+}

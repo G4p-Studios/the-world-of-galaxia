@@ -1,0 +1,44 @@
+ccalendar@[] ccalendars(0);
+class ccalendar
+{
+int minx, maxx, miny, maxy, minz, maxz;
+string map, text;
+ccalendar(int tminx, int tmaxx, int tminy, int tmaxy, int tminz, int tmaxz, string tmap, string ttext)
+{
+minx=tminx;
+maxx=tmaxx;
+miny=tminy;
+maxy=tmaxy;
+minz=tminz;
+maxz=tmaxz;
+map=tmap;
+if(text!="empty" and text!="empty") text=ttext;
+}
+}
+void spawn_ccalendar(int minx, int maxx, int miny, int maxy, int minz, int maxz, string map, string text)
+{
+ccalendar t(minx, maxx, miny, maxy, minz, maxz, map, text);
+ccalendars.insert_last(t);
+}
+void remove_ccalendar(int index)
+{
+if(index>-1)
+{
+@ccalendars[index]=null;
+ccalendars.remove_at(index);
+}
+}
+void remove_all_ccalendars()
+{
+for(uint i=0; i<ccalendars.length(); i++)
+{
+remove_ccalendar(i);
+}
+}
+void clear_ccalendars_on_map(string map)
+{
+for(uint i=0; i<ccalendars.length(); i+=1)
+{
+if(ccalendars[i].map==map) remove_ccalendar(i);
+}
+}

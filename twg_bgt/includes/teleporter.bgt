@@ -1,0 +1,27 @@
+teleporter@[] teleporters(0);
+class teleporter
+{
+int minx, maxx, miny, maxy, minz, maxz;
+teleporter(int tminx, int tmaxx, int tminy, int tmaxy, int tminz, int tmaxz)
+{
+minx=tminx;
+maxx=tmaxx;
+miny=tminy;
+maxy=tmaxy;
+minz=tminz;
+maxz=tmaxz;
+}
+}
+void spawn_teleporter(int minx, int maxx, int miny, int maxy, int minz, int maxz)
+{
+teleporter t(minx, maxx, miny, maxy, minz, maxz);
+teleporters.insert_last(t);
+}
+void destroy_teleporter(int v)
+{
+teleporters.remove_at(v);
+}
+void destroy_all_teleporters()
+{
+teleporters.resize(0);
+}

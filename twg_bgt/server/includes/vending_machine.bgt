@@ -1,0 +1,174 @@
+vending_machine@[]vending_machines(0);
+class vending_machine
+{
+int x,y,z;
+string map, dropitem, mid;
+string[] vendingitems;
+int[] vendingprices;
+double coins;
+timer droptimer;
+bool droppingitem=false;
+vending_machine(int vx,int vy,int vz,string vmap)
+{
+x=vx;
+y=vy;
+z=vz;
+map=vmap;
+mid=spawn_moving_sound("vendingloop.ogg",x,y,z,map);
+}
+void command(string c,int peer)
+{
+string[] parsed=string_split(c," ",false);
+if(parsed[0]=="[SPCE]")
+{
+string vlist;
+vplay("beeplist");
+for(uint i=0; i<vendingitems.length(); i++)
+{
+vlist+=i+1+": "+vendingitems[i]+" for "+vendingprices[i]+" coins.\r\n";
+}
+send_serverbox(peer,1,-1,1,1,"vendingpress vendingbuy",vlist);
+}
+else if(parsed[0]=="r")
+{
+vplay("button");
+if(coins<=0)
+{
+vplay("beeperror");
+string o;
+o="This machine does not have any coins!";
+send_serverbox(peer,1,-1,1,1,"vendingpress",o);
+return;
+}
+vplay("return");
+int rand=0;
+spawn_timeitem(x,y+rand,z,map,"coins",coins,500);
+coins=0;
+}
+else if(parsed[0]=="vendingbuy" and parsed.length()>1)
+{
+if(string_is_digits(parsed[1])==false)
+{
+vplay("beeperror");
+string information="internal error!";
+send_serverbox(peer,1,-1,1,1,"vendingpress",information+"\r\nwhat would you like to do");
+return;
+}
+int vindex=string_to_number(parsed[1])-1;
+if(vindex+1>vendingitems.length() or vindex>vendingprices.length() or vindex<0)
+{
+string information="Error: invalid index";
+send_serverbox(peer,1,-1,1,1,"vendingpress",information+".\r\nwhat would you like to do");
+return;
+}
+if(coins<vendingprices[vindex])
+{
+vplay("beeperror");
+string information="error: this vending machine does not have the required amount of coins to complete this purchase";
+send_serverbox(peer,1,-1,1,1,"vendingpress",information+".\r\nwhat would you like to do");
+return;
+}
+vplay("beepsuccess");
+send_reliable(peer,"purchase complete!",0);
+dropitem=vendingitems[vindex];
+coins-=vendingprices[vindex];
+vplay("work");
+droptimer.restart();
+droppingitem=true;
+string information="Make your selection";
+send_serverbox(peer,1,-1,1,1,"vendingpress",information+".\r\nwhat would you like to do");
+}
+else if(parsed[0]=="c")
+{
+vplay("button");
+string information="This vending machine has "+coins+" coins";
+send_serverbox(peer,1,-1,1,1,"vendingpress",information+".\r\nwhat would you like to do");
+}
+else
+{
+string information="Invalid selection, please try again";
+vplay("beeperror");
+send_serverbox(peer,1,-1,1,1,"vendingpress",information+".\r\nwhat would you like to do");
+}
+}
+void add_vending_item(string item,int price)
+{
+vendingitems.insert_last(item);
+vendingprices.insert_last(price);
+}
+void vplay(string s)
+{
+send_packet(6,"play vending"+s+".ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+}
+void loop()
+{
+if(droppingitem==true and droptimer.elapsed>=3550)
+{
+droppingitem=false;
+vplay("drop");
+int rand=0;
+spawn_timeitem(x,y+rand,z,map,dropitem,1,900);
+}
+}
+}
+int get_vending_index(int x, int y, int z, string map)
+{
+for(uint i=0; i<vending_machines.length(); i++)
+{
+if(vending_machines[i].x==x and vending_machines[i].y==y and vending_machines[i].z==z and vending_machines[i].map==map)
+{
+return i;
+}
+}
+return -1;
+}
+void remove_vending_machine(int index)
+{
+if(index>-1)
+{
+destroy_moving_sound(vending_machines[index].mid);
+@vending_machines[index]=null;
+vending_machines.remove_at(index);
+}
+}
+void remove_all_vending_machines()
+{
+for(uint i=0; i<vending_machines.length(); i++)
+{
+remove_vending_machine(i);
+}
+}
+void insert_prices(vending_machine@vnt,string itemlist,string amounts)
+{
+string[] items=string_split(itemlist,";",false);
+for(uint i=0; i<items.length(); i++)
+{
+vnt.vendingitems.insert_last(items[i]);
+}
+string[] prices=string_split(amounts,";",false);
+for(uint i=0; i<prices.length(); i++)
+{
+vnt.vendingprices.insert_last(string_to_number(prices[i]));
+}
+}
+void spawn_vending_machine(int x,int y, int z, string map)
+{
+if(get_vending_index(x,y,z,map)>-1) return;
+vending_machine v(x,y,z,map);
+insert_prices(v,array_to_string(vendingitems,";"),array_to_string_n(vendingprices,";"));
+vending_machines.insert_last(v);
+}
+void clear_vending_machines_on_map(string map)
+{
+for(uint i=0; i<vending_machines.length(); i+=1)
+{
+if(vending_machines[i].map==map) remove_vending_machine(i);
+}
+}
+string[] vendingitems;
+int[] vendingprices;
+void add_vending_item(string item, int amount)
+{
+vendingitems.insert_last(item);
+vendingprices.insert_last(amount);
+}

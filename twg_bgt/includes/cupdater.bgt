@@ -1,0 +1,44 @@
+void ccfu(bool frommainmenu=false)
+{
+string latest=url_get("http://mahdiabedi.com/dl/cdlv.txt");
+double lv=string_to_number(latest);
+string[] yourversion=string_split(cver," ",true);
+double yv=string_to_number(yourversion[0]);
+if (yv>=lv and frommainmenu==true)
+{
+dlg("no updates available. Press enter to continu");
+mainmenu();
+}
+else if (yv<lv)
+{
+sound updatefound;
+updatefound.load("update.ogg");
+updatefound.play_wait();
+int updateask=question("Update available!","a new changelog is available! Your changelog version is: "+cver+". The latest version is: "+latest+". Would you like to download it?");
+if(updateask==1)
+{
+string status=dl_file("http://mahdiabedi.com/dl/changelog.rar","changelog.rar",false,"Downloading new changelog version "+lv+"...");
+if (status=="finished")
+{
+sound updatedone;
+sound updatemus;
+updatemus.stop();
+updatedone.load("updated.ogg");
+updatedone.play_wait();
+bool result=run("unzip.exe","-o -qq changelog.rar",true,true);
+if(result==true)
+{
+dlg("changelog has been downloaded successfully. Press enter to continue");
+file_delete("changelog.rar");
+run("c:\\windows\\explorer.exe","\""+self_file()+"\"",false,false);
+exit();
+}
+else
+{
+dlg("changelog has been downloaded successfully. Please extract changelog.rar. Press enter to continue");
+exit();
+}
+}
+}
+}
+}

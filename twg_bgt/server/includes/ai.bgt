@@ -1,0 +1,748 @@
+uint aiid=0;
+ai_template@[] aitemps(0);
+class ai_template
+{
+double xp, health, range, damage, shoottime, voicetime, speed, amount, stepsoundpitch=100, stepsoundvolume=0, painsoundpitch=100, painsoundvolume=0, killsoundpitch=100, killsoundvolume=0, shootsoundpitch=100, shootsoundvolume=0, hitsoundpitch=100, hitsoundvolume=0, voicepitch=100, voicevolume=0, fallsoundpitch=100, fallsoundvolume=0;
+string name, nickname="", stepsound, painsound, killsound, shootsound, hitsound, voice, item, fallsound, description="";
+bool rapidvoice, treeclimb, maddable, needwater, nuclearbomb, mine;
+ai_template()
+{
+}
+}
+ai@[] ais(0);
+class ai : ai_template
+{
+double x, y, z, revitalized=0;
+int index;
+uint id;
+string hitby="noone", target="";
+mapdata@map;
+bool mad, protected;
+timer movetimer, shoottimer, voicetimer;
+ai(ai_template@ ait, int index, double x, double y, double z, mapdata@m, string name, int arevitalized)
+{
+this.index=index;
+this.x=x;
+this.y=y;
+this.z=z;
+this.xp=ait.xp;
+this.health=ait.health;
+this.range=ait.range;
+this.damage=ait.damage;
+this.shoottime=ait.shoottime;
+this.voicetime=ait.voicetime;
+this.speed=ait.speed;
+this.amount=ait.amount;
+this.name=ait.name;
+this.nickname=ait.nickname;
+this.stepsound=ait.stepsound;
+this.stepsoundpitch=ait.stepsoundpitch;
+this.stepsoundvolume=ait.stepsoundvolume;
+this.painsound=ait.painsound;
+this.painsoundpitch=ait.painsoundpitch;
+this.painsoundvolume=ait.painsoundvolume;
+this.killsound=ait.killsound;
+this.killsoundpitch=ait.killsoundpitch;
+this.killsoundvolume=ait.killsoundvolume;
+this.shootsound=ait.shootsound;
+this.shootsoundpitch=ait.shootsoundpitch;
+this.shootsoundvolume=ait.shootsoundvolume;
+this.hitsound=ait.hitsound;
+this.hitsoundpitch=ait.hitsoundpitch;
+this.hitsoundvolume=ait.hitsoundvolume;
+this.voice=ait.voice;
+this.voicepitch=ait.voicepitch;
+this.voicevolume=ait.voicevolume;
+this.item=ait.item;
+this.fallsound=ait.fallsound;
+this.fallsoundpitch=ait.fallsoundpitch;
+this.fallsoundvolume=ait.fallsoundvolume;
+this.rapidvoice=ait.rapidvoice;
+this.treeclimb=ait.treeclimb;
+this.maddable=ait.maddable;
+this.needwater=ait.needwater;
+this.nuclearbomb=ait.nuclearbomb;
+this.mine=ait.mine;
+this.description=ait.description;
+@map=m;
+revitalized=arevitalized;
+if (aiid>4000000000) {aiid=0;}
+aiid+=1; this.id=aiid;
+if (voice!="" and rapidvoice==true) voice=spawn_moving_sound(voice,x,y,z,map.name);
+}
+void loop(int i)
+{
+if(@map==null)
+{
+ais.remove_at(i);
+return;
+}
+if (voice!="" and rapidvoice==false and voicetime!=-1 and voicetimer.elapsed>=voicetime)
+{
+voicetimer.restart();
+send_packet(6,"playpavap "+voice+" "+x+" "+y+" "+z+" 0 "+voicevolume+" "+voicepitch, x,y,z,maps[get_map_index(map.name)]);
+}
+if(health<=0)
+{
+if (voice!="" and rapidvoice==true) destroy_moving_sound(voice);
+if (killsound!="") send_packet(6,"playpavap "+killsound+" "+x+" "+y+" "+z+" 0 "+killsoundvolume+" "+killsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+if(get_zone_at(x,y,z,maps[get_map_index(map.name)])=="" and name=="") send_reliable(0,"kills "+killmsg2("something",hitby,"somewhere"),0);
+else if(get_zone_at(x,y,z,maps[get_map_index(map.name)])=="" and name!="") send_reliable(0,"kills "+killmsg2(nickname,hitby,"somewhere"),0);
+else if(get_zone_at(x,y,z,maps[get_map_index(map.name)])!="" and name=="") send_reliable(0,"kills "+killmsg2("something",hitby,get_zone_at(x,y,z,maps[get_map_index(map.name)])),0);
+else send_reliable(0,"kills "+killmsg2(nickname,hitby,get_zone_at(x,y,z,maps[get_map_index(map.name)])),0);
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int index=get_player_index_from(hb);
+if(index>-1)
+{
+players[index].kills+=1;
+givexp(players[index],xp*players[index].reinforcement);
+int tm=is_in_team(players[index].name);
+if(tm>-1)
+{
+int l=random(20,100);
+teams[tm].points+=l;
+teams[tm].transmit("This team just got "+l+" extra points!");
+teams[tm].teamkills+=1;
+}
+}
+if(fallsound==" ")
+{
+if (fallsound!="") spawn_bodyfall(x,y,z,map.name,1000,"gt",fallsoundpitch,fallsoundvolume);
+}
+else
+{
+if (fallsound!="") spawn_bodyfall(x,y,z,map.name,1000,fallsound,fallsoundpitch,fallsoundvolume);
+}
+if (item!="" and amount!=0 and string_contains(hitby, "bomb", 1)<0 and revitalized==0) spawn_obj(x, y, z, maps[get_map_index(map.name)], item, amount,true);
+ais.remove_at(i);
+return;
+}
+if (speed!=-1 and movetimer.elapsed>=(mad==true ? speed*2 : speed))
+{
+movetimer.restart();
+for(uint i2=0; i2<players.length(); i2++)
+{
+if (map.name!=players[i2].map or is_safe(players[i2].x,players[i2].y,players[i2].z,maps[get_map_index(players[i2].map)]) or players[i2].safe or players[i2].afk or players[i2].away or players[i2].newb==1) continue;
+if(x<players[i2].x)
+{
+string tile=get_tile_at(x,y,z,maps[get_map_index(map.name)]);
+if(string_contains(tile, "wall", 1)<0 or string_contains(tile, "air", 1)<0 or string_contains(tile, "", 1)<0 or tile=="wallboat")
+{
+x++;
+if(stepsound==" ")
+{
+if (stepsound!="") send_packet(6,"ai3dsteppavap "+x+" "+y+" "+z+" "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+else
+{
+if (stepsound!="") send_packet(6,"playpavap "+stepsound+" "+x+" "+y+" "+z+" 0 "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+if (voice!="" and rapidvoice==true) update_moving_sound(voice,x,y,z);
+}
+}
+else if(x>players[i2].x)
+{
+string tile=get_tile_at(x,y,z,maps[get_map_index(map.name)]);
+if(string_contains(tile, "wall", 1)<0 or string_contains(tile, "air", 1)<0 or string_contains(tile, "", 1)<0 or tile=="wallboat")
+{
+x--;
+if(stepsound==" ")
+{
+if (stepsound!="") send_packet(6,"ai3dsteppavap "+x+" "+y+" "+z+" "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+else
+{
+if (stepsound!="") send_packet(6,"playpavap "+stepsound+" "+x+" "+y+" "+z+" 0 "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+if (voice!="" and rapidvoice==true) update_moving_sound(voice,x,y,z);
+}
+}
+else if(y<players[i2].y)
+{
+string tile=get_tile_at(x,y,z,maps[get_map_index(map.name)]);
+if(string_contains(tile, "wall", 1)<0 or string_contains(tile, "air", 1)<0 or string_contains(tile, "", 1)<0 or tile=="wallboat")
+{
+y++;
+if(stepsound==" ")
+{
+if (stepsound!="") send_packet(6,"ai3dsteppavap "+x+" "+y+" "+z+" "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+else
+{
+if (stepsound!="") send_packet(6,"playpavap "+stepsound+" "+x+" "+y+" "+z+" 0 "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+if (voice!="" and rapidvoice==true) update_moving_sound(voice,x,y,z);
+}
+}
+else if(y>players[i2].y)
+{
+string tile=get_tile_at(x,y,z,maps[get_map_index(map.name)]);
+if(string_contains(tile, "wall", 1)<0 or string_contains(tile, "air", 1)<0 or string_contains(tile, "", 1)<0 or tile=="wallboat")
+{
+y--;
+if(stepsound==" ")
+{
+if (stepsound!="") send_packet(6,"ai3dsteppavap "+x+" "+y+" "+z+" "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+else
+{
+if (stepsound!="") send_packet(6,"playpavap "+stepsound+" "+x+" "+y+" "+z+" 0 "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+if (voice!="" and rapidvoice==true) update_moving_sound(voice,x,y,z);
+}
+}
+else if(z<players[i2].z and treeclimb==true)
+{
+string tile=get_tile_at(x,y,z,maps[get_map_index(map.name)]);
+if(tile=="wallboat" or tile=="tree")
+{
+z++;
+if(stepsound==" ")
+{
+if (stepsound!="") send_packet(6,"ai3dsteppavap "+x+" "+y+" "+z+" "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+else
+{
+if (stepsound!="") send_packet(6,"playpavap "+stepsound+" "+x+" "+y+" "+z+" 0 "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+if (voice!="" and rapidvoice==true) update_moving_sound(voice,x,y,z);
+}
+}
+else if(z>players[i2].z and treeclimb==true)
+{
+string tile=get_tile_at(x,y,z,maps[get_map_index(map.name)]);
+if(tile=="wallboat" or tile=="tree")
+{
+z--;
+if(stepsound==" ")
+{
+if (stepsound!="") send_packet(6,"ai3dsteppavap "+x+" "+y+" "+z+" "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+else
+{
+if (stepsound!="") send_packet(6,"playpavap "+stepsound+" "+x+" "+y+" "+z+" 0 "+stepsoundvolume+" "+stepsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+}
+if (voice!="" and rapidvoice==true) update_moving_sound(voice,x,y,z);
+}
+}
+}
+}
+if (shoottime!=-1 and shoottimer.elapsed>=shoottime)
+{
+shoottimer.restart();
+for(uint i2=0; i2<players.length(); i2++)
+{
+if (in_vehicle(players[i2])>-1 or in_motor(players[i2])>-1 or players[i2].is_dead or map.name!=players[i2].map or is_safe(players[i2].x,players[i2].y,players[i2].z,maps[get_map_index(players[i2].map)]) or players[i2].safe or players[i2].afk or players[i2].away or players[i2].newb==1 or players[i2].looking!="" or revitalized==1 and players[i2].pvp==0) continue;
+if (get_3d_distance(x,y,z,players[i2].x,players[i2].y,players[i2].z)<=range)
+{
+if (shootsound!="") send_packet(6,"playpavap "+shootsound+" "+x+" "+y+" "+z+" 0 "+shootsoundvolume+" "+shootsoundpitch, x,y,z,maps[get_map_index(map.name)]);
+if (maddable==true and mad==false) mad=true;
+if (players[i2].shielded==1)
+{
+send_packet(6,"play shieldhit"+random(1,10)+".ogg "+players[i2].x+" "+players[i2].y+" "+players[i2].z, players[i2].x,players[i2].y,players[i2].z,maps[get_map_index(players[i2].map)]);
+players[i2].shieldshots-=square_root(damage)/2;
+}
+else if (players[i2].steel_shielded==1)
+{
+send_packet(6,"play shieldhit"+random(1,10)+".ogg "+players[i2].x+" "+players[i2].y+" "+players[i2].z, players[i2].x,players[i2].y,players[i2].z,maps[get_map_index(players[i2].map)]);
+players[i2].steel_shieldshots-=square_root(damage)/2;
+}
+else if (players[i2].armored==1)
+{
+send_packet(6,"play armor_hit_"+random(1,4)+".ogg "+players[i2].x+" "+players[i2].y+" "+players[i2].z, players[i2].x,players[i2].y,players[i2].z,maps[get_map_index(players[i2].map)]);
+players[i2].armorshots-=square_root(damage)/4;
+}
+else if (players[i2].large_armor_plated==1)
+{
+send_packet(6,"play armor_hit_"+random(1,4)+".ogg "+players[i2].x+" "+players[i2].y+" "+players[i2].z, players[i2].x,players[i2].y,players[i2].z,maps[get_map_index(players[i2].map)]);
+players[i2].large_armor_plateshots-=square_root(damage)/4;
+}
+else
+{
+if (hitsound!="") send_packet(6,"playpavap "+hitsound+" "+players[i2].x+" "+players[i2].y+" "+players[i2].z+" 0 "+hitsoundvolume+" "+hitsoundpitch, x,y,z,maps[get_map_index(players[i2].map)]);
+players[i2].hitby=name;
+players[i2].hit(damage);
+target=players[i2].name;
+}
+}
+}
+for(uint i2=0; i2<vs.length(); i2++)
+{
+if (map.name!=vs[i2].map) continue;
+if (get_3d_distance(x,y,z,vs[i2].x,vs[i2].y,vs[i2].z)<=range)
+{
+if (shootsound!="") send_packet(6,"play "+shootsound+" "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+if (hitsound!="") send_packet(6,"playpavap "+hitsound+" "+vs[i2].x+" "+vs[i2].y+" "+vs[i2].z+" 0 "+hitsoundvolume+" "+hitsoundpitch, vs[i2].x,vs[i2].y,vs[i2].z,maps[get_map_index(vs[i2].map)]);
+vs[i2].hitby=name;
+vs[i2].hit(damage,damage);
+}
+}
+for(uint i2=0; i2<mos.length(); i2++)
+{
+if (map.name!=mos[i2].map) continue;
+if (get_3d_distance(x,y,z,mos[i2].x,mos[i2].y,mos[i2].z)<=range)
+{
+if (shootsound!="") send_packet(6,"play "+shootsound+" "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+if (hitsound!="") send_packet(6,"play "+hitsound+" "+mos[i2].x+" "+mos[i2].y+" "+mos[i2].z+" 0 "+hitsoundvolume+" "+hitsoundpitch, mos[i2].x,mos[i2].y,mos[i2].z,maps[get_map_index(mos[i2].map)]);
+mos[i2].hitby=name;
+mos[i2].hit(damage,damage);
+}
+}
+}
+}
+}
+void spawn_ai(double x, double y, double z, mapdata@m, string name, int revitalized=0)
+{
+int id=get_ait_index(name);
+if (id<0) return;
+ai@a1=ai(aitemps[id],id,x, y, z, m, name, revitalized);
+if(@a1.map==null) return;
+else ais.insert_last(a1);
+}
+void destroy_all_ais()
+{
+ais.resize(0);
+}
+void load_ais()
+{
+if (!directory_exists("ais")) {return;
+}
+string[] files=find_files("ais/*.ai");
+string[] lines,parsed,health,range,damage,shoottime,speed,xp,stepsound,painsound,killsound,shootsound,hitsound,voice,stepsoundpitch,painsoundpitch,killsoundpitch,shootsoundpitch,hitsoundpitch,voicepitch,voicetime,item,amount,allsoundpitch,fallsound,fallsoundvolume;
+int line, l,f,size=files.length();
+file fh;
+for (f=0; f<size; f++)
+{
+if (!fh.open("ais/"+files[f],"r")) {continue;
+}
+ai_template ai;
+lines=string_split(string_replace(fh.read(),"\r","",true),"\n",true);
+fh.close();
+line=lines.length();
+for (l=0; l<line; l++)
+{
+parsed=string_split(lines[l],"=",true);
+if (parsed.length()!=2)
+{
+line=0;
+break;
+}
+if (parsed[0]=="name")
+{
+ai.name=parsed[1];
+}
+else if (parsed[0]=="nickname")
+{
+if(parsed[1]=="none") ai.nickname=ai.name;
+else ai.nickname=parsed[1];
+}
+else if (parsed[0]=="health")
+{
+health=string_split(parsed[1],",",true);
+if (health.length()==1)
+{
+ai.health=string_to_number(health[0]);
+}
+else if (health.length()>1)
+{
+ai.health=random(string_to_number(health[0]),string_to_number(health[1]));
+}
+else
+{
+ai.health=0;
+}
+}
+else if (parsed[0]=="range")
+{
+range=string_split(parsed[1],",",true);
+if (range.length()==1)
+{
+ai.range=string_to_number(range[0]);
+}
+else if (range.length()>1)
+{
+ai.range=random(string_to_number(range[0]),string_to_number(range[1]));
+}
+else
+{
+ai.range=0;
+}
+}
+else if (parsed[0]=="damage")
+{
+damage=string_split(parsed[1],",",true);
+if (damage.length()==1)
+{
+ai.damage=string_to_number(damage[0]);
+}
+else if (damage.length()>1)
+{
+ai.damage=random(string_to_number(damage[0]),string_to_number(damage[1]));
+}
+else
+{
+ai.damage=0;
+}
+}
+else if (parsed[0]=="shoottime")
+{
+shoottime=string_split(parsed[1],",",true);
+if (shoottime.length()==1)
+{
+ai.shoottime=string_to_number(shoottime[0]);
+}
+else if (shoottime.length()>1)
+{
+ai.shoottime=random(string_to_number(shoottime[0]),string_to_number(shoottime[1]));
+}
+else
+{
+ai.shoottime=0;
+}
+}
+else if (parsed[0]=="speed")
+{
+speed=string_split(parsed[1],",",true);
+if (speed.length()==1)
+{
+ai.speed=string_to_number(speed[0]);
+}
+else if (speed.length()>1)
+{
+ai.speed=random(string_to_number(speed[0]),string_to_number(speed[1]));
+}
+else
+{
+ai.speed=0;
+}
+}
+else if (parsed[0]=="xp")
+{
+xp=string_split(parsed[1],",",true);
+if (xp.length()==1)
+{
+ai.xp=string_to_number(xp[0]);
+}
+else if (xp.length()>1)
+{
+ai.xp=random(string_to_number(xp[0]),string_to_number(xp[1]));
+}
+else
+{
+ai.xp=0;
+}
+}
+else if (parsed[0]=="stepsound")
+{
+if(parsed[1]=="gt") ai.stepsound=" ";
+else if(parsed[1]=="none") ai.stepsound="";
+else
+{
+stepsound=string_split(parsed[1],",",true);
+if (stepsound.length()==1)
+{
+ai.stepsound=stepsound[0];
+}
+else if (stepsound.length()>1)
+{
+string temp=stepsound[random(0,stepsound.length()-1)];
+ai.stepsound=temp;
+}
+else
+{
+ai.stepsound="";
+}
+}
+}
+else if (parsed[0]=="stepsoundpitch")
+{
+ai.stepsoundpitch=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="stepsoundvolume")
+{
+ai.stepsoundvolume=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="painsound")
+{
+if(parsed[1]=="none") ai.painsound="";
+else
+{
+painsound=string_split(parsed[1],",",true);
+if (painsound.length()==1)
+{
+ai.painsound=painsound[0];
+}
+else if (painsound.length()>1)
+{
+string temp=painsound[random(0,painsound.length()-1)];
+ai.painsound=temp;
+}
+else
+{
+ai.painsound="";
+}
+}
+}
+else if (parsed[0]=="painsoundpitch")
+{
+ai.painsoundpitch=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="painsoundvolume")
+{
+ai.painsoundvolume=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="killsound")
+{
+if(parsed[1]=="none") ai.killsound="";
+else
+{
+killsound=string_split(parsed[1],",",true);
+if (killsound.length()==1)
+{
+ai.killsound=killsound[0];
+}
+else if (killsound.length()>1)
+{
+string temp=killsound[random(0,killsound.length()-1)];
+ai.killsound=temp;
+}
+else
+{
+ai.killsound="";
+}
+}
+}
+else if (parsed[0]=="killsoundpitch")
+{
+ai.killsoundpitch=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="killsoundvolume")
+{
+ai.killsoundvolume=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="shootsound")
+{
+if(parsed[1]=="none") ai.shootsound="";
+else
+{
+shootsound=string_split(parsed[1],",",true);
+if (shootsound.length()==1)
+{
+ai.shootsound=shootsound[0];
+}
+else if (shootsound.length()>1)
+{
+string temp=shootsound[random(0,shootsound.length()-1)];
+ai.shootsound=temp;
+}
+else
+{
+ai.shootsound="";
+}
+}
+}
+else if (parsed[0]=="shootsoundpitch")
+{
+ai.shootsoundpitch=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="shootsoundvolume")
+{
+ai.shootsoundvolume=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="hitsound")
+{
+if(parsed[1]=="none") ai.hitsound="";
+else
+{
+hitsound=string_split(parsed[1],",",true);
+if (hitsound.length()==1)
+{
+ai.hitsound=hitsound[0];
+}
+else if (hitsound.length()>1)
+{
+string temp=hitsound[random(0,hitsound.length()-1)];
+ai.hitsound=temp;
+}
+else
+{
+ai.hitsound="";
+}
+}
+}
+else if (parsed[0]=="hitsoundpitch")
+{
+ai.hitsoundpitch=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="hitsoundvolume")
+{
+ai.hitsoundvolume=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="voice")
+{
+if(parsed[1]=="none") ai.voice="";
+else
+{
+voice=string_split(parsed[1],",",true);
+if (voice.length()==1)
+{
+ai.voice=voice[0];
+}
+else if (voice.length()>1)
+{
+string temp=voice[random(0,voice.length()-1)];
+ai.voice=temp;
+}
+else
+{
+ai.voice="";
+}
+}
+}
+else if (parsed[0]=="voicepitch")
+{
+ai.voicepitch=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="voicevolume")
+{
+ai.voicevolume=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="voicetime")
+{
+voicetime=string_split(parsed[1],",",true);
+if (voicetime.length()==1)
+{
+ai.voicetime=string_to_number(voicetime[0]);
+}
+else if (voicetime.length()>1)
+{
+ai.voicetime=random(string_to_number(voicetime[0]),string_to_number(voicetime[1]));
+}
+else
+{
+ai.voicetime=0;
+}
+}
+else if (parsed[0]=="item")
+{
+if(parsed[1]=="none") ai.item="";
+else
+{
+item=string_split(parsed[1],",",true);
+if (item.length()==1)
+{
+ai.item=item[0];
+}
+else if (item.length()>1)
+{
+string temp=item[random(0,item.length()-1)];
+ai.item=temp;
+}
+else
+{
+ai.item="";
+}
+}
+}
+else if (parsed[0]=="amount")
+{
+amount=string_split(parsed[1],",",true);
+if (amount.length()==1)
+{
+ai.amount=string_to_number(amount[0]);
+}
+else if (amount.length()>1)
+{
+ai.amount=random(string_to_number(amount[0]),string_to_number(amount[1]));
+}
+else
+{
+ai.amount=0;
+}
+}
+else if (parsed[0]=="rapidvoice")
+{
+ai.rapidvoice=int_to_bool(string_to_number(parsed[1]));
+}
+else if (parsed[0]=="treeclimb")
+{
+ai.treeclimb=int_to_bool(string_to_number(parsed[1]));
+}
+else if (parsed[0]=="maddable")
+{
+ai.maddable=int_to_bool(string_to_number(parsed[1]));
+}
+else if (parsed[0]=="needwater")
+{
+ai.needwater=int_to_bool(string_to_number(parsed[1]));
+}
+else if (parsed[0]=="fallsound")
+{
+if(parsed[1]=="gt") ai.fallsound=" ";
+else if(parsed[1]=="none") ai.fallsound="";
+else
+{
+fallsound=string_split(parsed[1],",",true);
+if (fallsound.length()==1)
+{
+ai.fallsound=fallsound[0];
+}
+else if (fallsound.length()>1)
+{
+string temp=fallsound[random(0,fallsound.length()-1)];
+ai.fallsound=temp;
+}
+else
+{
+ai.fallsound="";
+}
+}
+}
+else if (parsed[0]=="fallsoundpitch")
+{
+ai.fallsoundpitch=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="fallsoundvolume")
+{
+ai.fallsoundvolume=string_to_number(parsed[1]);
+}
+else if (parsed[0]=="nuclearbomb")
+{
+ai.nuclearbomb=int_to_bool(string_to_number(parsed[1]));
+}
+else if (parsed[0]=="mine")
+{
+ai.mine=int_to_bool(string_to_number(parsed[1]));
+}
+else if (parsed[0]=="description")
+{
+if(parsed[1]=="none") ai.description="";
+else ai.description=parsed[1];
+}
+if(ai.nickname=="") ai.nickname=ai.name;
+if (line>0)
+{
+aitemps.insert_last(ai);
+}
+}
+}
+}
+int get_ait_index (string name)
+{
+int r,l=aitemps.length();
+for (r=0; r<l; r++)
+{
+if (aitemps[r].name==name)
+{
+return(r);
+}
+}
+return(-1);
+}

@@ -1,0 +1,43 @@
+void rcfu(bool frommainmenu=false)
+{
+string latest=url_get("http://mahdiabedi.com/dl/rdlv.txt");
+double lv=string_to_number(latest);
+string[] yourversion=string_split(readmever," ",true);
+double yv=string_to_number(yourversion[0]);
+if (yv>=lv and frommainmenu==true)
+{
+rulescfu(true);
+}
+else if (yv<lv)
+{
+sound updatefound;
+updatefound.load("update.ogg");
+updatefound.play_wait();
+int updateask=question("Update available!","a new readme pack is available! Your readme pack  version is: "+readmever+". The latest version is: "+latest+". Would you like to download it?");
+if(updateask==1)
+{
+string status=dl_file("http://mahdiabedi.com/dl/readme.rar","readme.rar",false,"Downloading new readme version "+lv+"...");
+if (status=="finished")
+{
+sound updatedone;
+sound updatemus;
+updatemus.stop();
+updatedone.load("updated.ogg");
+updatedone.play_wait();
+bool result=run("unzip.exe","-o -qq readme.rar",true,true);
+if(result==true)
+{
+dlg("readme has been downloaded successfully. Press enter to continue");
+file_delete("readme.rar");
+run("c:\\windows\\explorer.exe","\""+self_file()+"\"",false,false);
+exit();
+}
+else
+{
+dlg("readme has been downloaded successfully. Please extract readme.rar. Press enter to continue");
+exit();
+}
+}
+}
+}
+}

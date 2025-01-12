@@ -1,0 +1,326 @@
+meteorite@[] meteorites(0);
+class meteorite
+{
+string map;
+int seconds=40000;
+timer beeptimer, distructiontimer;
+meteorite(string mmap)
+{
+map=mmap;
+}
+void loop(int i)
+{
+seconds=20000-distructiontimer.elapsed;
+if (beeptimer.elapsed>=2950)
+{
+beeptimer.restart();
+send_dpacket(6,"play_s rocharolando.ogg",maps[get_map_index(map)]);
+}
+if (seconds<=0)
+{
+send_dpacket(6,"play_s rock_crumble.ogg",maps[get_map_index(map)]);
+for(uint p=0; p<players.length(); p++)
+{
+if(players[p].map==map)
+{
+players[p].health=0;
+players[p].hitby="meteorite";
+}
+}
+for(uint i2=0;i2<ais.length();i2++)
+{
+if(ais[i2].map.name==map)
+{
+names.insert_last(""+ais[i2].name+" on "+get_zone_at(ais[i2].x,ais[i2].y,ais[i2].z,maps[get_map_index(ais[i2].map.name)])+"");
+@ais[i2]=null;
+ais.remove_at(i2);
+i2--;
+continue;
+}
+}
+if(names.length>1)
+{
+for(uint i=0; i<names.length(); i++)
+{
+if(i==(names.length-1)) s+="and "+names[i]+".";
+else s+=names[i]+", ";
+}
+}
+else
+for(uint i=0; i<names.length(); i++)
+{
+s=names[i]+" ";
+}
+s2=" "+names.length()+" "+(names.length()>1?"creatures were":"creature was")+" killed Due to the collision of a meteorite to ground: ";
+if(names.length()>1) send_reliable(0,"kills "+s2+s, 0);
+names.resize(0);
+s="";
+s2="";
+outs.resize(0);
+for(uint i2=0;i2<vs.length();i2++)
+{
+if(vs[i2].map==map)
+{
+names.insert_last(""+vs[i2].type+" on "+get_zone_at(vs[i2].x,vs[i2].y,vs[i2].z,maps[get_map_index(vs[i2].map)])+"");
+@vs[i2]=null;
+vs.remove_at(i2);
+i2--;
+continue;
+}
+}
+if(names.length>1)
+{
+for(uint i=0; i<names.length(); i++)
+{
+if(i==(names.length-1)) s+="and "+names[i]+".";
+else s+=names[i]+", ";
+}
+}
+else
+for(uint i=0; i<names.length(); i++)
+{
+s=names[i]+" ";
+}
+s2=" "+names.length()+" "+(names.length()>1?"cars were":"car was")+" destroyed Due to the collision of a meteorite to ground: ";
+if(names.length()>1) send_reliable(0,"kills "+s2+s, 0);
+names.resize(0);
+s="";
+s2="";
+outs.resize(0);
+for(uint i2=0;i2<mos.length();i2++)
+{
+if(mos[i2].map==map)
+{
+names.insert_last(""+mos[i2].type+" on "+get_zone_at(mos[i2].x,mos[i2].y,mos[i2].z,maps[get_map_index(mos[i2].map)])+"");
+@mos[i2]=null;
+mos.remove_at(i2);
+i2--;
+continue;
+}
+}
+if(names.length>1)
+{
+for(uint i=0; i<names.length(); i++)
+{
+if(i==(names.length-1)) s+="and "+names[i]+".";
+else s+=names[i]+", ";
+}
+}
+else
+for(uint i=0; i<names.length(); i++)
+{
+s=names[i]+" ";
+}
+s2=" "+names.length()+" "+(names.length()>1?"motorcycles were":"motorcycle was")+" destroyed Due to the collision of a meteorite to ground: ";
+if(names.length()>1) send_reliable(0,"kills "+s2+s, 0);
+names.resize(0);
+s="";
+s2="";
+outs.resize(0);
+for(uint i2=0;i2<vvehicles.length();i2++)
+{
+if(vvehicles[i2].map==map)
+{
+names.insert_last(""+vvehicles[i2].type+" on "+get_zone_at(vvehicles[i2].x,vvehicles[i2].y,vvehicles[i2].z,maps[get_map_index(vvehicles[i2].map)])+"");
+file_delete("vehicles/"+vvehicles[i2].id+".vehicle");
+@vvehicles[i2]=null;
+vvehicles.remove_at(i2);
+i2--;
+continue;
+}
+}
+if(names.length>1)
+{
+for(uint i=0; i<names.length(); i++)
+{
+if(i==(names.length-1)) s+="and "+names[i]+".";
+else s+=names[i]+", ";
+}
+}
+else
+for(uint i=0; i<names.length(); i++)
+{
+s=names[i]+" ";
+}
+s2=" "+names.length()+" "+(names.length()>1?"cars were":"car was")+" destroyed Due to the collision of a meteorite to ground: ";
+if(names.length()>1) send_reliable(0,"kills "+s2+s, 0);
+names.resize(0);
+s="";
+s2="";
+outs.resize(0);
+for(uint i2=0;i2<mmotors.length();i2++)
+{
+if(mmotors[i2].map==map)
+{
+names.insert_last(""+mmotors[i2].type+" on "+get_zone_at(mmotors[i2].x,mmotors[i2].y,mmotors[i2].z,maps[get_map_index(mmotors[i2].map)])+"");
+file_delete("vehicles/"+mmotors[i2].id+".motor");
+@mmotors[i2]=null;
+mmotors.remove_at(i2);
+i2--;
+continue;
+}
+}
+if(names.length>1)
+{
+for(uint i=0; i<names.length(); i++)
+{
+if(i==(names.length-1)) s+="and "+names[i]+".";
+else s+=names[i]+", ";
+}
+}
+else
+for(uint i=0; i<names.length(); i++)
+{
+s=names[i]+" ";
+}
+s2=" "+names.length()+" "+(names.length()>1?"motorcycles were":"motorcycle was")+" destroyed Due to the collision of a meteorite to ground: ";
+if(names.length()>1) send_reliable(0,"kills "+s2+s, 0);
+names.resize(0);
+s="";
+s2="";
+outs.resize(0);
+for(uint i2=0;i2<houses.length();i2++)
+{
+if(houses[i2].map==map)
+{
+houses[i2].health-=random(100000,1000000);
+houses[i2].hitby="meteorite";
+}
+}
+for(uint i2=0;i2<beehives.length();i2++)
+{
+if(beehives[i2].map==map)
+{
+beehives[i2].health-=random(100000,1000000);
+beehives[i2].hitby="meteorite";
+}
+}
+for(uint i2=0;i2<playerstores.length();i2++)
+{
+if(playerstores[i2].map==map)
+{
+playerstores[i2].health-=random(100000,1000000);
+playerstores[i2].hitby="meteorite";
+}
+}
+for(uint i2=0;i2<lockers.length();i2++)
+{
+if(lockers[i2].map==map)
+{
+lockers[i2].health-=random(100000,1000000);
+lockers[i2].hitby="meteorite";
+}
+}
+for(uint i2=0;i2<fridges.length();i2++)
+{
+if(fridges[i2].map==map)
+{
+fridges[i2].health-=random(100000,1000000);
+fridges[i2].hitby="meteorite";
+}
+}
+for(uint i2=0;i2<microwaves.length();i2++)
+{
+if(microwaves[i2].map==map)
+{
+microwaves[i2].health-=random(100000,1000000);
+microwaves[i2].hitby="meteorite";
+}
+}
+for(uint i2=0;i2<turrets.length();i2++)
+{
+if(turrets[i2].map.name==map)
+{
+names.insert_last(""+turrets[i2].owner.name+"'s turret "+turrets[i2].id+" on "+get_zone_at(turrets[i2].x,turrets[i2].y,turrets[i2].z,maps[get_map_index(turrets[i2].map.name)])+"");
+@turrets[i2]=null;
+turrets.remove_at(i2);
+i2--;
+continue;
+}
+}if(names.length>1)
+{
+for(uint i=0; i<names.length(); i++)
+{
+if(i==(names.length-1)) s+="and "+names[i]+".";
+else s+=names[i]+", ";
+}
+}
+else
+for(uint i=0; i<names.length(); i++)
+{
+s=names[i]+" ";
+}
+s2=" "+names.length()+" "+(names.length()>1?"turrets were":"turret was")+" destroyed Due to the collision of a meteorite to ground: ";
+if(names.length()>1) send_reliable(0,"kills "+s2+s, 0);
+names.resize(0);
+s="";
+s2="";
+outs.resize(0);
+for(uint i2=0;i2<objs.length();i2++)
+{
+if(objs[i2].map.name==map)
+{
+names.insert_last(""+objs[i2].name+" on "+get_zone_at(objs[i2].x,objs[i2].y,objs[i2].z,maps[get_map_index(objs[i2].map.name)])+"");
+@objs[i2]=null;
+objs.remove_at(i2);
+i2--;
+continue;
+}
+}if(names.length>1)
+{
+for(uint i=0; i<names.length(); i++)
+{
+if(i==(names.length-1)) s+="and "+names[i]+".";
+else s+=names[i]+", ";
+}
+}
+else
+for(uint i=0; i<names.length(); i++)
+{
+s=names[i]+" ";
+}
+s2=" "+names.length()+" "+(names.length()>1?"items were":"item was")+" destroyed Due to the collision of a meteorite to ground: ";
+if(names.length()>1) send_reliable(0,"kills "+s2+s, 0);
+names.resize(0);
+s="";
+s2="";
+outs.resize(0);
+for(uint i2=0;i2<silenceobjs.length();i2++)
+{
+if(silenceobjs[i2].map.name==map)
+{
+names.insert_last(""+silenceobjs[i2].id+" on "+get_zone_at(silenceobjs[i2].x,silenceobjs[i2].y,silenceobjs[i2].z,maps[get_map_index(silenceobjs[i2].map.name)])+"");
+@silenceobjs[i2]=null;
+silenceobjs.remove_at(i2);
+i2--;
+continue;
+}
+}if(names.length>1)
+{
+for(uint i=0; i<names.length(); i++)
+{
+if(i==(names.length-1)) s+="and "+names[i]+".";
+else s+=names[i]+", ";
+}
+}
+else
+for(uint i=0; i<names.length(); i++)
+{
+s=names[i]+" ";
+}
+s2=" "+names.length()+" "+(names.length()>1?"items were":"item was")+" destroyed Due to the collision of a meteorite to ground: ";
+if(names.length()>1) send_reliable(0,"kills "+s2+s, 0);
+names.resize(0);
+s="";
+s2="";
+outs.resize(0);
+meteorites.remove_at(i);
+return;
+}
+}
+}
+void spawn_meteorite(string map)
+{
+meteorite m1(map);
+meteorites.insert_last(m1);
+}

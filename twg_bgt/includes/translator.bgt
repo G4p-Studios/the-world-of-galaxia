@@ -1,0 +1,32 @@
+string translate_text(string text)
+{
+if(currentlangfile=="english")
+return text;
+string[] rr=string_split(lngdata,"\r\n",true);
+for(int i=0;i<rr.length();i++)
+{
+string[] q=string_split(rr[i],"=",true);
+if(q.length()<2) continue;
+if(string_contains(text,q[0],1)>-1)
+{
+text=string_replace(text,q[0],q[1],false);
+}
+}
+return text;
+}
+string translate_text_keyboard(string text)
+{
+if(currentkeyboardlangfile=="english")
+return text;
+string[] rr=string_split(keyboarddata,"\r\n",true);
+for(int i=0;i<rr.length();i++)
+{
+string[] q=string_split(rr[i],"=",true);
+if(q.length()<2) continue;
+if(string_contains(text,q[0],1)>-1)
+{
+text=string_replace(text,q[0],q[1],false);
+}
+}
+return text;
+}

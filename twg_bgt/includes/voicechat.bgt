@@ -1,0 +1,74 @@
+const string mciSendString="int mciSendStringA(char*, char*, int, int);";
+const string mciGetErrorString="int mciGetErrorStringA(int, char*, int);";
+class voicechatting
+{
+string filename="file.wav";
+library mci;
+void record()
+{
+string result="";
+result+=send_command("open new type waveaudio alias voice wait");
+result+="\r\n"+send_command("set voice time format ms bitspersample 16 channels 2 samplespersec 44100 format tag pcm wait");
+result+="\r\n"+send_command("record voice");
+}
+void stop(bool convert=true, string convertfilename="", bool recing=false)
+{
+string result;
+result+="\r\n"+send_command("stop voice wait");
+result+="\r\n"+send_command("save voice "+filename+" wait");
+result+="\r\n"+send_command("close voice wait");
+if (convert==true)
+{
+if (microphonechannels==2)
+run("libraries/oggenc2.exe","-q3 --resample "+microphone_samplerate+" -s0 \""+this.filename+"\" -o \""+convertfilename+"\"",true,true);
+else
+run("libraries/oggenc2.exe","-q3 --downmix --resample "+microphone_samplerate+" -s0 \""+this.filename+"\" -o \""+convertfilename+"\"",true,true);
+if(recing==true)
+{
+file_copy(DIRECTORY_TEMP+"\\convert.ogg","smart player audio files/recording "+DATE_WEEKDAY_NAME+", "+DATE_MONTH_NAME+"-"+DATE_DAY+"-"+DATE_YEAR+", "+TIME_HOUR+" "+TIME_MINUTE+" "+TIME_SECOND+".ogg",true);
+file_delete(this.filename);
+}
+else if(savevoicechats==1)
+{
+file_copy(DIRECTORY_TEMP+"\\convert.ogg","voices/voice "+DATE_WEEKDAY_NAME+", "+DATE_MONTH_NAME+"-"+DATE_DAY+"-"+DATE_YEAR+", "+TIME_HOUR+" "+TIME_MINUTE+" "+TIME_SECOND+".ogg",true);
+file_delete(this.filename);
+}
+else
+{
+file_delete(this.filename);
+}
+}
+}
+private string send_command(string command)
+{
+if(!dll.active)
+{
+if(!dll.load("winmm.dll"))
+{
+return "DLL load failure";
+}
+}
+string test;
+string error;
+test.resize(255);
+error.resize(255);
+dictionary@ result=dll.call(mciSendString, command, test, test.length(), 0);
+test="";
+int ret=0;
+result.get("2", test);
+test=string_replace(test, "\0", "", true);
+result.get("0", ret);
+if(ret!=0)
+{
+@result=dll.call(mciGetErrorString, ret, error, error.length());
+error="";
+result.get("2", error);
+error=string_replace(error, "\0", "", true);
+if(test!="") test+="\r\n";
+test+=error;
+}
+return test;
+}
+
+private library dll;
+}

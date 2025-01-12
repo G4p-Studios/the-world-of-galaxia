@@ -1,0 +1,254 @@
+#include "sound_positioning.bgt"
+const int board_size = 21;
+const int initial_position = 10;
+const int initial_lives = 3;
+const int initial_spawn_interval = 3500;
+const int initial_enemy_speed = 20;
+enemy@[] board(board_size);
+int player_position;
+int player_lives;
+int score;
+int enemy_speed;
+int spawn_interval;
+sound start;
+sound hit;
+sound miss;
+sound end;
+void init()
+{
+player_lives = initial_lives;
+player_position = initial_position;
+score = 0;
+enemy_speed = initial_enemy_speed;
+spawn_interval = initial_spawn_interval;
+start.stream("wstart.ogg");
+end.stream("wend.ogg");
+hit.load("whit.ogg");
+miss.load("wmiss.ogg");
+}
+void windows_attackmain()
+{
+init();
+start.play();
+send_reliable(peer_id,"draw wstart.ogg", 7);
+while(start.playing)
+{
+wait(5);
+mainloop();
+start.pitch = random(95, 105);
+if(key_pressed(KEY_RETURN))
+{
+start.stop(); // This line will go down in history
+}
+}
+start.close();
+timer spawner; // This controls the spawning of enemies
+while(true)
+{
+wait(5);
+mainloop();
+if(player_lives <= 0 or key_pressed(KEY_ESCAPE))
+{
+for(int i=0; i<board_size; i++)
+{
+@board[i] = null;
+}
+end.play_wait();
+send_reliable(peer_id,"draw wend.ogg", 7);
+dlg("Blue Screen Of Death: Your score was: " + score);
+start.stop();
+hit.stop();
+miss.stop();
+end.stop();
+entertainment_centermenu();
+break;
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_LEFT) and player_position>0)
+{
+player_position--;
+}
+if(key_pressed(KEY_RIGHT) and player_position < (board_size-1))
+{
+player_position++;
+}
+if(key_pressed(KEY_SPACE))
+{
+if(@board[player_position] !is null)
+{
+hit.stop();
+hit.play();
+send_reliable(peer_id,"draw whit.ogg", 7);
+score += board[player_position].landed ? 5 : 10;
+enemy_speed += 1;
+@board[player_position] = null;
+}
+else
+{
+miss.stop();
+miss.play();
+send_reliable(peer_id,"draw wmiss.ogg", 7);
+}
+}
+if(spawner.elapsed >= spawn_interval)
+{
+spawner.restart();
+int enemy_position;
+enemy_position = random(0, board_size-1);
+if(@board[enemy_position] is null)
+{
+enemy e(enemy_position);
+@board[enemy_position] = @e;
+}
+}
+for(int i=0; i<board_size; i++)
+{
+if(@board[i] !is null)
+{
+board[i].act();
+}
+}
+}
+}
+class enemy
+{
+int horizontal_position;
+int height;
+bool landed;
+int speed;
+sound noise;
+timer mover;
+enemy(int pos)
+{
+horizontal_position = pos;
+height = 100;
+speed = enemy_speed;
+landed = false;
+noise.load("wding.ogg");
+noise.pitch = 50 + height;
+position_sound_1d(@noise, player_position, horizontal_position, 1, 1, 0.0, 0.0);
+noise.play_looped();
+send_reliable(peer_id,"draw ding.ogg", 7);
+}
+void act()
+{
+if(landed)
+{
+if(!noise.playing)
+{
+@board[horizontal_position] = null;
+}
+else
+{
+position_sound_1d(@noise, player_position, horizontal_position, 1, 1, 0.0, 0.0);
+}
+return;
+}
+height = 100 - mover.elapsed*speed/1000;
+if(height<=0)
+{
+landed = true;
+noise.stop();
+noise.load("land.ogg");
+noise.pitch = 100;
+position_sound_1d(@noise, player_position, horizontal_position, 1, 1, 0.0, 0.0);
+noise.play();
+send_reliable(peer_id,"draw ding.ogg", 7);
+player_lives--;
+return;
+}
+position_sound_1d(@noise, player_position, horizontal_position, 1, 1, 0.0, 0.0);
+noise.pitch = 50 + height;
+}
+}

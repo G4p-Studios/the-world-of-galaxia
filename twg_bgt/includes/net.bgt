@@ -1,0 +1,659 @@
+string netaddress="mad-gamer.com";
+int netport=1601;
+uint peer_id=0;
+sound sr;
+void login()
+{
+if(name==""||password=="")
+{
+dlg("setup an account first");
+reset_network();
+mainmenu();
+}
+speak("establishing connection... please wait");
+sr.load("roleta.ogg");
+sr.play_looped();
+n.setup_client(20, 500);
+n.connect(netaddress, netport);
+if(connected==true)
+{
+e=n.request();
+send_reliable(peer_id, "login "+name+" "+password+" "+version+" "+cver+" "+langver+" "+keyboardlangver+" "+lbver+" "+rulesver+" "+readmever+" "+compid, 10);
+}
+timeouttimer.restart();
+while(true)
+{
+wait(5);
+e=n.request();
+if (key_pressed(KEY_ESCAPE))
+{
+sr.close();
+reset_network();
+mainmenu();
+}
+if(e.type==event_connect)
+{
+peer_id=e.peer_id;
+s.fade_music(20);
+sr.stop();
+p.play_stationary("roletaseleciona.ogg",false,0,0,0,100);
+send_reliable(peer_id, "login "+name+" "+password+" "+version+" "+cver+" "+langver+" "+keyboardlangver+" "+lbver+" "+rulesver+" "+readmever+" "+compid, 10);
+connected=true;
+}
+else if(e.type==event_receive and get_event_message()=="loggedin")
+{
+if(tpool1.elapsed>=npool1)
+{
+tpool1.restart();
+npool1=random(30, 300);
+mpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+p.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+sourcepool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+musicpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+}
+if(tpool2.elapsed>=npool2)
+{
+tpool2.restart();
+npool2=random(30, 300);
+distpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+placedistpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+signpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+itempool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+}
+sourcecheckloop();
+game();
+}
+else if(e.type==event_receive and get_event_message()=="admin")
+{
+speak("You are an admin");
+admin=true;
+}
+else if(e.type==event_receive and get_event_message()=="lcm")
+{
+speak("You are a language channel manager");
+lcm=true;
+}
+else if(e.type==event_receive and get_event_message()=="manager")
+{
+speak("You are manager");
+manager=true;
+}
+else if(e.type==event_receive and get_event_message()=="mapname")
+{
+mapname=string_replace(get_event_message(),"mapname ","",false);
+}
+else if(e.type==event_receive and get_event_message()=="updatenow")
+{
+string nver= url_get("http://mahdiabedi.com/dl/dlv.txt");
+dlg("your client is out of date");
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and get_event_message()=="nochar")
+{
+dlg("error: This account does not exist!");
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and get_event_message()=="wrongpass")
+{
+dlg("incorrect password.");
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and get_event_message()=="alreadyplaying")
+{
+dlg("sorry: this account is already logged in");
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and string_contains(get_event_message(),"error",1)>-1)
+{
+dlg(get_event_message());
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and get_event_message()=="error" or(timeouttimer.elapsed>=timeouttime))
+{
+sr.stop();
+p.play_stationary("error.ogg",false,0,0,0,100);
+speak("Server down");
+reconnect();
+}
+else if(e.type==event_receive and get_event_message()=="banned")
+{
+if(SCRIPT_COMPILED)
+{
+dlg("error, You are currently banned from the game. please try again later");
+reset_network();
+mainmenu();
+}
+}
+else if(e.type==event_receive)
+{
+string[] parsed=string_split(get_event_message(), " ", false);
+if(parsed[0]=="block")
+{
+dlg(string_trim_left(get_event_message(),6));
+reset_network();
+mainmenu();
+}
+else if(parsed[0]=="x" and parsed.length()>1)
+{
+me.x=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="y" and parsed.length()>1)
+{
+me.y=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="z" and parsed.length()>1)
+{
+me.z=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="mapname" and parsed.length()>1)
+{
+mapname=parsed[1];
+}
+else if(parsed[0]=="spawn_player" and parsed.length()>5)
+{
+int x=string_to_number(parsed[1]);
+int y=string_to_number(parsed[2]);
+int z=string_to_number(parsed[3]);
+string n=parsed[4];
+string mp=parsed[5];
+if(n!=name)
+{
+spawn_player(x,y,z,mp,n);
+}
+}
+else if(parsed[0]=="m_data")
+{
+load_map(string_replace(get_event_message(), "mdata ", "", false));
+}
+else if(parsed[0]=="facing" and parsed.length()>1)
+{
+facing=string_to_number(parsed[1]);
+}
+}
+}
+}
+void create()
+{
+form.reset();
+if (screen_reader_is_running(1))
+{
+form.set_output_mode(JAWS);
+}
+if (screen_reader_is_running(2))
+{
+form.set_output_mode(WINDOW_EYES);
+}
+if (screen_reader_is_running(3))
+{
+form.set_output_mode(SYSTEM_ACCESS);
+}
+if (screen_reader_is_running(4))
+{
+form.set_output_mode(NVDA);
+}
+form.create_window("Registration Form", false);
+int user=form.create_input_box("&Username");
+int pass=form.create_input_box("&Password", "", "*");
+int email=form.create_input_box("&Email","");
+int gender=form.create_list("&Gender selection", 0);
+form.add_list_item(gender, "Male", 0);
+form.add_list_item(gender, "Female", 1);
+int ok=form.create_button("&Register");
+int cancel=form.create_button("&Cancel");
+form.set_button_attributes(ok, true, false);
+form.set_button_attributes(cancel, false, true);
+while(true)
+{
+form.monitor();
+wait(5);
+if(form.is_pressed(cancel))
+{
+form.reset();
+n.destroy();
+reset_network();
+mainmenu();
+}
+else if(form.is_pressed(ok))
+{
+if(form.get_text(user)=="" or string_contains(form.get_text(user), " ", 1)!=-1)
+{
+dlg("An error has occured. Please check the username field and try again");
+creating=false;
+form.reset();
+reset_network();
+mainmenu();
+}
+else if(form.get_text(pass)=="" or string_contains(form.get_text(pass), " ", 1)!=-1)
+{
+dlg("An error has occured. Please check the password field and try again");
+creating=false;
+form.reset();
+reset_network();
+mainmenu();
+}
+else if(form.get_text(email)=="" or string_contains(form.get_text(email),"@",1)==-1)
+{
+dlg("An error has occured. Please check the e-mail field and try again");
+creating=false;
+form.reset();
+reset_network();
+mainmenu();
+}
+else if(form.get_list_position(gender)==-1)
+{
+dlg("An error has occured. Please set your gender in the gender selection list and try again");
+creating=false;
+form.reset();
+reset_network();
+mainmenu();
+}
+else
+{
+timeouttimer.restart();
+speak("establishing connection... please wait");
+sr.load("roleta.ogg");
+sr.play_looped();
+n.setup_client(20, 500);
+n.connect(netaddress, netport);
+while(true)
+{
+wait(5);
+e=n.request();
+if (key_pressed(KEY_ESCAPE))
+{
+sr.stop();
+form.reset();
+n.destroy();
+reset_network();
+mainmenu();
+}
+if(e.type==event_disconnect or timeouttimer.elapsed>=timeouttime)
+{
+sr.stop();
+p.play_stationary("error.ogg",false,0,0,0,100);
+speak("Server down");
+reconnect();
+}
+if(e.type==event_connect and connected==false)
+{
+creating=true;
+peer_id=e.peer_id;
+speak("creating");
+send_reliable(peer_id, "newchar "+form.get_text(user)+" "+form.get_text(pass)+" "+form.get_text(email)+" "+form.get_list_position(gender)+" "+version+" "+cver+" "+langver+" "+keyboardlangver+" "+lbver+" "+rulesver+" "+readmever+" "+compid, 10);
+}
+else if(e.type==event_receive and get_event_message()=="createdchar")
+{
+sr.close();
+dlg("success! Your account has been registered! press enter to connect");
+s.fade_music(20);
+name=form.get_text(user);
+password=form.get_text(pass);
+writeprefs();
+form.reset();
+login();
+creating=false;
+}
+else if(e.type==event_receive and get_event_message()=="alreadyaccount")
+{
+creating=false;
+form.reset();
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and get_event_message()=="alreadyexists")
+{
+sr.close();
+dlg("This account already exists");
+creating=false;
+form.reset();
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and string_contains(get_event_message(),"Error",1)>-1)
+{
+sr.close();
+dlg(get_event_message());
+creating=false;
+form.reset();
+reset_network();
+mainmenu();
+}
+}
+}
+}
+}
+}
+void reset_network()
+{
+n.disconnect_peer(0);
+timeouttimer.restart();
+peer_id=0;
+n.destroy();
+connected=false;
+@n=null;
+network t;
+@n=t;
+}
+void reconnect(bool frommainmenu=false)
+{
+if(looking) looking=false;
+stream.stop(streamurl);
+can_move=true;
+if(autolower==1) lower_pitch_in_pool(p,mpool,distpool,placedistpool,sourcepool,musicpool,signpool,itempool);
+else fade_all(p,mpool,distpool,placedistpool,sourcepool,musicpool,signpool,itempool);
+p.destroy_all();
+mpool.destroy_all();
+sourcepool.destroy_all();
+musicpool.destroy_all();
+distpool.destroy_all();
+placedistpool.destroy_all();
+signpool.destroy_all();
+itempool.destroy_all();
+mapitems.resize(0);
+if(sleeping.playing) sleeping.close();
+if(dreamsound.playing) dreamsound.close();
+srcs.stop();
+destroy_all_tracks();
+destroy_all_msounds();
+destroy_all_sources();
+destroy_all_musics();
+destroy_all_timedsounds();
+destroy_all_timedmusics();
+destroy_all_vanishing_platforms();
+destroy_all_forcefields();
+destroy_all_teleporters();
+destroy_all_doors();
+destroy_all_pdoors();
+destroy_all_icdoors();
+destroy_all_itdoors();
+destroy_all_igdoors();
+destroy_all_automovers();
+destroy_all_pautomovers();
+destroy_all_icautomovers();
+destroy_all_itautomovers();
+destroy_all_igautomovers();
+destroy_all_automatic_travelpoints();
+destroy_all_pautomatic_travelpoints();
+destroy_all_icautomatic_travelpoints();
+destroy_all_itautomatic_travelpoints();
+destroy_all_igautomatic_travelpoints();
+destroy_all_travelpoints();
+destroy_all_ptravelpoints();
+destroy_all_ictravelpoints();
+destroy_all_ittravelpoints();
+destroy_all_igtravelpoints();
+destroy_all_signs();
+destroy_all_txts();
+destroy_all_dialogs();
+destroy_all_automatic_dialogs();
+destroy_all_timedtexts();
+maps.resize(0);
+tiles.resize(0);
+zones.resize(0);
+mapitems.resize(0);
+destroy_all_tracks();
+vc.stop(false,"",false);
+if(recording==true) recording=false;
+spamtimer.restart();
+dcamera=0;
+dcamerawall=0;
+dmfwc=0;
+dcameraplayer=0;
+dcameraitem=0;
+dcameradoor=0;
+dcamerapdoor=0;
+dcameraicdoor=0;
+dcameraitdoor=0;
+dcameraigdoor=0;
+dcameraautomover=0;
+dcamerapautomover=0;
+dcameraicautomover=0;
+dcameraitautomover=0;
+dcameraigautomover=0;
+dcameraautomatic_travelpoint=0;
+dcamerapautomatic_travelpoint=0;
+dcameraicautomatic_travelpoint=0;
+dcameraitautomatic_travelpoint=0;
+dcameraigautomatic_travelpoint=0;
+dcameratravelpoint=0;
+dcameraptravelpoint=0;
+dcameraictravelpoint=0;
+dcameraittravelpoint=0;
+dcameraigtravelpoint=0;
+dcameravp=0;
+dcameraff=0;
+dcamerah=0;
+dcameratp=0;
+dcamerasign=0;
+dcameratxt=0;
+dcoordinates=0;
+djump=0;
+dspy=0;
+dspyplayer=0;
+dspyitem=0;
+dspydoor=0;
+dspypdoor=0;
+dspyicdoor=0;
+dspyitdoor=0;
+dspyigdoor=0;
+dspyautomover=0;
+dspypautomover=0;
+dspyicautomover=0;
+dspyitautomover=0;
+dspyigautomover=0;
+dspyautomatic_travelpoint=0;
+dspypautomatic_travelpoint=0;
+dspyicautomatic_travelpoint=0;
+dspyitautomatic_travelpoint=0;
+dspyigautomatic_travelpoint=0;
+dspytravelpoint=0;
+dspyptravelpoint=0;
+dspyictravelpoint=0;
+dspyittravelpoint=0;
+dspyigtravelpoint=0;
+dspyvp=0;
+dspyff=0;
+dspyh=0;
+dspytp=0;
+dspysign=0;
+dspytxt=0;
+dlocalchat=0;
+dvoicechat=0;
+dttschat=0;
+dtracking=0;
+d2dsupport=0;
+somchuva="rain"+random(1,12)+".ogg";
+if(chuvatelhado.playing) chuvatelhado.close();
+somwind="wind"+random(1,5)+".ogg";
+if(windtelhado.playing) windtelhado.close();
+somnight="night"+random(2,4)+".ogg";
+if(nighttelhado.playing) nighttelhado.close();
+sleepmode=-1;
+if(autologin==1 and importbufferlogs==1) export_buffers();
+me.x=0;
+me.y=0;
+me.z=0;
+x=false;
+in_map=false;
+maps.resize(0);
+inve=false;
+inmo=false;
+cycle_inv.delete_all();
+if(intextbox==true)
+{
+saveinputbox=1;
+save_input_box();
+}
+reset_network();
+speak("reconnecting... please wait");
+n.setup_client(20, 500);
+n.connect(netaddress, netport);
+if(connected==true)
+{
+e=n.request();
+send_reliable(peer_id, "login "+name+" "+password+" "+version+" "+cver+" "+langver+" "+keyboardlangver+" "+lbver+" "+rulesver+" "+readmever+" "+compid, 10);
+}
+timeouttimer.restart();
+while(true)
+{
+wait(5);
+e=n.request();
+if (key_pressed(KEY_ESCAPE))
+{
+reset_network();
+mainmenu();
+}
+if(e.type==event_connect)
+{
+peer_id=e.peer_id;
+s.fade_music(20);
+send_reliable(peer_id, "login "+name+" "+password+" "+version+" "+cver+" "+langver+" "+keyboardlangver+" "+lbver+" "+rulesver+" "+readmever+" "+compid, 10);
+connected=true;
+}
+else if(e.type==event_receive and get_event_message()=="loggedin")
+{
+if(tpool1.elapsed>=npool1)
+{
+tpool1.restart();
+npool1=random(30, 300);
+mpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+p.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+sourcepool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+musicpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+}
+if(tpool2.elapsed>=npool2)
+{
+tpool2.restart();
+npool2=random(30, 300);
+distpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+placedistpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+signpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+itempool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+}
+sourcecheckloop();
+game();
+if(saveinputbox==1) load_input_box();
+}
+else if(e.type==event_receive and get_event_message()=="admin")
+{
+speak("You are an admin");
+admin=true;
+}
+else if(e.type==event_receive and get_event_message()=="lcm")
+{
+speak("You are a language channel manager");
+lcm=true;
+}
+else if(e.type==event_receive and get_event_message()=="manager")
+{
+speak("You are manager");
+manager=true;
+}
+else if(e.type==event_receive and get_event_message()=="mapname")
+{
+mapname=string_replace(get_event_message(),"mapname ","",false);
+}
+else if(e.type==event_receive and get_event_message()=="updatenow")
+{
+string nver= url_get("http://mahdiabedi.com/dl/dlv.txt");
+dlg("your client is out of date");
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and get_event_message()=="nochar")
+{
+dlg("error: This account does not exist!");
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and get_event_message()=="wrongpass")
+{
+dlg("incorrect password.");
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and get_event_message()=="alreadyplaying")
+{
+dlg("sorry: this account is already logged in");
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and string_contains(get_event_message(),"error",1)>-1)
+{
+dlg(get_event_message());
+reset_network();
+mainmenu();
+}
+else if(e.type==event_receive and get_event_message()=="error" or(timeouttimer.elapsed>=timeouttime))
+{
+speak("Server down");
+reconnect();
+}
+else if(e.type==event_receive and get_event_message()=="banned")
+{
+if(SCRIPT_COMPILED)
+{
+dlg("error, You are currently banned from the game. please try again later");
+reset_network();
+mainmenu();
+}
+}
+else if(e.type==event_receive)
+{
+string[] parsed=string_split(get_event_message(), " ", false);
+if(parsed[0]=="block")
+{
+dlg(string_trim_left(get_event_message(),6));
+reset_network();
+mainmenu();
+}
+else if(parsed[0]=="oldversion" and parsed.length()>1)
+{
+dlg("your client is out of date. Your version: "+version+". Latest version: "+parsed[1]);
+reset_network();
+mainmenu();
+}
+else if(parsed[0]=="x" and parsed.length()>1)
+{
+me.x=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="y" and parsed.length()>1)
+{
+me.y=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="z" and parsed.length()>1)
+{
+me.z=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="mapname" and parsed.length()>1)
+{
+mapname=parsed[1];
+}
+else if(parsed[0]=="spawn_player" and parsed.length()>5)
+{
+int x=string_to_number(parsed[1]);
+int y=string_to_number(parsed[2]);
+int z=string_to_number(parsed[3]);
+string n=parsed[4];
+string mp=parsed[5];
+if(n!=name)
+{
+spawn_player(x,y,z,mp,n);
+}
+}
+else if(parsed[0]=="m_data")
+{
+load_map(string_replace(get_event_message(), "mdata ", "", false));
+}
+else if(parsed[0]=="facing" and parsed.length()>1)
+{
+facing=string_to_number(parsed[1]);
+}
+}
+}
+}

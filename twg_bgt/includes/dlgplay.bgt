@@ -1,0 +1,18 @@
+﻿sound dlgaudio;
+void dlgplay(string dlgsound,bool is_file=true)
+{
+if(is_file)
+dlgaudio.load(dlgsound);
+else
+dlgaudio.load_from_memory(dlgsound);
+dlgaudio.play();
+while(dlgaudio.playing)
+{
+wait(5);
+if(key_pressed(KEY_RETURN))
+{
+dlgaudio.stop();
+break;
+}
+}
+}

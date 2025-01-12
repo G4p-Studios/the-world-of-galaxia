@@ -1,0 +1,114 @@
+bool player_ban(string p_nm, string p_ip, string c_id) {
+check_banned();
+f.open("banned.svr", "rb");
+string []lines=string_split(f.read(), "\r\n", true);
+f.close();
+for(int i=0; i<lines.length(); i++) {
+string []line=string_split(lines[i], "=", true);
+if(line.length()>1) {
+if(line[0]=="ban_name" and line[1]==p_nm)
+return true;
+if(line[0]=="ip" and line[1]==p_ip)
+return true;
+if(line[0]=="id" and line[1]==c_id)
+return true;
+}
+}
+return false;
+}
+void check_banned() {
+calendar now_time;
+calendar unban_time;
+f.open("banned.svr", "rb");
+string []lines=string_split(f.read(), "\r\n", false);
+f.close();
+f.open("banned.svr", "wb");
+for(int i=0; i<lines.length(); i++) {
+string []line=string_split(lines[i], "=", true);
+if(line[0]=="ban_name") {
+bool overwrite=true;
+string data;
+for(int i2=i; i2<lines.length(); i2++) {
+string []line=string_split(lines[i2], " ", true);
+data+=lines[i2]+"\r\n";
+if(line[0]=="unban_time" and line.length()==7) {
+unban_time.set(string_to_number(line[1]), string_to_number(line[2]), string_to_number(line[3]), string_to_number(line[4]), string_to_number(line[5]), string_to_number(line[6]));
+overwrite=now_time<unban_time;
+}
+if(line[0]=="end")
+break;
+}
+if(overwrite)
+f.write(data);
+}
+}
+f.close();
+}
+string when_unban(string player_name) {
+f.open("banned.svr", "rb");
+string []lines=string_split(f.read(), "\r\n", true);
+f.close();
+calendar now_time;
+calendar unban_time;
+for(int i=0; i<lines.length(); i++) {
+string []line=string_split(lines[i], "=", true);
+if(line[0]=="ban_name" and line[1]==player_name) {
+for(int i2=i; i2<lines.length(); i2++) {
+string []line=string_split(lines[i2], " ", true);
+if(line[0]=="unban_time" and line.length()==7) {
+unban_time.set(string_to_number(line[1]), string_to_number(line[2]), string_to_number(line[3]), string_to_number(line[4]), string_to_number(line[5]), string_to_number(line[6]));
+int years=0;
+int days=0;
+int hours=0;
+int minutes=0;
+int seconds=now_time.diff_seconds(unban_time);
+if(seconds>59) {
+minutes=seconds/60;
+seconds=seconds-minutes*60;
+}
+if(minutes>59) {
+hours=minutes/60;
+minutes=minutes-hours*60;
+}
+if(hours>23) {
+days=hours/24;
+hours=hours-days*24;
+}
+if(days>364) {
+years=days/365;
+days=days-years*365;
+}
+string date;
+if(years>0)
+date+=years+" лет, ";
+if(days>0)
+date+=days+" дней, ";
+if(hours>0)
+date+=hours+" часов, ";
+if(minutes>0)
+date+=minutes+" минут";
+if(date=="")
+date+=seconds+" секунд.";
+else
+date+=" и "+seconds+" секунд.";
+return date;
+}
+}
+}
+}
+return "";
+}
+void add_ban(string name, string ip, string id, string date) {
+if(name=="")
+return;
+f.open("banned.svr", "ab");
+f.write("ban_name="+name+"\r\n");
+if(ip!="")
+f.write("ip="+ip+"\r\n");
+if(id!="")
+f.write("id="+id+"\r\n");
+if(date!="")
+f.write("unban_time "+date+"\r\n");
+f.write("end\r\n");
+f.close();
+}

@@ -1,0 +1,36 @@
+timepacket@[] timepackets(0);
+funcdef void tpcb(timepacket@ tin, string userdata);
+class timepacket
+{
+int id=0;
+string packet;
+int channel;
+int sndtime=3000;
+timer sndtimer;
+tpcb@ callback;
+string callback_data;
+timepacket(int tid,string tpacket,int tchan,int stime, tpcb@ tcb=null, string cbdata="")
+{
+id=tid;
+packet=tpacket;
+channel=tchan;
+sndtime=stime;
+@callback=tcb;
+callback_data=cbdata;
+}
+void loop(int i)
+{
+if (sndtimer.elapsed>=sndtime)
+{
+send_reliable(id,packet,channel);
+if(@callback!=null) callback(@timepackets[i],callback_data);
+timepackets.remove_at(i);
+return;
+}
+}
+}
+void spawn_timepacket(int id, string packet,int chan, int time, tpcb@ cb=null, string cbdat="")
+{
+timepacket tp1(id,packet,chan,time,cb,cbdat);
+timepackets.insert_last(tp1);
+}

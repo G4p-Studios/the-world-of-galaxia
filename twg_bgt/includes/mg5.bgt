@@ -1,0 +1,278 @@
+int dice1=0;
+int dice2=0;
+int dicescore;
+int position;
+int results;
+int wife=0;
+int jackpots;
+int pcs;
+int houses;
+sound dice, beep1, beep2, step;
+string[] mg5result(6);
+void mg5()
+{
+wait(350);
+add_buffer_item("entertainment_center", "Begin.");
+dice2=0;
+houses=0;
+pcs=0;
+totalcoins=0;
+position=0;
+dicescore=0;
+dice.load("diceroll.ogg");
+beep1.load("dicebeep1.ogg");
+beep2.load("dicebeep2.ogg");
+while (true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if (key_pressed(KEY_ESCAPE))
+{
+send_reliable(peer_id, "acoins "+totalcoins, 0);
+add_buffer_item("entertainment_center", "you earned a total of "+totalcoins+" coins in this game!");
+entertainment_centermenu();
+return;
+}
+if (key_pressed(KEY_M))
+{
+add_buffer_item("entertainment_center", "total coins: "+totalcoins);
+}
+if (key_pressed(KEY_S))
+{
+if (dicescore<=0)
+{
+add_buffer_item("entertainment_center", ""+dicescore+" points");
+}
+if (dicescore==1)
+{
+add_buffer_item("entertainment_center", ""+dicescore+" point");
+}
+if (dicescore>1)
+{
+add_buffer_item("entertainment_center", ""+dicescore+" points");
+}
+}
+if (key_pressed(KEY_P))
+{
+add_buffer_item("entertainment_center", "position: "+position);
+}
+if (key_pressed(KEY_I))
+{
+if (houses==0)
+{
+add_buffer_item("entertainment_center", "no houses");
+}
+if (houses==1)
+{
+add_buffer_item("entertainment_center", houses+" house");
+}
+if (houses>1)
+{
+add_buffer_item("entertainment_center", houses+" houses");
+}
+}
+if (key_pressed(KEY_C))
+{
+if (pcs==0)
+{
+add_buffer_item("entertainment_center", "no computers");
+}
+if (pcs==1)
+{
+add_buffer_item("entertainment_center", pcs+" computer");
+}
+if (pcs>1)
+{
+add_buffer_item("entertainment_center", pcs+" computers");
+}
+}
+if (key_pressed(KEY_SPACE))
+{
+dice.play_wait();
+dice1=random(1,6);
+dice2=random(1,6);
+add_buffer_item("entertainment_center", "dice are:");
+wait(300);
+beep1.play_wait();
+add_buffer_item("entertainment_center", ""+dice1);
+wait(300);
+beep2.play_wait();
+add_buffer_item("entertainment_center", ""+dice2);
+wait(300);
+position=position+dice1+dice2;
+checkresult();
+}
+if (totalcoins<=-100)
+{
+add_buffer_item("entertainment_center", "You've run out of money! Sorry...");
+wait(3000);
+send_reliable(peer_id, "acoins "+totalcoins, 0);
+add_buffer_item("entertainment_center", "you earned a total of "+totalcoins+" coins in this game!");
+entertainment_centermenu();
+return;
+}
+if (key_pressed(KEY_J))
+{
+if (jackpots==0)
+{
+add_buffer_item("entertainment_center", "no jackpots");
+}
+if (jackpots==1)
+{
+add_buffer_item("entertainment_center", jackpots+" jackpot");
+}
+if (jackpots>=1)
+{
+add_buffer_item("entertainment_center", jackpots+" jackpots");
+}
+}
+if (position>=250)
+{
+add_buffer_item("entertainment_center", "you've beaten dice with a dicescore of "+dicescore+" and "+totalcoins+" coins!");
+send_reliable(peer_id, "acoins "+totalcoins, 0);
+entertainment_centermenu();
+return;
+}
+}
+}
+void checkresult()
+{
+mg5result[0]="You have killed your friend out of frustration and lose 3 points, and pay a fine of 10 coins.";
+mg5result[1]="You go to a party and get drunk. Oooooops";
+mg5result[2]="you decide to buy a microphone.";
+mg5result[3]="you buy a house.";
+mg5result[4]="you buy a computer.";
+mg5result[5]="JACKPOT! You earn 50 coins and 5 points!";
+results=random(0, 5);
+if (results==0)
+{
+add_buffer_item("entertainment_center", mg5result[0]);
+totalcoins-=10;
+dicescore-=3;
+}
+if (results==1)
+{
+add_buffer_item("entertainment_center", mg5result[1]);
+totalcoins-=5;
+dicescore-=5;
+}
+if (results==2)
+{
+add_buffer_item("entertainment_center", mg5result[2]);
+totalcoins-=5;
+dicescore+=3;
+}
+if (results==3)
+{
+add_buffer_item("entertainment_center", mg5result[3]);
+houses+=1;
+totalcoins-=20;
+dicescore+=3;
+}
+if (results==4)
+{
+add_buffer_item("entertainment_center", mg5result[4]);
+totalcoins-=12;
+pcs+=1;
+dicescore+=2;
+}
+if (results==5)
+{
+add_buffer_item("entertainment_center", mg5result[5]);
+totalcoins+=50;
+dicescore+=5;
+jackpots+=1;
+}
+}

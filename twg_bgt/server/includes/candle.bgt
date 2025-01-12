@@ -1,0 +1,51 @@
+candle@[] candles(0);
+class candle
+{
+int x, y, z, on;
+mapdata@map;
+timer healtimer, uptimer, stimer;
+candle(int ax, int ay, int az, mapdata@m, int aon)
+{
+x=ax;
+y=ay;
+z=az;
+@map=m;
+on=aon;
+if(on==1) send_packet(6,"play minelight.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+}
+void loop(int i)
+{
+if(@map==null)
+{
+candles.remove_at(i);
+return;
+}
+if(on==1 and stimer.elapsed>=2234)
+{
+send_packet(6,"play mineloop.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+stimer.restart();
+}
+if(on==1 and uptimer.elapsed>=15000)
+{
+candles.remove_at(i);
+return;
+}
+}
+}
+void spawn_candle(int x, int y, int z, mapdata@m, int on)
+{
+candle a(x, y, z, m, on);
+if(@a.map==null) return;
+else candles.insert_last(a);
+}
+int get_candle_at(int x,int y,int z,mapdata@m)
+{
+for(uint i=0; i<candles.length(); i++)
+{
+if(candles[i].map.name==m.name and candles[i].x==x and candles[i].y==y and candles[i].z==z)
+{
+return i;
+}
+}
+return -1;
+}

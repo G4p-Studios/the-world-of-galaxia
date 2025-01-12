@@ -1,0 +1,20 @@
+mapname:paid_store
+minx:0
+maxx:10
+miny:0
+maxy:10
+minz:0
+maxz:10
+tile:0:10:0:10:0:0:0:100:wood7
+litem:1
+starting_point:0:10:0:10:0:0
+deathpoint:0:10:0:10:0:0
+safezone:0:10:0:10:0:10
+zone:0:10:0:10:0:10:paid_store
+src:0:10:0:10:0:10:0:100:vent4.ogg
+
+night:none.ogg
+zone:0:10:0:0:0:10:GO Back:trackme
+travelpoint:0:10:0:0:0:10:safezone:10:5:0: :silence.ogg:silence.ogg:silence.ogg
+
+owner:mad-gamer

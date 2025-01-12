@@ -1,0 +1,439 @@
+#include "sounds.bgt"
+void keys_and_sounds()
+{
+while(true)
+{
+wait(5);
+timesoundloop();
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_F2))
+{
+p.destroy_all();
+timesounds.resize(0);
+}
+int[] keypresses=keys_pressed();
+if(keypresses.length()>=1)
+{
+if(keypresses[0]==KEY_ESCAPE)
+{
+entertainment_centermenu();
+break;
+}
+if(keypresses[0]==KEY_F1)
+{
+add_keys();
+}
+if(keypresses[0]==KEY_F3)
+{
+dlg("Press enter to skip this message. Press f3 to repeate this message. Press f1 to go to the settings menu. Press f2 to pawse all sounds. If you set a key for a sound, pres the key to play its sound. And press scape to go back to the entertainment center");
+}
+else
+{
+int index=get_key_index(keypresses[0]);
+if(index>-1)
+{
+p.play_stationary(sounds[index],false,0,0,0,100);
+}
+}
+}
+}
+}
+int get_key(string text)
+{
+speak(text);
+while(true)
+{
+wait(5);
+timesoundloop();
+mainloop();
+int[] keys=keys_pressed();
+if(keys.length()>=1)
+return keys[0];
+}
+return -1;
+}
+void add_key(string sound, int key)
+{
+sounds.insert_last(sound);
+keys.insert_last(key);
+}
+void add_keys()
+{
+speak("choose an option");
+string[] option;
+option.insert_last("add a new sound");
+option.insert_last("sounds list");
+option.insert_last("go back");
+int index=-1;
+while(true)
+{
+wait(5);
+timesoundloop();
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_ESCAPE))
+{
+keys_and_sounds();
+break;
+}
+if(key_pressed(KEY_UP) and index>0)
+{
+index-=1;
+speak(option[index]);
+}
+if(key_pressed(KEY_DOWN) and index<option.length()-1)
+{
+index+=1;
+speak(option[index]);
+}
+if(key_pressed(KEY_RETURN) and index>-1 and index<option.length())
+{
+string a=option[index];
+if(a=="add a new sound")
+{
+string soundd=input_box("soundname","please enter the sound name with it's extention");
+if(soundd!="" and string_contains(soundd,".ogg",1)>-1 or soundd!="" and string_contains(soundd,".wav",1)>-1)
+{
+dlg("press enter to type the key for "+soundd);
+int key=get_key("input your key.");
+add_key(soundd,key);
+writeprefs();
+speak("done");
+}
+}
+if(a=="go back")
+{
+keys_and_sounds();
+break;
+}
+if(a=="sounds list")
+soundlist();
+}
+}
+}
+void soundlist()
+{
+speak("here are all of sounds you've added. Press up and down arrow to sea the sound names and keys, press enter to listen to your sound, press delete or backspace to remove the selected sound and press escape to close the list.");
+int index=-1;
+int a=-1;
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_ESCAPE))
+{
+keys_and_sounds();
+break;
+}
+if(key_pressed(KEY_UP) and index>-1 and index<sounds.length())
+{
+p.destroy_sound(a);
+index-=1;
+speak("sound: "+sounds[index]+", key: KEY"+keys[index]);
+}
+if(key_pressed(KEY_DOWN) and index>-1 and index<sounds.length())
+{
+p.destroy_sound(a);
+index+=1;
+speak("sound: "+sounds[index]+", key: KEY"+keys[index]);
+}
+if(key_pressed(KEY_RETURN) and index>-1 and index<sounds.length()-1)
+{
+a=p.play_stationary(sounds[index],false,0,0,0,100);
+}
+if(key_pressed(KEY_DELETE) or key_pressed(KEY_BACK))
+{
+if(index>-1 and index<sounds.length())
+{
+sounds.remove_at(index);
+keys.remove_at(index);
+if(index>=sounds.length()) index-=1;
+speak("removed");
+}
+}
+}
+speak("done");
+}
+int get_key_index(int id)
+{
+for(uint i=0; i<keys.length(); i++)
+{
+if(keys[i]==id) return i;
+}
+return -1;
+}

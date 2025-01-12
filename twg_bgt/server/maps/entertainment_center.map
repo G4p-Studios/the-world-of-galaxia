@@ -1,0 +1,22 @@
+mapname:entertainment_center
+minx:0
+maxx:30
+miny:0
+maxy:30
+minz:0
+maxz:10
+tile:0:30:0:30:0:0:0:100:concrete20
+litem:1
+starting_point:0:30:0:30:0:0
+deathpoint:0:30:0:30:0:0
+zone:0:30:0:30:0:10:entertainment_center
+src:0:30:0:30:0:10:0:100:calm.ogg
+travelpoint:1:30:0:0:0:0:main:150:235:0:welcome back:silence.ogg:silence.ogg:silence.ogg
+zone:1:30:0:0:0:10:go back entrance. Press shift enter to go back:trackme
+src:1:30:0:0:0:10:0:100:birds76.ogg
+rain:raininterior.ogg
+wind:none.ogg
+night:none.ogg
+item_usage_restriction:0:30:0:30:0:10:conex:partner_house:beehive:small_conex:locker:fridge:microwave:sky_racer:ford:sorento:dogan_slx:grayhound_bus:m60_tank:tank:truck:v4_by_4_jeep:dodge_charger:doom_buggy:ford_pickup_truck:mlk_mission_cruiser:muscle_car:generic_motorcycle:frog_motorcycle:ducati_street_fighter:onda_cbr_600:yamaha_r6:aprilia_v4:aprilia_rs660:ducati_diavel:yamaha_off_road:kawasaki_hipersport:kawasaki_adventure_tourer:ducati_scrumbler:bmw_off_road:motor_boat
+
+owner:mad-gamer

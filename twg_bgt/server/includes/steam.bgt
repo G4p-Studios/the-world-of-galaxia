@@ -1,0 +1,174 @@
+steam@[]steams(0);
+class steam
+{
+double x,y,z,health,on=0;
+string id, map, owner, hitby="nothing", mid;
+timer t;
+steam(int lx, int ly, int lz, string lmap, string lowner, int lhealth, int power,string lid="")
+{
+x=lx;
+y=ly;
+z=lz;
+map=lmap;
+owner=lowner;
+health=lhealth;
+on=power;
+id=lid;
+if(on==1) mid=spawn_moving_sound("slide.ogg",x,y,z,map);
+}
+void loop(int i)
+{
+if(health<=0)
+{
+destroy_moving_sound(mid);
+if(on==1) send_packet(6,"play slidestop.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_packet(6,"play base_fridge_dest.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacket(6,"distsound explode18 "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+file_delete("steams/"+id+".steam");
+send_reliable(0, "kills "+killmsg3(owner+"'s_steam", hitby, get_zone_at(x,y,z,maps[get_map_index(map)])), 0);
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int index=get_player_index_from(hb);
+if(index>-1)
+{
+givexp(players[index],random(100, 300)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+destroy_moving_sound(mid);
+steams.remove_at(i);
+return;
+}
+if(on==1 and t.elapsed>=25000)
+{
+t.restart();
+for (uint i=0; i<players.length(); i++)
+{
+if(players[i].map==map and get_3d_distance(players[i].x, players[i].y, players[i].z, x, y, z)<=50)
+{
+players[i].temperaturelevel=random(21,37);
+}
+}
+}
+}
+}
+void spawn_steam(int x, int y, int z, string map, string owner, int health, int power, string id)
+{
+steam ac(x,y,z,map,owner,health,power,id);
+steams.insert_last(ac);
+}
+int find_steam(string i)
+{
+for(uint l=0; l<steams.length(); l++)
+{
+if(steams[l].id==i)
+{
+return l;
+}
+}
+return -1;
+}
+int get_steam_at(int x,int y,int z,mapdata@m)
+{
+for(uint i=0; i<steams.length(); i++)
+{
+if(steams[i].map==m.name and steams[i].x==x and steams[i].y==y and steams[i].z==z)
+{
+return i;
+}
+}
+return -1;
+}
+int has_steam(string who)
+{
+for(uint i=0; i<steams.length(); i++)
+{
+if(steams[i].owner==who)
+{
+return i;
+}
+}
+return -1;
+}
+void savesteams()
+{
+file ffile;
+if(directory_exists("steams")==false)
+directory_create("steams");
+for(uint i=0; i<steams.length(); i++)
+{
+ffile.open("steams/"+steams[i].id+".steam","wb");
+ffile.write("id:"+steams[i].id+"\r\nx:"+steams[i].x+"\r\ny:"+steams[i].y+"\r\nz:"+steams[i].z+"\r\nmap:"+steams[i].map+"\r\nowner:"+steams[i].owner+"\r\nhealth:"+steams[i].health+"\r\npowerstate:"+steams[i].on);
+ffile.close();
+}
+}
+void load_steam(string n)
+{
+if(n=="") return;
+double x, y, z, health, on;
+string id, map, owner;
+if(string_contains(n,".",1)>-1)
+{
+return;
+}
+file f;
+f.open("steams/"+n+".steam","rb");
+string[] sdata=string_split(f.read(),"\r\n",false);
+f.close();
+for(uint i=0; i<sdata.length(); i++)
+{
+string[] parsed=string_split(sdata[i],":",false);
+if(parsed[0]=="id" and parsed.length>1)
+{
+id=parsed[1];
+}
+else if(parsed[0]=="x")
+{
+x=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="y")
+{
+y=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="z")
+{
+z=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="map")
+{
+map=parsed[1];
+}
+else if(parsed[0]=="owner")
+{
+owner=parsed[1];
+}
+else if(parsed[0]=="health")
+{
+health=string_to_number(parsed[1]);
+}
+else if(parsed[0]=="powerstate" and parsed.length()>1)
+{
+on=string_to_number(parsed[1]);
+}
+}
+steam ac(x,y,z,map,owner,health,on,id);
+ac.x=string_to_number(x);
+ac.y=string_to_number(y);
+ac.z=string_to_number(z);
+ac.map=map;
+ac.owner=owner;
+ac.health=health;
+ac.on=on;
+steams.insert_last(ac);
+}

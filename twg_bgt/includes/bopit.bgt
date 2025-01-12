@@ -1,0 +1,448 @@
+string[] commandslist(6);
+int rchoice;
+int autotime=500;
+int autopilot=0;
+string[] commands(6);
+int level=1;
+int maxscore=5;
+int tempscore;
+int mmusicpitch=100;
+string mode="beat";
+double sscore;
+int dietime=1000;
+int response;
+int clasiccommands=3;
+int extremecommands=5;
+int advancedcommands=6;
+int maxcommands=advancedcommands;
+string vo;
+sound com, bopitstart, res, mmusic;
+timer autotimer, dietimer;
+void bopitmain()
+{
+commandslist[0]="bop it";
+commandslist[1]="pull it";
+commandslist[2]="twist it";
+commandslist[3]="spin it";
+commandslist[4]="flick it";
+commandslist[5]="nail it";
+mmusic.load("lev1.ogg");
+if(question("press yes to play, or no to keyboard practice")==1)
+bopitgame();
+else
+bopitkeyboard_practice();
+}
+void bopitkeyboard_practice()
+{
+add_buffer_item("entertainment_center", "press h to see what to do here");
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if (key_pressed(KEY_DOWN))
+{
+response=1;
+p.play_stationary(""+response+"a.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw "+response+"a.ogg", 7);
+}
+if (key_pressed(KEY_LEFT))
+{
+response=2;
+p.play_stationary(""+response+"a.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw "+response+"a.ogg", 7);
+}
+if (key_pressed(KEY_RIGHT))
+{
+response=3;
+p.play_stationary(""+response+"a.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw "+response+"a.ogg", 7);
+}
+if (key_pressed(KEY_RETURN))
+{
+response=4;
+p.play_stationary(""+response+"a.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw "+response+"a.ogg", 7);
+}
+if (key_pressed(KEY_UP))
+{
+response=5;
+p.play_stationary(""+response+"a.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw "+response+"a.ogg", 7);
+}
+if (key_pressed(KEY_SPACE))
+{
+response=6;
+p.play_stationary(""+response+"a.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw "+response+"a.ogg", 7);
+}
+else if(key_pressed(KEY_H))
+{
+add_buffer_item("entertainment_center", "hit one of the arrow keys, space or enter to see what it's sound is. when done learning the sounds, hit escape to go back");
+}
+else if(key_pressed(KEY_ESCAPE))
+{
+entertainment_centermenu();
+break;
+}
+wait(5);
+}
+}
+void bopitgame()
+{
+dietimer.restart();
+select_command();
+while(true)
+{
+wait(5);
+mainloop();
+if (dietimer.elapsed>=dietime)
+{
+die();
+break;
+}
+if (tempscore>=maxscore)
+{
+levelup();
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if (key_pressed(KEY_ESCAPE))
+{
+bopitstopsounds();
+p.play_stationary("ui.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw ui.ogg", 7);
+add_buffer_item("entertainment_center", "you were on level "+level+" and you earned "+sscore+" coins.");
+send_reliable(peer_id, "acoins "+sscore, 0);
+reset();
+entertainment_centermenu();
+break;
+}
+check_response();
+wait(5);
+}
+}
+void select_command()
+{
+autotimer.restart();
+dietimer.restart();
+int command=random(1,maxcommands);
+if (mode=="beat")
+{
+p.play_stationary(""+command+"b.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw "+command+"b.ogg", 7);
+speak(commandslist[command-1]);
+}
+mmusic.stop();
+mmusic.pitch=mmusicpitch;
+mmusic.play();
+response=command;
+}
+void check_response()
+{
+if (autopilot==0)
+{
+if (key_pressed(KEY_DOWN) and dietimer.elapsed<dietime and maxcommands>=1)
+{
+if (response==1)
+{
+dietimer.restart();
+winresponse();
+}
+else
+{
+die();
+}
+}
+if (key_pressed(KEY_LEFT) and dietimer.elapsed<dietime and maxcommands>=2)
+{
+if (response==2)
+{
+dietimer.restart();
+winresponse();
+}
+else
+{
+die();
+}
+}
+if (key_pressed(KEY_RIGHT) and dietimer.elapsed<dietime and maxcommands>=3)
+{
+if (response==3)
+{
+dietimer.restart();
+winresponse();
+}
+else
+{
+die();
+}
+}
+if (key_pressed(KEY_RETURN) and dietimer.elapsed<dietime and maxcommands>=4)
+{
+if (response==4)
+{
+dietimer.restart();
+winresponse();
+}
+else
+{
+die();
+}
+}
+if (key_pressed(KEY_UP) and dietimer.elapsed<dietime and maxcommands>=5)
+{
+if (response==5)
+{
+dietimer.restart();
+winresponse();
+}
+else
+{
+die();
+}
+}
+if (key_pressed(KEY_SPACE) and dietimer.elapsed<dietime and maxcommands>=6)
+{
+if (response==6)
+{
+dietimer.restart();
+winresponse();
+}
+else
+{
+die();
+}
+}
+}
+}
+void die()
+{
+mmusic.stop();
+p.play_stationary("die_0"+random(1,2)+".ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw die_0"+random(1,2)+".ogg", 7);
+p.play_stationary("ui.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw ui.ogg", 7);
+add_buffer_item("entertainment_center", "you were on level "+level+" and you earned "+sscore+" coins.");
+send_reliable(peer_id, "acoins "+sscore, 0);
+reset();
+entertainment_centermenu();
+}
+void winresponse()
+{
+p.play_stationary(""+response+"a.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw "+response+"a.ogg", 7);
+tempscore+=1;
+sscore+=random(1,3);
+mmusic.stop();
+mmusic.pitch=mmusicpitch;
+mmusic.play_wait();
+select_command();
+if (autopilot==1)
+{
+autotimer.restart();
+}
+return;
+}
+void bopitstopsounds()
+{
+mmusic.stop();
+com.stop();
+}
+void reset()
+{
+autopilot=0;
+mmusicpitch=100;
+level=1;
+tempscore=0;
+sscore=0;
+}
+void levelup()
+{
+level+=1;
+mmusicpitch+=2;
+dietime-=30;
+tempscore=0;
+maxscore+=2;
+}

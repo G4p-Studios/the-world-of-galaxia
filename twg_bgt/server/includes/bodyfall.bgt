@@ -1,0 +1,44 @@
+bodyfall@[] bodyfalls(0);
+class bodyfall
+{
+int x, y, z, btime=3000, pitch=100, volume=0, pindex=-1;
+string map, fallsound;
+timer btimer;
+bodyfall(int bx, int by, int bz, string bmap, int bodytime=3000, string bfallsound="", int bpitch=100, int bvolume=0, int pbindex=-1)
+{
+x=bx;
+y=by;
+z=bz;
+map=bmap;
+btime=bodytime;
+fallsound=bfallsound;
+pitch=bpitch;
+volume=bvolume;
+if(pbindex>-1) pindex=pbindex;
+}
+void loop(int i)
+{
+if (btimer.elapsed>=btime)
+{
+if(fallsound!="")
+{
+if(fallsound=="gt") send_packet(6,"playpavap "+get_tile_at(x,y,z,maps[get_map_index(map)])+"fall.ogg "+x+" "+y+" "+z+" 0 "+volume+" "+pitch,x,y,z,maps[get_map_index(map)]);
+else send_packet(6,"playpavap "+fallsound+".ogg "+x+" "+y+" "+z+" 0 "+volume+" "+pitch,x,y,z,maps[get_map_index(map)]);
+}
+if(pindex>-1)
+{
+int px=pindex;
+if(px>-1)
+players[px].sitting=1;
+send_reliable(players[px],"sitstart",0);
+}
+bodyfalls.remove_at(i);
+return;
+}
+}
+}
+void spawn_bodyfall(int x, int y, int z, string map, int time=4000, string sound="", int pitch=100, int volume=0, int index=-1)
+{
+bodyfall b1(x,y,z,map,time,sound,pitch,volume,index);
+bodyfalls.insert_last(b1);
+}

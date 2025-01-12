@@ -1,0 +1,720 @@
+bool dmoving;
+door@[] doors(0);
+class door
+{
+string ds, ds2, ds3, ds4;
+int doorsound, doorsound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+door(int mindoorx, int maxdoorx, int mindoory, int maxdoory, int mindoorz, int maxdoorz,int doorfinishx, int doorfinishy, int doorfinishz, string doortext, int speed, string doorsnd, string doorsnd2, string doorsnd3, string doorsnd4)
+{
+ds=doorsnd;
+ds2=doorsnd2;
+ds3=doorsnd3;
+ds4=doorsnd4;
+mindx=mindoorx;
+maxdx=maxdoorx;
+mindy=mindoory;
+maxdy=maxdoory;
+mindz=mindoorz;
+maxdz=maxdoorz;
+finishx=doorfinishx;
+finishy=doorfinishy;
+finishz=doorfinishz;
+text=doortext;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) doorsound=p.play_3d(ds, me.x, me.y, me.z, mindoorx, mindoory, mindoorz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(doorsound, mindoorx, mindoory, mindoorz);
+p.update_sound_range_3d(doorsound, 0, maxdoorx-mindoorx, 0, maxdoory-mindoory, 0, maxdoorz-mindoorz);
+}
+void loop()
+{
+p.update_sound_3d(doorsound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(doorsound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+dmoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+}
+}
+void doorcheckloop()
+{
+for (uint i=0; i<doors.length(); i++)
+{
+doors[i].loop();
+}
+}
+void destroy_door(int d)
+{
+if(doors[d].moving==true)
+{
+me.x=random(doors[d].mindx,doors[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(doors[d].doorsound2);
+can_move=true;
+dmoving=false;
+doors[d].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(doors[d].doorsound);
+doors.remove_at(d);
+}
+void destroy_all_doors()
+{
+for(uint i=0; i<doors.length(); i++)
+{
+if(doors[i].moving==true)
+{
+me.x=random(doors[i].mindx,doors[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(doors[i].doorsound2);
+can_move=true;
+dmoving=false;
+doors[i].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(doors[i].doorsound);
+}
+doors.resize(0);
+}
+void spawn_door(int mindoorx, int maxdoorx, int mindoory, int maxdoory, int mindoorz, int maxdoorz,int finishx, int finishy, int finishz, string doortext, int speed, string doorsnd, string doorsnd2, string doorsnd3, string doorsnd4)
+{
+door door1(mindoorx, maxdoorx, mindoory, maxdoory, mindoorz, maxdoorz,finishx, finishy, finishz, doortext, speed, doorsnd, doorsnd2, doorsnd3, doorsnd4);
+doors.insert_last(door1);
+}
+pdoor@[] pdoors(0);
+class pdoor
+{
+string ds, ds2, ds3, ds4;
+int pdoorsound, pdoorsound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+string password;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+pdoor(int minpdoorx, int maxpdoorx, int minpdoory, int maxpdoory, int minpdoorz, int maxpdoorz,int pdoorfinishx, int pdoorfinishy, int pdoorfinishz, string pdoortext, string pdoorpassword, int speed, string pdoorsnd, string pdoorsnd2, string pdoorsnd3, string pdoorsnd4)
+{
+ds=pdoorsnd;
+ds2=pdoorsnd2;
+ds3=pdoorsnd3;
+ds4=pdoorsnd4;
+mindx=minpdoorx;
+maxdx=maxpdoorx;
+mindy=minpdoory;
+maxdy=maxpdoory;
+mindz=minpdoorz;
+maxdz=maxpdoorz;
+finishx=pdoorfinishx;
+finishy=pdoorfinishy;
+finishz=pdoorfinishz;
+text=pdoortext;
+password=pdoorpassword;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) pdoorsound=p.play_3d(ds, me.x, me.y, me.z, minpdoorx, minpdoory, minpdoorz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(pdoorsound, minpdoorx, minpdoory, minpdoorz);
+p.update_sound_range_3d(pdoorsound, 0, maxpdoorx-minpdoorx, 0, maxpdoory-minpdoory, 0, maxpdoorz-minpdoorz);
+}
+void loop()
+{
+p.update_sound_3d(pdoorsound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(pdoorsound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+dmoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+}
+}
+void pdoorcheckloop()
+{
+for (uint i=0; i<pdoors.length(); i++)
+{
+pdoors[i].loop();
+}
+}
+void destroy_pdoor(int d)
+{
+if(pdoors[d].moving==true)
+{
+me.x=random(pdoors[d].mindx,pdoors[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(pdoors[d].pdoorsound2);
+can_move=true;
+dmoving=false;
+pdoors[d].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(pdoors[d].pdoorsound);
+pdoors.remove_at(d);
+}
+void destroy_all_pdoors()
+{
+for(uint i=0; i<pdoors.length(); i++)
+{
+if(pdoors[i].moving==true)
+{
+me.x=random(pdoors[i].mindx,pdoors[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(pdoors[i].pdoorsound2);
+can_move=true;
+dmoving=false;
+pdoors[i].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(pdoors[i].pdoorsound);
+}
+pdoors.resize(0);
+}
+void spawn_pdoor(int minpdoorx, int maxpdoorx, int minpdoory, int maxpdoory, int minpdoorz, int maxpdoorz,int finishx, int finishy, int finishz, string pdoortext, string pdoorpassword, int speed, string pdoorsnd, string pdoorsnd2, string pdoorsnd3, string pdoorsnd4)
+{
+pdoor pdoor1(minpdoorx, maxpdoorx, minpdoory, maxpdoory, minpdoorz, maxpdoorz,finishx, finishy, finishz, pdoortext, pdoorpassword, speed, pdoorsnd, pdoorsnd2, pdoorsnd3, pdoorsnd4);
+pdoors.insert_last(pdoor1);
+}
+icdoor@[] icdoors(0);
+class icdoor
+{
+string ds, ds2, ds3, ds4;
+int icdoorsound, icdoorsound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+string item;
+double amount;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+icdoor(int minicdoorx, int maxicdoorx, int minicdoory, int maxicdoory, int minicdoorz, int maxicdoorz,int icdoorfinishx, int icdoorfinishy, int icdoorfinishz, string icdoortext, string icdooritem, int icdooramount, int speed, string icdoorsnd, string icdoorsnd2, string icdoorsnd3, string icdoorsnd4)
+{
+ds=icdoorsnd;
+ds2=icdoorsnd2;
+ds3=icdoorsnd3;
+ds4=icdoorsnd4;
+mindx=minicdoorx;
+maxdx=maxicdoorx;
+mindy=minicdoory;
+maxdy=maxicdoory;
+mindz=minicdoorz;
+maxdz=maxicdoorz;
+finishx=icdoorfinishx;
+finishy=icdoorfinishy;
+finishz=icdoorfinishz;
+text=icdoortext;
+item=icdooritem;
+amount=icdooramount;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) icdoorsound=p.play_3d(ds, me.x, me.y, me.z, minicdoorx, minicdoory, minicdoorz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(icdoorsound, minicdoorx, minicdoory, minicdoorz);
+p.update_sound_range_3d(icdoorsound, 0, maxicdoorx-minicdoorx, 0, maxicdoory-minicdoory, 0, maxicdoorz-minicdoorz);
+}
+void loop()
+{
+p.update_sound_3d(icdoorsound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(icdoorsound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+dmoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+}
+}
+void icdoorcheckloop()
+{
+for (uint i=0; i<icdoors.length(); i++)
+{
+icdoors[i].loop();
+}
+}
+void destroy_icdoor(int d)
+{
+if(icdoors[d].moving==true)
+{
+me.x=random(icdoors[d].mindx,icdoors[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(icdoors[d].icdoorsound2);
+can_move=true;
+dmoving=false;
+icdoors[d].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(icdoors[d].icdoorsound);
+icdoors.remove_at(d);
+}
+void destroy_all_icdoors()
+{
+for(uint i=0; i<icdoors.length(); i++)
+{
+if(icdoors[i].moving==true)
+{
+me.x=random(icdoors[i].mindx,icdoors[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(icdoors[i].icdoorsound2);
+can_move=true;
+dmoving=false;
+icdoors[i].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(icdoors[i].icdoorsound);
+}
+icdoors.resize(0);
+}
+void spawn_icdoor(int minicdoorx, int maxicdoorx, int minicdoory, int maxicdoory, int minicdoorz, int maxicdoorz,int finishx, int finishy, int finishz, string icdoortext, string icdooritem, int icdooramount, int speed, string icdoorsnd, string icdoorsnd2, string icdoorsnd3, string icdoorsnd4)
+{
+icdoor icdoor1(minicdoorx, maxicdoorx, minicdoory, maxicdoory, minicdoorz, maxicdoorz,finishx, finishy, finishz, icdoortext, icdooritem, icdooramount, speed, icdoorsnd, icdoorsnd2, icdoorsnd3, icdoorsnd4);
+icdoors.insert_last(icdoor1);
+}
+itdoor@[] itdoors(0);
+class itdoor
+{
+string ds, ds2, ds3, ds4;
+int itdoorsound, itdoorsound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+string item;
+double amount;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+itdoor(int minitdoorx, int maxitdoorx, int minitdoory, int maxitdoory, int minitdoorz, int maxitdoorz,int itdoorfinishx, int itdoorfinishy, int itdoorfinishz, string itdoortext, string itdooritem, int itdooramount, int speed, string itdoorsnd, string itdoorsnd2, string itdoorsnd3, string itdoorsnd4)
+{
+ds=itdoorsnd;
+ds2=itdoorsnd2;
+ds3=itdoorsnd3;
+ds4=itdoorsnd4;
+mindx=minitdoorx;
+maxdx=maxitdoorx;
+mindy=minitdoory;
+maxdy=maxitdoory;
+mindz=minitdoorz;
+maxdz=maxitdoorz;
+finishx=itdoorfinishx;
+finishy=itdoorfinishy;
+finishz=itdoorfinishz;
+text=itdoortext;
+item=itdooritem;
+amount=itdooramount;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) itdoorsound=p.play_3d(ds, me.x, me.y, me.z, minitdoorx, minitdoory, minitdoorz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(itdoorsound, minitdoorx, minitdoory, minitdoorz);
+p.update_sound_range_3d(itdoorsound, 0, maxitdoorx-minitdoorx, 0, maxitdoory-minitdoory, 0, maxitdoorz-minitdoorz);
+}
+void loop()
+{
+p.update_sound_3d(itdoorsound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(itdoorsound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+dmoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+}
+}
+void itdoorcheckloop()
+{
+for (uint i=0; i<itdoors.length(); i++)
+{
+itdoors[i].loop();
+}
+}
+void destroy_itdoor(int d)
+{
+if(itdoors[d].moving==true)
+{
+me.x=random(itdoors[d].mindx,itdoors[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(itdoors[d].itdoorsound2);
+can_move=true;
+dmoving=false;
+itdoors[d].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(itdoors[d].itdoorsound);
+itdoors.remove_at(d);
+}
+void destroy_all_itdoors()
+{
+for(uint i=0; i<itdoors.length(); i++)
+{
+if(itdoors[i].moving==true)
+{
+me.x=random(itdoors[i].mindx,itdoors[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(itdoors[i].itdoorsound2);
+can_move=true;
+dmoving=false;
+itdoors[i].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(itdoors[i].itdoorsound);
+}
+itdoors.resize(0);
+}
+void spawn_itdoor(int minitdoorx, int maxitdoorx, int minitdoory, int maxitdoory, int minitdoorz, int maxitdoorz,int finishx, int finishy, int finishz, string itdoortext, string itdooritem, int itdooramount, int speed, string itdoorsnd, string itdoorsnd2, string itdoorsnd3, string itdoorsnd4)
+{
+itdoor itdoor1(minitdoorx, maxitdoorx, minitdoory, maxitdoory, minitdoorz, maxitdoorz,finishx, finishy, finishz, itdoortext, itdooritem, itdooramount, speed, itdoorsnd, itdoorsnd2, itdoorsnd3, itdoorsnd4);
+itdoors.insert_last(itdoor1);
+}
+igdoor@[] igdoors(0);
+class igdoor
+{
+string ds, ds2, ds3, ds4;
+int igdoorsound, igdoorsound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+string item;
+double amount;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+igdoor(int minigdoorx, int maxigdoorx, int minigdoory, int maxigdoory, int minigdoorz, int maxigdoorz,int igdoorfinishx, int igdoorfinishy, int igdoorfinishz, string igdoortext, string igdooritem, int igdooramount, int speed, string igdoorsnd, string igdoorsnd2, string igdoorsnd3, string igdoorsnd4)
+{
+ds=igdoorsnd;
+ds2=igdoorsnd2;
+ds3=igdoorsnd3;
+ds4=igdoorsnd4;
+mindx=minigdoorx;
+maxdx=maxigdoorx;
+mindy=minigdoory;
+maxdy=maxigdoory;
+mindz=minigdoorz;
+maxdz=maxigdoorz;
+finishx=igdoorfinishx;
+finishy=igdoorfinishy;
+finishz=igdoorfinishz;
+text=igdoortext;
+item=igdooritem;
+amount=igdooramount;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) igdoorsound=p.play_3d(ds, me.x, me.y, me.z, minigdoorx, minigdoory, minigdoorz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(igdoorsound, minigdoorx, minigdoory, minigdoorz);
+p.update_sound_range_3d(igdoorsound, 0, maxigdoorx-minigdoorx, 0, maxigdoory-minigdoory, 0, maxigdoorz-minigdoorz);
+}
+void loop()
+{
+p.update_sound_3d(igdoorsound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(igdoorsound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+dmoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+}
+}
+void igdoorcheckloop()
+{
+for (uint i=0; i<igdoors.length(); i++)
+{
+igdoors[i].loop();
+}
+}
+void destroy_igdoor(int d)
+{
+if(igdoors[d].moving==true)
+{
+me.x=random(igdoors[d].mindx,igdoors[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(igdoors[d].igdoorsound2);
+can_move=true;
+dmoving=false;
+igdoors[d].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(igdoors[d].igdoorsound);
+igdoors.remove_at(d);
+}
+void destroy_all_igdoors()
+{
+for(uint i=0; i<igdoors.length(); i++)
+{
+if(igdoors[i].moving==true)
+{
+me.x=random(igdoors[i].mindx,igdoors[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(igdoors[i].igdoorsound2);
+can_move=true;
+dmoving=false;
+igdoors[i].moving=false;
+send_reliable(peer_id,"iamnotdmoving",0);
+}
+p.destroy_sound(igdoors[i].igdoorsound);
+}
+igdoors.resize(0);
+}
+void spawn_igdoor(int minigdoorx, int maxigdoorx, int minigdoory, int maxigdoory, int minigdoorz, int maxigdoorz,int finishx, int finishy, int finishz, string igdoortext, string igdooritem, int igdooramount, int speed, string igdoorsnd, string igdoorsnd2, string igdoorsnd3, string igdoorsnd4)
+{
+igdoor igdoor1(minigdoorx, maxigdoorx, minigdoory, maxigdoory, minigdoorz, maxigdoorz,finishx, finishy, finishz, igdoortext, igdooritem, igdooramount, speed, igdoorsnd, igdoorsnd2, igdoorsnd3, igdoorsnd4);
+igdoors.insert_last(igdoor1);
+}

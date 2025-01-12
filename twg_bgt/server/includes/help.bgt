@@ -1,0 +1,45 @@
+string adminrules="Daily life admin rules document created on January 03, 2020, last modified on January 03, 2020 by Mahdi Abedi(owner of mahdi productions)
+The non  application of these rules,  will result in demotion  of your  admin rank.
+1.  If you ban a player,  you should immediately give report to the developer, with  the specified reason.
+2.   Don't give   items to the players,  and if you want to give to   yourself it should apply  low  quality.
+3. Don't move  other players (unless if  it is   strictly necessary, like if a player is stuck).
+4. Don't move yourself to kill players and desroy stuff.
+5: you shouldn't build admin abilities in player maps without developer permition.
+6. You shouldn't  touch private maps or build maps  of other people, without their permition.
+7. You shouldn't delete any map without developers permition.
+8.  Do not use /safe when you are fighting. This could have bad consequences.
+9: you shouldn't auction paid items unless you bought it yourself.
+10: you shouldn't change or set data of the server or a specified player unless if  it is   strictly necessary
+";
+string banguide="
+Here is how the ban system works.
+The ban system now relies on the slash commands again, namely /ban, /banned, and /unban.
+however it uses computer_ids and playernames & ips.
+Commands and help on them will be given below.
+/ban CharName
+bans playername's computer from the server. You must only type a CharName, However behind the scenes it is using product ids.
+/ban mahdi
+/banned
+returns a list of all banned users, by the playername they were banned with.
+/unban playername
+you must type a playername that will unban their computer, again the product ids are used!.
+/unban mahdi
+-----
+";
+string eventhelp="
+Type /newevent <eventname> to create a new event. This should send back an ID with the event ID. This ID will contain only numbers and should only be 4 digets. From there, you need to set everything up through the /eventset command.
+Setting up the event will be kind of easy, but it can be a process. Type /eventset <id> <setting=val> to set the event.
+Event values are as follows: 
+*Map: a string defining where the user will be moved when joining the event. the default value is main.
+*description: a string defining the description the user will see when requesting information about the event.
+*can_keep_inventory: an int defining if the user is allowed to keep their inventory after and when joining the event. If the inventory value is set to 0, the user's inventory will be removed when joining the event and will be backed up. Once the user leaves or the event ends, he will then have his or her inventory back to normal. If the can_keep_inventory int is 1, he will be able to join with his or her inventory and when they leave, will leave with that same inventory. There will be other things as well, such as the ability to collect items.
+*can_leave: an int defining if the user is allowed to type /leaveevent at any time. If this command is sent, the user will leave the event.
+*Joinx,joiny, and joinz, ints defining the coordinates the player will be moved to when joining. They are set to 0, 0, 0 by default.
+After setting all the params you wish to fill out, you can type /eventinfo <id> to check everything in the event. and make sure everything checks out like you wish. If everything is ready, you can type /launchevent <id> and launch the event! Note: when an event is launched and started the event settings will not be editable anymore. So make sure that you launch the event when you're absolutely sure everything is set to go!
+If you wish to end an event, you can type /endevent <id>, and the event will end.
+";
+string lcmrules="lcm rules
+The non  application of these rules,  will result in demotion  of your  rank.
+1: each language channel manager should only focus on he/shis channel not others, or he's rank will be taken by an admin and we will do an action
+2: each language channel manager only should translate the english MOTD, and if he'd like to set one, should tell to the admins and do it with there permition
+";

@@ -1,0 +1,45 @@
+compid_handler@[]comphandles(0);
+class compid_handler
+{
+string compid;
+string playername;
+compid_handler(string cid,string pn)
+{
+compid=cid;
+playername=pn;
+}
+}
+void add_compid(string compid,string name)
+{
+compid_handler ch1(compid,name);
+comphandles.insert_last(ch1);
+}
+bool compid_handlercheck(string c)
+{
+for(uint i=0; i<comphandles.length(); i++)
+{
+if(comphandles[i].compid==c)
+return true;
+}
+return false;
+}
+int get_compid_handler_index(string c)
+{
+for(uint i=0; i<comphandles.length(); i++)
+{
+if(comphandles[i].compid==c) {
+return i;
+}
+}
+return -1;
+}
+void load_compids()
+{
+string[] chars=find_directories("chars/*");
+for(uint i=0; i<chars.length(); i++)
+{
+if(file_exists("chars/"+chars[i]+"/compid.usr")==false) continue;
+string compid=file_get_contents("chars/"+chars[i]+"/compid.usr");
+add_compid(compid,chars[i]);
+}
+}

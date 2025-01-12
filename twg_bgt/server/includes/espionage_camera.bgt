@@ -1,0 +1,698 @@
+espionage_camera@[] espionage_cameras(0);
+class espionage_camera
+{
+int x, y, z, facing;
+mapdata@map;
+player@owner;
+string id;
+espionage_camera(int sx, int sy, int sz, mapdata@m, player@p, int sfacing, string lid="")
+{
+x=sx;
+y=sy;
+z=sz;
+@map=m;
+@owner=p;
+facing=sfacing;
+id=lid;
+}
+void look()
+{
+string s;
+for (uint i=0; i<houses.length(); i++)
+{
+if (houses[i].map==map.name and houses[i].x<x+20 and houses[i].x>x-20 and houses[i].y<y+20 and houses[i].y>y-20 and get_1d_distance(z,houses[i].z)<=20)
+{
+int level=1;
+if(houses[i].z>z)
+{
+level=2;
+}
+else if(houses[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+=""+houses[i].owner+"'s house with "+houses[i].health+" health and "+houses[i].security_boosts+" added security is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, houses[i].x, houses[i].y, facing))+", "+distancecheck(houses[i].x,houses[i].y,houses[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<espionage_cameras.length(); i++)
+{
+if (espionage_cameras[i].id!=id and espionage_cameras[i].map.name==map.name and espionage_cameras[i].x<x+20 and espionage_cameras[i].x>x-20 and espionage_cameras[i].y<y+20 and espionage_cameras[i].y>y-20 and get_1d_distance(z,espionage_cameras[i].z)<=20)
+{
+int level=1;
+if(espionage_cameras[i].z>z)
+{
+level=2;
+}
+else if(espionage_cameras[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+=""+espionage_cameras[i].owner.name+"'s spy camera "+espionage_cameras[i].id+" is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, espionage_cameras[i].x, espionage_cameras[i].y, facing))+", "+distancecheck(espionage_cameras[i].x,espionage_cameras[i].y,espionage_cameras[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<robots.length(); i++)
+{
+if (robots[i].map.name==map.name and robots[i].x<x+20 and robots[i].x>x-20 and robots[i].y<y+20 and robots[i].y>y-20 and get_1d_distance(z,robots[i].z)<=20)
+{
+int level=1;
+if(robots[i].z>z)
+{
+level=2;
+}
+else if(robots[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+=""+robots[i].owner.name+"'s robot with "+robots[i].health+" health is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, robots[i].x, robots[i].y, facing))+", "+distancecheck(robots[i].x,robots[i].y,robots[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<lockers.length(); i++)
+{
+if (lockers[i].map==map.name and lockers[i].x<x+20 and lockers[i].x>x-20 and lockers[i].y<y+20 and lockers[i].y>y-20 and get_1d_distance(z,lockers[i].z)<=20)
+{
+int level=1;
+if(lockers[i].z>z)
+{
+level=2;
+}
+else if(lockers[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+=""+lockers[i].owner+"'s locker with "+lockers[i].health+" health and "+lockers[i].security_boosts+" added security is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, lockers[i].x, lockers[i].y, facing))+", "+distancecheck(lockers[i].x,lockers[i].y,lockers[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<fridges.length(); i++)
+{
+if (fridges[i].map==map.name and fridges[i].x<x+20 and fridges[i].x>x-20 and fridges[i].y<y+20 and fridges[i].y>y-20 and get_1d_distance(z,fridges[i].z)<=20)
+{
+int level=1;
+if(fridges[i].z>z)
+{
+level=2;
+}
+else if(fridges[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+=""+fridges[i].owner+"'s fridge with "+fridges[i].health+" health is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, fridges[i].x, fridges[i].y, facing))+", "+distancecheck(fridges[i].x,fridges[i].y,fridges[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<beehives.length(); i++)
+{
+if (beehives[i].map==map.name and beehives[i].x<x+20 and beehives[i].x>x-20 and beehives[i].y<y+20 and beehives[i].y>y-20 and get_1d_distance(z,beehives[i].z)<=20)
+{
+int level=1;
+if(beehives[i].z>z)
+{
+level=2;
+}
+else if(beehives[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+=""+beehives[i].owner+"'s beehive with "+beehives[i].health+" health is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, beehives[i].x, beehives[i].y, facing))+", "+distancecheck(beehives[i].x,beehives[i].y,beehives[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<playerstores.length(); i++)
+{
+if (playerstores[i].map==map.name and playerstores[i].x<x+20 and playerstores[i].x>x-20 and playerstores[i].y<y+20 and playerstores[i].y>y-20 and get_1d_distance(z,playerstores[i].z)<=20)
+{
+int level=1;
+if(playerstores[i].z>z)
+{
+level=2;
+}
+else if(playerstores[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+=""+playerstores[i].owner+"'s "+playerstores[i].name+" with "+playerstores[i].health+" health is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, playerstores[i].x, playerstores[i].y, facing))+", "+distancecheck(playerstores[i].x,playerstores[i].y,playerstores[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<toilets.length(); i++)
+{
+if (toilets[i].map==map.name and toilets[i].minx<x+20 and toilets[i].maxx>x-20 and toilets[i].miny<y+20 and toilets[i].maxy>y-20 and get_1d_distance(z,toilets[i].minz)<=20)
+{
+int level=1;
+if(toilets[i].minz>z)
+{
+level=2;
+}
+else if(toilets[i].maxz<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+="toilet is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, toilets[i].minx, toilets[i].miny, facing))+", "+distancecheck(toilets[i].minx,toilets[i].miny,toilets[i].minz)+" feet away. ";
+}
+}
+for (uint i=0; i<trashcans.length(); i++)
+{
+if (trashcans[i].map==map.name and trashcans[i].minx<x+20 and trashcans[i].maxx>x-20 and trashcans[i].miny<y+20 and trashcans[i].maxy>y-20 and get_1d_distance(z,trashcans[i].minz)<=20)
+{
+int level=1;
+if(trashcans[i].minz>z)
+{
+level=2;
+}
+else if(trashcans[i].maxz<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+="trashcan is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, trashcans[i].minx, trashcans[i].miny, facing))+", "+distancecheck(trashcans[i].minx,trashcans[i].miny,trashcans[i].minz)+" feet away. ";
+}
+}
+for (uint i=0; i<washbasins.length(); i++)
+{
+if (washbasins[i].map==map.name and washbasins[i].minx<x+20 and washbasins[i].maxx>x-20 and washbasins[i].miny<y+20 and washbasins[i].maxy>y-20 and get_1d_distance(z,washbasins[i].minz)<=20)
+{
+int level=1;
+if(washbasins[i].minz>z)
+{
+level=2;
+}
+else if(washbasins[i].maxz<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+="washbasin is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, washbasins[i].minx, washbasins[i].miny, facing))+", "+distancecheck(washbasins[i].minx,washbasins[i].miny,washbasins[i].minz)+" feet away. ";
+}
+}
+for (uint i=0; i<showers.length(); i++)
+{
+if (showers[i].map==map.name and showers[i].minx<x+20 and showers[i].maxx>x-20 and showers[i].miny<y+20 and showers[i].maxy>y-20 and get_1d_distance(z,showers[i].minz)<=20)
+{
+int level=1;
+if(showers[i].minz>z)
+{
+level=2;
+}
+else if(showers[i].maxz<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+="shower is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, showers[i].minx, showers[i].miny, facing))+", "+distancecheck(showers[i].minx,showers[i].miny,showers[i].minz)+" feet away. ";
+}
+}
+for (uint i=0; i<fire_starters.length(); i++)
+{
+if (fire_starters[i].map.name==map.name and fire_starters[i].x<x+20 and fire_starters[i].x>x-20 and fire_starters[i].y<y+20 and fire_starters[i].y>y-20 and get_1d_distance(z,fire_starters[i].z)<=20)
+{
+int level=1;
+if(fire_starters[i].z>z)
+{
+level=2;
+}
+else if(fire_starters[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+="fire with "+fire_starters[i].health+" health is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, fire_starters[i].x, fire_starters[i].y, facing))+", "+distancecheck(fire_starters[i].x,fire_starters[i].y,fire_starters[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<auto_healers.length(); i++)
+{
+if (auto_healers[i].map.name==map.name and auto_healers[i].x<x+20 and auto_healers[i].x>x-20 and auto_healers[i].y<y+20 and auto_healers[i].y>y-20 and get_1d_distance(z,auto_healers[i].z)<=20)
+{
+int level=1;
+if(auto_healers[i].z>z)
+{
+level=2;
+}
+else if(auto_healers[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+="auto healer is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, auto_healers[i].x, auto_healers[i].y, facing))+", "+distancecheck(auto_healers[i].x,auto_healers[i].y,auto_healers[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<candles.length(); i++)
+{
+if (candles[i].map.name==map.name and candles[i].x<x+20 and candles[i].x>x-20 and candles[i].y<y+20 and candles[i].y>y-20 and get_1d_distance(z,candles[i].z)<=20)
+{
+int level=1;
+if(candles[i].z>z)
+{
+level=2;
+}
+else if(candles[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+="candle is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, candles[i].x, candles[i].y, facing))+", "+distancecheck(candles[i].x,candles[i].y,candles[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<microwaves.length(); i++)
+{
+if (microwaves[i].map==map.name and microwaves[i].x<x+20 and microwaves[i].x>x-20 and microwaves[i].y<y+20 and microwaves[i].y>y-20 and get_1d_distance(z,microwaves[i].z)<=20)
+{
+int level=1;
+if(microwaves[i].z>z)
+{
+level=2;
+}
+else if(microwaves[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+=""+microwaves[i].owner+"'s ";
+if(microwaves[i].on==1) s+="activated ";
+s+="microwave ";
+if(microwaves[i].foodtype!="" and microwaves[i].readytotake==1) s+="containing cooked containing "+microwaves[i].foodtype+" ";
+else if(microwaves[i].foodtype!="" and microwaves[i].readytotake==0) s+="containing "+microwaves[i].foodtype+" ";
+s+="with "+microwaves[i].health+" health and "+microwaves[i].battery+" battery remaining is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, microwaves[i].x, microwaves[i].y, facing))+", "+distancecheck(microwaves[i].x,microwaves[i].y,microwaves[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<turrets.length(); i++)
+{
+if (turrets[i].map.name==map.name and turrets[i].x<x+20 and turrets[i].x>x-20 and turrets[i].y<y+20 and turrets[i].y>y-20 and get_1d_distance(z,turrets[i].z)<=20)
+{
+int level=1;
+if(turrets[i].z>z)
+{
+level=2;
+}
+else if(turrets[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+="turret of "+turrets[i].owner.name+" with "+turrets[i].health+" health is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, turrets[i].x, turrets[i].y, facing))+", "+distancecheck(turrets[i].x,turrets[i].y,turrets[i].z)+" feet away. ";
+}
+}
+for (uint i=0; i<vending_machines.length(); i++)
+{
+if (vending_machines[i].map==map.name and vending_machines[i].x<x+20 and vending_machines[i].x>x-20 and vending_machines[i].y<y+20 and vending_machines[i].y>y-20 and get_1d_distance(vending_machines[i].z,z)<=20)
+{
+int level=1;
+if(vending_machines[i].z>z)
+{
+level=2;
+}
+else if(vending_machines[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+s+="a ";
+s+="vending machine selling food and drinks is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, vending_machines[i].x, vending_machines[i].y, facing))+", "+distancecheck(vending_machines[i].x,vending_machines[i].y,vending_machines[i].z)+" feet away. ";
+}
+}
+for(uint i=0; i<vs.length(); i++)
+{
+if(vs[i].map==map.name and vs[i].owner!=owner.name and get_3d_distance(x,y,z,vs[i].x,vs[i].y,vs[i].z)<=30)
+{
+int level=1;
+if(vs[i].z>z) level=2;
+if(vs[i].z<z) level=0;
+if(vs[i].type=="v4_by_4_jeep") s+=cn2n(vs[i].owner)+"'s 4_by_4_jeep is ";
+else s+=cn2n(vs[i].owner)+"'s "+vs[i].type+" is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, vs[i].x, vs[i].y, facing))+", "+get_3d_distance(x, y, z, vs[i].x, vs[i].y, vs[i].z)+" feet away. ";
+}
+}
+for(uint i=0; i<mos.length(); i++)
+{
+if(mos[i].map==map.name and mos[i].owner!=owner.name and get_3d_distance(x,y,z,mos[i].x,mos[i].y,mos[i].z)<=30)
+{
+int level=1;
+if(mos[i].z>z) level=2;
+if(mos[i].z<z) level=0;
+s+=cn2n(mos[i].owner)+"'s "+mos[i].type+" is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, mos[i].x, mos[i].y, facing))+", "+get_3d_distance(x, y, z, mos[i].x, mos[i].y, mos[i].z)+" feet away. ";
+}
+}
+for (uint r=0; r<ais.length(); r++)
+{
+if (ais[r].map.name==map.name and ais[r].x<x+40 and ais[r].x>x-40 and ais[r].y<y+40 and ais[r].y>y-40 and get_1d_distance(ais[r].z,z)<=40)
+{
+int level=1;
+if(ais[r].z>z)
+{
+level=2;
+}
+else if(ais[r].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+if(ais[r].mad==true) s+="a mad ";
+if(ais[r].protected==true) s+="protected ";
+s+=ais[r].name+" with "+ais[r].health+" health is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, ais[r].x, ais[r].y, facing))+", "+distancecheck(ais[r].x,ais[r].y,ais[r].z)+" feet away. ";
+}
+}
+for (uint i=0; i<players.length(); i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true||players[i].amoving==true||players[i].dmoving==true) continue;
+if (players[i].map==map.name and players[i].name!=owner.name and players[i].x<x+30 and players[i].x>x-30 and players[i].y<y+30 and players[i].y>y-30 and get_1d_distance(z,players[i].z)<=30 and players[i].looking!=owner.name and players[i].looker!=owner.name and owner.looking!=players[i].name and owner.looker!=players[i].name)
+{
+int level=1;
+if(players[i].z>z)
+{
+level=2;
+}
+else if(players[i].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+if(players[i].shielded==1 or players[i].steel_shielded==1) s+="shielded ";
+if(players[i].bullet_proof_vested==1 or players[i].armored==1 or players[i].large_armor_plated==1) s+="armored ";
+if(players[i].sitting==1) s+="sitting ";
+else if(players[i].sleeping==true) s+="sleeping ";
+else if(players[i].sitting==1 and players[i].sleeping==true) s+="sleeping ";
+if(players[i].inv.exists("safe_card")) s+="supernatural ";
+if(players[i].title!="") s+=players[i].title+" ";
+if(players[i].teamname!="") s+=players[i].teamname+" ";
+if(players[i].awaytitle!="") s+=players[i].awaytitle+" ";
+if(players[i].prisontitle!="") s+=players[i].prisontitle+" ";
+if(players[i].newbtitle!="") s+=players[i].newbtitle+" ";
+if(players[i].afktitle!="") s+=players[i].afktitle+" ";
+if(players[i].pvptitle!="") s+=players[i].pvptitle+" ";
+if(players[i].jobtitle!="") s+=players[i].jobtitle+" ";
+s+=players[i].ptitle+" "+players[i].nickname+" is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, players[i].x, players[i].y, facing))+", "+get_3d_distance(x, y, z, players[i].x, players[i].y, players[i].z)+" feet away. ";
+}
+}
+for (uint r=0; r<ais.length(); r++)
+{
+if (ais[r].map.name==map.name and ais[r].x<x+40 and ais[r].x>x-40 and ais[r].y<y+40 and ais[r].y>y-40 and get_1d_distance(ais[r].z,z)<=40)
+{
+int level=1;
+if(ais[r].z>z)
+{
+level=2;
+}
+else if(ais[r].z<z)
+{
+level=0;
+}
+else
+{
+level=1;
+}
+if(ais[r].mad==true) s+="a mad ";
+s+=ais[r].name+" with "+ais[r].health+" health is ";
+if(level==2)
+{
+s+="above, ";
+}
+else if(level==0)
+{
+s+="below, ";
+}
+s+=calculate_x_y_string(calculate_x_y_angle(x, y, ais[r].x, ais[r].y, facing))+", "+distancecheck(ais[r].x,ais[r].y,ais[r].z)+" feet away. ";
+}
+}
+if(s=="")
+s="There is nothing around";
+send_packet(6,"play base_scan.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+int index=get_player_index_from(owner.name);
+if(index>-1)
+{
+send_packet(6,"play basescan.ogg "+players[index].x+" "+players[index].y+" "+players[index].z, players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)]);
+}
+send_reliable(owner,s,2);
+}
+int distancecheck(double xx,double yy,double zz)
+{
+return get_3d_distance(x,y,z,xx,yy,zz);
+}
+}
+void spawn_espionage_camera(int x, int y, int z, mapdata@m, player@p, int facing, string id)
+{
+espionage_camera s(x, y, z, m, p, facing, id);
+espionage_cameras.insert_last(s);
+}
+void remove_espionage_camera(int index)
+{
+if(index>-1)
+{
+@espionage_cameras[index]=null;
+espionage_cameras.remove_at(index);
+}
+}
+void remove_all_espionage_cameras()
+{
+for(uint i=0; i<espionage_cameras.length(); i++)
+{
+remove_espionage_camera(i);
+}
+}

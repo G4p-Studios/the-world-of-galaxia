@@ -1,0 +1,131 @@
+vvehicle@[] vvehicles(0);
+class vvehicle
+{
+double x, y, z, health, fuel=100;
+string id, type, owner, map, hitby="nothing";
+savedata tempsd("");
+vvehicle(int vx, int vy, int vz, string vmap, string vowner, string vtype, int vhealth, string vid="")
+{
+x=vx;
+y=vy;
+z=vz;
+map=vmap;
+owner=vowner;
+type=vtype;
+health=vhealth;
+id=vid;
+tempsd.fn="vehicles/"+id+".vehicle";
+tempsd.key="dl_vehicle";
+}
+void loop(int i)
+{
+if(health<=0)
+{
+file_delete("vehicles/"+id+".vehicle");
+send_packet(6,"play "+type+"_die.ogg "+x+", "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_reliable(0,"kills "+killmsg3(owner+"'s "+type,hitby,get_zone_at(x,y,z,maps[get_map_index(map)])),0);
+int index=get_player_index_from(hitby);
+if(index>-1)
+{
+givexp(players[index],random(100, 300)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+vvehicles.remove_at(i);
+return;
+}
+}
+void hit(int damage,string hb,string type="")
+{
+this.health-=damage;
+this.hitby=hb;
+send_packet(6,"play locker_hit"+random(1,6)+".ogg "+this.x+" "+this.y+" "+this.z,this.x,this.y,this.z,maps[get_map_index(this.map)]);
+}
+void vehicle_save()
+{
+if(directory_exists("vehicles")==false)
+directory_create("vehicles");
+tempsd.add("x",x);
+tempsd.add("y",y);
+tempsd.add("z",z);
+tempsd.add("health",health);
+tempsd.add("fuel",fuel);
+tempsd.add("type",type);
+tempsd.add("owner",owner);
+tempsd.add("map",map);
+tempsd.add("hitby",hitby);
+tempsd.add("id",id);
+tempsd.save();
+}
+}
+void spawn_vvehicle(int x, int y, int z, string map, string owner, string type, int health, string id)
+{
+vvehicle v1(x,y,z,map,owner,type,health,id);
+vvehicles.insert_last(v1);
+}
+void load_vehicle(string t)
+{
+double x, y, z, health, fuel=100;
+string id, type, owner, map, hitby="nothing";
+savedata tsd("vehicles/"+t+".vehicle","dl_vehicle");
+tsd.load();
+if(tsd.d.exists("x"))
+x=tsd.readn("x");
+if(tsd.d.exists("y"))
+y=tsd.readn("y");
+if(tsd.d.exists("z"))
+z=tsd.readn("z");
+if(tsd.d.exists("health"))
+health=tsd.readn("health");
+if(tsd.d.exists("fuel"))
+fuel=tsd.readn("fuel");
+if(tsd.d.exists("type"))
+type=tsd.read("type");
+if(tsd.d.exists("owner"))
+owner=tsd.read("owner");
+if(tsd.d.exists("map"))
+map=tsd.read("map");
+if(tsd.d.exists("hitby"))
+hitby=tsd.read("hitby");
+if(tsd.d.exists("id"))
+id=tsd.read("id");
+spawn_vvehicle(x,y,z,map,owner,type,health,id);
+int vindex=get_vvehicle_index(t);
+vvehicles[vindex].fuel=fuel;
+vvehicles[vindex].hitby=hitby;
+}
+void load_all_vehicles()
+{
+string[] vvehiclefiles=find_files("vehicles/*.vehicle");
+for(uint i=0; i<vvehiclefiles.length(); i++)
+{
+load_vehicle(string_trim_right(vvehiclefiles[i],8));
+}
+}
+int get_vvehicle_index(int x, int y, int z, mapdata@m)
+{
+for(uint i=0; i<vvehicles.length(); i++)
+{
+if(vvehicles[i].map==m.name and vvehicles[i].x==x and vvehicles[i].y==y and vvehicles[i].z==z)
+{
+return i;
+}
+}
+return -1;
+}
+int get_vvehicle_index(string id)
+{
+for(uint i=0; i<vvehicles.length(); i++)
+{
+if(vvehicles[i].id==id)
+{
+return i;
+}
+}
+return -1;
+}

@@ -1,0 +1,40 @@
+mapname:safezone
+minx:0
+maxx:15
+miny:0
+maxy:15
+minz:0
+maxz:50
+tile:0:15:0:15:0:0:0:100:carpet11
+litem:1
+safe_card:0
+deathpoint:0:15:0:15:0:0
+night:none.ogg
+wind:none.ogg
+rain:none.ogg
+tile:9:15:9:15:0:50:0:100:wallglass5
+tile:0:0:0:0:0:5:0:100:metal12
+zone:0:15:0:15:0:50:safezone_menu
+safezone:0:15:0:15:0:50
+litem:0
+zone:0:0:0:0:0:5:Signpost, climb up to read it.:trackme
+zone:0:0:0:0:5:10:A sign, press enter to read.
+tile:0:0:0:0:5:5:0:100:paper
+zone:8:15:8:15:0:50:Outside the Elevator
+zone:15:15:8:10:0:50:Elevator Doors:trackme
+door:15:15:8:8:0:0:15:10:0: :-1:silence.ogg:silence.ogg:elevadorabre.ogg:silence.ogg.ogg
+door:15:15:10:10:0:0:15:8:0: :-1:silence.ogg:silence.ogg:silence.ogg.ogg:elevadorfecha.ogg
+tile:10:14:10:14:1:49:0:100:air
+tile:10:14:10:14:0:0:0:100:wood
+tile:15:15:8:10:0:0:0:100:metal3
+tile:15:15:9:9:0:10:0:100:wallwood16
+tile:14:15:14:15:0:0:0:100:metal2
+src:0:15:0:15:0:50:0:100:calm.ogg:1
+zone:0:7:15:15:0:5:Exit to Yard:trackme
+travelpoint:0:7:15:15:0:5:safezone_yard:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+zone:5:5:5:5:0:5:Media Station Door:trackme
+travelpoint:5:5:5:5:0:5:media_station:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+zone:10:10:5:5:0:5:Paid Store Door:trackme
+travelpoint:10:10:5:5:0:5:paid_store:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+owner:mad-gamer
+sign:0:0:0:0:5:5:Hello, and welcome to Daily Life! If you have any questions, please don't hesitate to contact a staff member. Enjoy!:sign3.ogg

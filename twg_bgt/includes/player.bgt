@@ -1,0 +1,47 @@
+player@[] players(0);
+class player
+{
+int x;
+int y;
+int z;
+int beacontime=660;
+string map;
+string name;
+timer statchangetimer, beacontimer;
+player(int px,int py,int pz,string pmap, string pname)
+{
+x=px;
+y=py;
+z=pz; map=pmap;
+map=pmap;
+name=pname;
+}
+}
+void spawn_player(int x,int y,int z,string map,string name)
+{
+player pl(x,y,z,map,name);
+players.insert_last(pl);
+}
+void remove_player(string username)
+{
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].name==username)
+players.remove_at(i);
+}
+}
+void remove_all_players()
+{
+players.resize(0);
+}
+int get_player(string name)
+{
+for (uint i=0; i<players.length(); i++)
+{
+if (players[i].name==name)
+{
+return i;
+}
+}
+return -1;
+}

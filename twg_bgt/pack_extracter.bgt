@@ -1,0 +1,118 @@
+file temp;
+string[] contents;
+string filename;
+string decryption_key;
+string end;
+pack_file pfile;
+void main()
+{
+filename=input_box("pack extracter", "enter the name of the file you wish to extract");
+if (filename=="")
+{
+exit();
+}
+decryption_key=input_box("pack extracter", "please enter the decryption key.");
+if (get_last_error()==-12)
+{
+exit();
+}
+end=input_box("pack extracter", "Enter anything you want added to the end of the filenames, such as .ogg or .wav.");
+if (get_last_error()==-12)
+{
+exit();
+}
+pfile.open(filename);
+contents=pfile.list_files();
+alert("get ready",contents.length()+" files are about to be extracted!");
+if (!directory_exists("packs"))
+{
+directory_create("packs");
+}
+if (!directory_exists("packs/"+filename))
+{
+directory_create("packs/"+filename);
+}
+if (!directory_exists("packs/"+filename+"/decrypted"))
+{
+directory_create("packs/"+filename+"/decrypted");
+}
+string output;
+double temp=-1;
+show_game_window("working");
+for (double i=0; i<contents.length(); i++)
+{
+double percent=(i+1)/contents.length()*100.0;
+percent=round(percent,0);
+if(percent!=temp)
+{
+beep_percentage(percent);
+temp=percent;
+}
+output+=contents[i]+"\r\n";
+pfile.extract_file(contents[i], "packs/"+filename+"/"+string2file(contents[i]+end,"packs/"+filename));
+if(decryption_key!="") 
+{
+file_decrypt("packs/"+filename+"/"+string2file(contents[i]+end,"packs/"+filename), "packs/"+filename+"/decrypted/"+string2file(contents[i]+end,"packs/"+filename+"/decrypted"), keygen(decryption_key));
+file_copy("packs/"+filename+"/decrypted/"+string2file(contents[i]+end,"packs/"+filename+"/decrypted"), "packs/"+filename+"/"+string2file(contents[i]+end,"packs/"+filename), true);
+file_delete("packs/"+filename+"/decrypted/"+string2file(contents[i]+end,"packs/"+filename+"/decrypted"));
+}
+}
+directory_delete("packs/"+filename+"/decrypted");
+file of;
+of.open("pack_list.txt","wb");
+of.write(filename+"\r\n"+output);
+of.close();
+alert("success",filename+" has been extracted. stats: "+contents.length()+" files are now in packs/"+filename);
+}
+tone_synth progress_synth;
+sound@ progress_sound;
+void beep_percentage(double val)
+{
+val=round(val,0);
+if(val<0) val=0;
+if(val>100) val=100;
+double freq=110*2**(val/25);
+progress_synth.waveform_type=4;
+progress_synth.set_edge_fades(1,1);
+progress_synth.freq_ms(""+freq,40);
+@progress_sound=progress_synth.write_wave_sound();
+progress_synth.reset();
+progress_sound.play();
+}
+string string2file(string thing,string basedir="packs")
+{
+thing=string_replace(thing,"\\","/",true);
+//thing=string_replace(thing,"/"," ",true);
+string[] sp=string_split(thing,"/",false);
+if(sp.length>1)
+{
+string dir=basedir+"/"+string_trim_right(thing,string_len(sp[sp.length-1])+1);
+if(!directory_exists(dir)) directory_create(dir);
+}
+return thing;
+}
+string keygen(string fn) {
+string key=fn;
+key=string_replace(key, "a","æ", true);
+key=string_replace(key, "l","¦", true);
+key=string_replace(key, " ","÷", true);
+key=string_reverse(key);
+key=string_hash(key, 2, true);
+key=string_encrypt(key, key);
+key=string_reverse(key);
+key=string_hash(string_base64_encode(key), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+key=string_hash(string_hash(key, 2, true), 2, true);
+key=string_reverse(key);
+return key;
+ }

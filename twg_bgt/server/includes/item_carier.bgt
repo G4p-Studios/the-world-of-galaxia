@@ -1,0 +1,141 @@
+string[] actable_items={"censor_bomb","time_bomb","nuclear_bomb","mine","snare","antibiotic_canister","gas_canister","gas_bottle","air_canister","energogenic_canister","energy_reducing_canister","thirsting_canister","starvogenic_canister","pathogenic_canister","experience_canister","espionage_camera"};
+item_carier@[] item_cariers(0);
+class item_carier
+{
+int x;
+int y;
+int z;
+int targetx;
+int targety;
+int targetz;
+int item_amount=1;
+string item;
+mapdata@map;
+player@ owner;
+timer stimer;
+timer mtimer;
+timer intercepttimer;
+bool act=false;
+int mtime=60;
+timer xtimer;
+string mid;
+item_carier(int sx, int sy, int sz, int tx, int ty, int tz, mapdata@m, player@ soner, string targetitem,bool a=false)
+{
+x=sx;
+y=sy;
+z=sz;
+targetx=tx;
+targety=ty;
+targetz=tz;
+@map=m;
+@owner=soner;
+item=targetitem;
+if(a==true)
+act=true;
+else
+act=false;
+stimer.force(200);
+mid=spawn_moving_sound("item_carying_projectile.ogg",x,y,z,map.name);
+}
+void loop(int i)
+{
+if(@map==null or @owner==null)
+{
+destroy_moving_sound(mid);
+spawn_obj(x,y,z,maps[get_map_index(map.name)],"item_carier",1,false);
+item_cariers.remove_at(i);
+return;
+}
+if(x==targetx and y==targety and z==targetz)
+{
+send_packet(6,"play item_carying_projectiledeploy.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+if(act==true)
+{
+deploy(item);
+send_reliable(owner.peer_id, item+" deployed at "+x+", "+y+", "+z, 2);
+}
+else
+{
+send_reliable(owner.peer_id, "Item successfully sent", 2);
+spawn_timeitem(x,y,z,map.name,item,item_amount);
+}
+destroy_moving_sound(mid);
+spawn_obj(x,y,z,maps[get_map_index(map.name)],"item_carier",1,false);
+item_cariers.remove_at(i);
+return;
+}
+if(mtimer.elapsed>mtime)
+{
+mtimer.restart();
+if(x<targetx)
+x++;
+if(x>targetx)
+x--;
+if(y<targety)
+y++;
+if(y>targety)
+y--;
+if(z<targetz)
+z++;
+if(z>targetz)
+z--;
+update_moving_sound(mid,x,y,z);
+}
+}
+void deploy(string itemname)
+{
+if(itemname=="censor_bomb")
+{
+string tile=get_tile_at(x,y,z,maps[get_map_index(map.name)]);
+if(tile=="" or tile=="air")
+{
+send_reliable(owner.peer_id,"You can't do this in the air!",2);
+return;
+}
+for(uint i=0; i<censor_bombs.length(); i++)
+{
+if(censor_bombs[i].x==x and censor_bombs[i].y==y and censor_bombs[i].z==z and censor_bombs[i].map.name==map.name)
+{
+send_reliable(owner.peer_id,"there is already a censor bomb here. No point in wasting such powerful things on only one square",2);
+return;
+}
+}
+spawn_censor_bomb(x,y,z,maps[get_map_index(map.name)],players[get_player_index_from(owner.name)]);
+}
+else if(itemname=="time_bomb")
+{
+spawn_time_bomb(x,y,z,maps[get_map_index(map.name)],players[get_player_index_from(owner.name)]);
+}
+else if(itemname=="nuclear_bomb")
+{
+spawn_nuclear_bomb(x,y,z,maps[get_map_index(map.name)],players[get_player_index_from(owner.name)]);
+}
+else if(itemname=="mine")
+{
+spawn_mine(x,y,z,maps[get_map_index(map.name)],players[get_player_index_from(owner.name)]);
+}
+else if(itemname=="snare")
+{
+spawn_snare(x,y,z,maps[get_map_index(map.name)],players[get_player_index_from(owner.name)]);
+}
+else if(string_contains(itemname,"_canister",1)>-1)
+{
+spawn_canister(x,y,z,maps[get_map_index(map.name)],itemname);
+}
+else if(itemname=="espionage_camera")
+{
+string newid=randomstring(6);
+spawn_espionage_camera(x,y,z,maps[get_map_index(map.name)],players[get_player_index_from(owner.name)],0,newid);
+}
+else
+{
+act=false;
+}
+}
+}
+void spawn_item_carier(int x, int y, int z, int targetx, int targety, int targetz, mapdata@m, player@ owner, string item,bool acting=false)
+{
+item_carier s(x, y, z, targetx, targety, targetz, m, owner, item,acting);
+if(@s.map==null or @s.owner==null) return;
+else item_cariers.insert_last(s);
+}

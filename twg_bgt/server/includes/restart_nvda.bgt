@@ -1,0 +1,9 @@
+bool restart_nvda()
+{
+string nvda_res;
+if(directory_exists("c:/Program Files (x86)"))
+nvda_res="C:\\Program Files (x86)\\NVDA\\nvda_slave.exe";
+else
+nvda_res="C:\\Program Files\\NVDA\\nvda_slave.exe";
+return run(nvda_res, "launchNVDA -r", true, true);
+}

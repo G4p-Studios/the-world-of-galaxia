@@ -1,0 +1,19 @@
+void push()
+{
+string stuff=url_post("http://files.mad-gamer.com/twg/runs.php","id=twg");
+}
+void getruns()
+{
+runs=get_from_url("http://files.mad-gamer.com/twg/twg.txt");
+}
+string get_from_url(string url)
+{
+http httpn;
+httpn.user_agent="dl";
+string what=httpn.get(url);
+while(httpn.progress)
+{
+what+=httpn.request();
+wait(5);
+} return what;
+}

@@ -1,0 +1,250 @@
+void adp()
+{
+ap=pv.input("");
+}
+void audioplayer()
+{
+ap=pv.input("audio player. By mahdi productions. Type /help to get the command list");
+while(true)
+{
+wait(5);
+mainloop();
+if(key_pressed(KEY_ESCAPE))
+{
+speak("exiting...");
+break;
+}
+else if(string_contains(ap,"/l ",1)!=-1 or ap=="/r")
+{
+if(string_contains(ap,"/l ",1)!=-1) apl=string_trim_left(ap,3);
+int volume=10000;
+stream.init_bass();
+long handle;
+if(string_contains(apl,"youtube.com",1)>-1)
+{
+run("C:\\Windows\\System32\\cmd.exe","/c "+string_trim_right(get_script_path(),6)+"/libraries/youtube-dl.exe -g "+apl+" -f mp4 > libraries/lb.dll",true,true);
+file f;
+f.open("libraries/lb.dll","rb");
+string r=f.read();
+f.close();
+file_delete("libraries/lb.dll");
+handle=stream.load(r);
+speak("playing: "+r+"");
+stream.play(handle);
+}
+else
+{
+handle=stream.load(apl);
+speak("playing: "+apl+"");
+stream.play(handle);
+}
+speak("audio player. Playing: "+apl+"");
+while(true)
+{
+wait(5);
+mainloop();
+adp();
+if(ap=="/s")
+{
+stream.stop(handle);
+speak("audio player");
+speak("stopped playing "+apl+"");
+adp();
+break;
+}
+else if(string_contains(ap,"/v ",1)!=-1)
+{
+apv=string_trim_left(ap,3);
+volume=string_to_number(apv);
+mv=volume;
+stream.set_volume(volume);
+speak("volume has been set to "+volume+"");
+}
+else if(string_contains(ap,"/dl ",1)!=-1)
+{
+bool result;
+string apl1=string_trim_left(ap,4);
+string apl2=string_right(apl,4);
+string apl4=string_right(apl,6);
+if(string_contains(apl2," ",1)>-1)
+{
+apl=string_trim_right(apl1,4);
+string apl3=string_trim_left(apl2,1);
+speak("downloading "+apl+"");
+result=run("libraries/youtube-dl.exe", "-x --audio-format "+apl3+" -o %(title)s.%(ext)s "+apl+"", true, true);
+}
+else if(string_contains(apl4," audio",1)>-1)
+{
+apl=string_trim_right(apl1,6);
+string apl5=string_trim_left(apl4,1);
+speak("downloading "+apl+"");
+result=run("libraries/youtube-dl.exe", "--no-check-certificate --extract-audio -o %(title)s.%(ext)s "+apl+"", true, true);
+}
+else
+{
+speak("downloading "+apl+"");
+result=run("libraries/youtube-dl.exe", "--no-check-certificate -o %(title)s.%(ext)s "+apl+"", true, true);
+}
+speak("download completed, the file is located in the youtube media folder inside the dl directory");
+}
+else if(string_contains(ap,"/dlfile ",1)!=-1)
+{
+bool result;
+string apl1=string_trim_left(ap,4);
+string apl2=string_right(ap,4);
+string apl5=string_right(apl,6);
+if(string_contains(apl2," ",1)>-1)
+{
+string apl4=string_trim_right(apl1,4);
+string apl3=string_trim_left(apl2,1);
+speak("downloading "+apl4+"");
+if(string_contains(ap,"playlist",1)>-1)
+{
+result=run("libraries/youtube-dl.exe", "-x --audio-format "+apl3+" --yes-playlist -o %(title)s.%(ext)s "+apl4+"", true, true);
+}
+else
+{
+result=run("libraries/youtube-dl.exe", "-x --audio-format "+apl3+" -o %(title)s.%(ext)s "+apl4+"", true, true);
+}
+}
+else if(string_contains(apl5," audio",1)>-1)
+{
+string apl6=string_trim_right(apl1,6);
+speak("downloading "+apl6+"");
+if(string_contains(ap,"playlist",1)>-1)
+{
+result=run("libraries/youtube-dl.exe", "--no-check-certificate --extract-audio --yes-playlist -o %(title)s.%(ext)s "+apl6+"", true, true);
+}
+else
+{
+result=run("libraries/youtube-dl.exe", "--no-check-certificate --extract-audio -o %(title)s.%(ext)s "+apl6+"", true, true);
+}
+}
+else
+{
+speak("downloading "+apl+"");
+if(string_contains(ap,"playlist",1)>-1)
+{
+result=run("libraries/youtube-dl.exe", "--no-check-certificate --yes-playlist -o %(title)s.%(ext)s "+apl1+"", true, true);
+}
+else
+{
+result=run("libraries/youtube-dl.exe", "--no-check-certificate -o %(title)s.%(ext)s "+apl1+"", true, true);
+}
+}
+speak("download completed, the file is located in the youtube media folder inside the dl directory");
+}
+else if(string_contains(ap,"/dlc ",1)!=-1)
+{
+speak("canceling...");
+bool result=run("libraries/youtube-dl.exe", "--skip-download", true, true);
+speak("download has been canceled");
+}
+else if(ap=="/m")
+{
+volume=0;
+stream.set_volume(volume);
+speak("audio muted");
+}
+else if(ap=="/u")
+{
+volume+=mv;
+stream.set_volume(volume);
+speak("audio unmuted");
+}
+else if(ap=="/e")
+{
+speak("exiting");
+break;
+}
+else if(ap=="/c")
+{
+speak("closing...");
+stream.stop(handle);
+break;
+}
+else if(ap=="/help")
+{
+speak("type /l <link> to play a link, /s to stop the currently playing link, /r to replay the played link, /v <volume> to set volume, /m to meut the playing audio, /u to unmute the audio, /dl to download the currently playing link, /dl <format> to download and convert the currently playing link to a specified format, /dlfile <link> to download a link, /dlfile <link> <format> to download a link and convert it in to a spesified format, /dlfile playlist <link> to download a playlist, /dlfile playlist <link> <format> to download a playlist and convert it in to a spesified format, /dlc to cancel the currently downloading link, /e to exit the audio player, and /c to stop the playing file and close the player. This program made by mahdi abedi, founder of mahdi productions. Please visit http://mahdiabedi.com for more programs and games");
+adp();
+break;
+}
+
+else
+{
+speak("rong command. Please type /help to get the command list");
+adp();
+}
+}
+}
+
+else if(ap=="/e")
+{
+speak("exiting...");
+break;
+}
+else if(string_contains(ap,"/dlfile ",1)!=-1)
+{
+bool result;
+string apl1=string_trim_left(ap,4);
+string apl2=string_right(ap,4);
+string apl5=string_right(apl,6);
+if(string_contains(apl2," ",1)>-1)
+{
+string apl4=string_trim_right(apl1,4);
+string apl3=string_trim_left(apl2,1);
+speak("downloading "+apl4+"");
+if(string_contains(ap,"playlist",1)>-1)
+{
+result=run("libraries/youtube-dl.exe", "-x --audio-format "+apl3+" --yes-playlist -o %(title)s.%(ext)s "+apl4+"", true, true);
+}
+else
+{
+result=run("libraries/youtube-dl.exe", "-x --audio-format "+apl3+" -o %(title)s.%(ext)s "+apl4+"", true, true);
+}
+}
+else if(string_contains(apl5," audio",1)>-1)
+{
+string apl6=string_trim_right(apl1,6);
+speak("downloading "+apl6+"");
+if(string_contains(ap,"playlist",1)>-1)
+{
+result=run("libraries/youtube-dl.exe", "--no-check-certificate --extract-audio --yes-playlist -o %(title)s.%(ext)s "+apl6+"", true, true);
+}
+else
+{
+result=run("libraries/youtube-dl.exe", "--no-check-certificate --extract-audio -o %(title)s.%(ext)s "+apl6+"", true, true);
+}
+}
+else
+{
+speak("downloading "+apl+"");
+if(string_contains(ap,"playlist",1)>-1)
+{
+result=run("libraries/youtube-dl.exe", "--no-check-certificate --yes-playlist -o %(title)s.%(ext)s "+apl1+"", true, true);
+}
+else
+{
+result=run("libraries/youtube-dl.exe", "--no-check-certificate -o %(title)s.%(ext)s "+apl1+"", true, true);
+}
+}
+speak("download completed, the file is located in the youtube media folder inside the dl directory");
+}
+else if(string_contains(ap,"/dlc ",1)!=-1)
+{
+speak("canceling...");
+bool result=run("libraries/youtube-dl.exe", "--skip-download", true, true);
+speak("download has been canceled");
+}
+else if(ap=="/help")
+{
+speak("type /l <link> to play a link, /s to stop the currently playing link, /r to replay the played link, /v <volume> to set volume, /m to meut the playing audio, /u to unmute the audio, /dl to download the currently playing link, /dl <format> to download and convert the currently playing link to a specified format, /dlfile <link> to download a link, /dlfile <link> <format> to download a link and convert it in to a spesified format, /dlfile playlist <link> to download a playlist, /dlfile playlist <link> <format> to download a playlist and convert it in to a spesified format, /dlc to cancel the currently downloading link, /e to exit the audio player, and /c to stop the playing file and close the player. This program made by mahdi abedi, founder of mahdi productions. Please visit http://mahdiabedi.com for more programs and games");
+adp();
+}
+else
+{
+speak("rong command. Please type /help to get the command list");
+adp();
+}
+}
+}

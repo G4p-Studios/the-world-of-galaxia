@@ -1,0 +1,39 @@
+mapname:safezone_yard
+minx:0
+maxx:100
+miny:0
+maxy:100
+minz:0
+maxz:100
+tile:0:100:0:100:0:0:0:100:grass4
+litem:1
+starting_point:0:100:0:100:0:0
+deathpoint:0:100:0:100:0:0
+zone:0:100:0:100:0:100:yard
+src:0:100:0:100:0:100:0:100:birds20.ogg
+travelpoint:0:100:0:0:0:0:safezone:0:15:0:welcome back:silence.ogg:silence.ogg:silence.ogg
+zone:0:100:0:0:0:10:door. Press shift enter to go back:trackme
+src:0:100:0:0:0:10:0:100:calm.ogg
+tile:0:100:0:10:0:0:0:100:rocks2
+tile:0:10:0:90:0:0:0:100:rocks2
+tile:90:100:0:90:0:0:0:100:rocks2
+tile:0:100:90:100:0:0:0:100:concrete16
+tile:35:65:50:80:0:0:0:100:clay
+tile:40:60:55:75:0:5:0:100:wallstone
+tile:40:60:55:75:5:5:0:100:stone2
+tile:41:59:56:74:1:10:0:100:air
+tile:41:59:56:74:0:0:0:100:swim
+fishingcoordinate:41:59:56:74:0:0
+src:41:59:56:74:0:10:0:100:river4.ogg
+ai:0:100:0:100:0:0:60000:1:goose
+tile:0:100:100:100:0:100:0:100:wallfence3
+travelpoint:0:99:99:99:0:0:main:0:0:0:welcome:silence.ogg:silence.ogg:silence.ogg
+zone:0:99:99:99:0:10:main city entrance:trackme
+src:1:99:99:99:0:10:0:100:birds95.ogg
+tree:43:43:39:39:0:23:150
+tile:43:43:39:39:0:23:0:100:tree:trackme
+zone:43:43:39:39:0:23:tree:trackme
+item_usage_restriction:41:59:56:74:0:20:conex:beehive:small_conex:locker:fridge:microwave:sky_racer:ford:sorento:dogan_slx:grayhound_bus:m60_tank:tank:truck:v4_by_4_jeep:dodge_charger:doom_buggy:ford_pickup_truck:mlk_mission_cruiser:muscle_car:generic_motorcycle:frog_motorcycle:ducati_street_fighter:onda_cbr_600:yamaha_r6:aprilia_v4:aprilia_rs660:ducati_diavel:yamaha_off_road:kawasaki_hipersport:kawasaki_adventure_tourer:ducati_scrumbler:bmw_off_road:motor_boat
+enable:disasters
+
+owner:mad-gamer

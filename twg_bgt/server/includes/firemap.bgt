@@ -1,0 +1,64 @@
+firemap@[] firemaps(0);
+class firemap
+{
+int minx, maxx, miny, maxy, minz, maxz;
+string map;
+int id=random(0,99999);
+timer hurttimer;
+int hurttime;
+int dam;
+firemap(int fminx, int fmaxx, int fminy, int fmaxy, int fminz, int fmaxz, string fmap, int fdam, int fhurttime)
+{
+minx=fminx;
+maxx=fmaxx;
+miny=fminy;
+maxy=fmaxy;
+minz=fminz;
+maxz=fmaxz;
+map=fmap;
+dam=fdam;
+hurttime=fhurttime;
+}
+void loop(int i)
+{
+if(hurttimer.elapsed>=hurttime)
+{
+hurttimer.restart();
+for(uint p=0;p<players.length();p++)
+{
+if(map==players[p].map and minx<=players[p].x and maxx>=players[p].x and miny<=players[p].y and maxy>=players[p].y and minz<=players[p].z and maxz>=players[p].z and in_vehicle(players[p])<0 and in_motor(players[p])<0 and players[p].is_dead==false and players[p].looking=="")
+{
+players[p].health-=dam;
+send_packet(6,"play v"+string_to_number(players[p].voice)+"hit"+random(1,5)+".ogg "+players[p].x+" "+players[p].y+" "+players[p].z,players[p].x,players[p].y,players[p].z,maps[get_map_index(players[p].map)]);
+}
+}
+}
+}
+}
+void spawn_firemap(int minx, int maxx, int miny, int maxy, int minz, int maxz, string map, int dam, int hurttime)
+{
+firemap f(minx, maxx, miny, maxy, minz, maxz, map, dam, hurttime);
+firemaps.insert_last(f);
+}
+void remove_firemap(int index)
+{
+if(index>-1)
+{
+@firemaps[index]=null;
+firemaps.remove_at(index);
+}
+}
+void remove_all_firemaps()
+{
+for(uint i=0; i<firemaps.length(); i++)
+{
+remove_firemap(i);
+}
+}
+void clear_firemaps_on_map(string map)
+{
+for(uint i=0; i<firemaps.length(); i+=1)
+{
+if(firemaps[i].map==map) remove_firemap(i);
+}
+}

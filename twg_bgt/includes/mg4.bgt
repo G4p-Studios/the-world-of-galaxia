@@ -1,0 +1,169 @@
+int firepos, firespeed, winpos, yourpos;
+sound fireloop, fireamb;
+timer ffiretimer;
+void mg4()
+{
+gamecoins=0;
+playerpos=0;
+firepos=-10;
+firespeed=380;
+winpos=30;
+fireloop.load("fire2.ogg");
+fireamb.load("fireamb.ogg");
+fireamb.play_looped();
+fireloop.play_looped();
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if (key_pressed(KEY_C))
+{
+add_buffer_item("entertainment_center", playerpos+" of "+winpos);
+}
+if (key_pressed(KEY_ESCAPE))
+{
+send_reliable(peer_id, "acoins "+gamecoins, 0);
+add_buffer_item("entertainment_center", "you earned a total of "+gamecoins+" coins in this game!");
+fireamb.stop();
+fireloop.stop();
+entertainment_centermenu();
+return;
+}
+if (key_pressed(KEY_LEFT))
+{
+p.play_stationary("plasticstep"+random(1,5)+".ogg",false,0,0,0,100);
+playerpos-=1;
+}
+if (key_pressed(KEY_RIGHT))
+{
+p.play_stationary("plasticstep"+random(1,5)+".ogg",false,0,0,0,100);
+playerpos+=1;
+}
+if(playerpos<=firepos)
+{
+p.play_stationary("killed",false,0,0,0,100);
+send_reliable(peer_id, "acoins "+gamecoins, 0);
+add_buffer_item("entertainment_center", "you earned a total of "+gamecoins+" coins in this game!");
+fireamb.stop();
+fireloop.stop();
+entertainment_centermenu();
+return;
+}
+if (playerpos>=winpos)
+{
+p.play_stationary("tele.ogg",false,0,0,0,100);
+add_buffer_item("entertainment_center", "next fire!");
+gamecoins+=random(1,2);
+playerpos=0;
+firepos=-10;
+if (firespeed>=70)
+{
+firespeed-=10;
+}
+winpos+=5;
+}
+if (ffiretimer.elapsed>=firespeed)
+{
+firepos+=1;
+ffiretimer.restart();
+}
+positions4();
+wait(5);
+}
+}
+void positions4()
+{
+position_sound_1d(fireloop, playerpos, firepos, 1, 1, 0.0, 0.0);
+}

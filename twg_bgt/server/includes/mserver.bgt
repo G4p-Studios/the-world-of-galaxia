@@ -1,0 +1,59 @@
+//online menus.
+class server_menu
+{
+string[] menuitems;
+string[] menuids;
+string initial_packet;
+string intro;
+void add(string item,string id)
+{
+menuitems.insert_last(item);
+menuids.insert_last(id);
+}
+void reset()
+{
+menuids.resize(0);
+menuitems.resize(0);
+}
+void send(uint id)
+{
+if(menuids.length()>0 and menuitems.length()>0)
+{
+string l;
+for(uint i=0; i<menuitems.length(); i++)
+{
+l+=menuitems[i]+":"+menuids[i]+"[]";
+}
+send_menu(id,intro,initial_packet,l);
+}
+}
+}
+class server_menu2
+{
+string[] menuitems;
+string[] menuids;
+string initial_packet;
+string intro;
+void add(string item,string id)
+{
+menuitems.insert_last(item);
+menuids.insert_last(id);
+}
+void reset()
+{
+menuids.resize(0);
+menuitems.resize(0);
+}
+void send(uint id)
+{
+if(menuids.length()>0 and menuitems.length()>0)
+{
+string l;
+for(uint i=0; i<menuitems.length(); i++)
+{
+l+=menuitems[i]+"|"+menuids[i]+"[]";
+}
+send_menu2(id,intro,initial_packet,l);
+}
+}
+}

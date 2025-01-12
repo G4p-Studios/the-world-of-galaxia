@@ -1,0 +1,292 @@
+beehive@[] beehives(0);
+class beehive
+{
+int x, y, z, health;
+string map, beehivemap, owner, hitby="nothing";
+savedata tempsd("");
+beehive(int bx, int by, int bz, string bmap, string bowner, int bhealth, string bbeehivemap)
+{
+x=bx;
+y=by;
+z=bz;
+map=bmap;
+owner=bowner;
+health=bhealth;
+beehivemap=bbeehivemap;
+tempsd.fn="beehives/"+beehivemap+".beehive";
+tempsd.key="dl_beehive";
+}
+void loop(int i)
+{
+if(health<=0)
+{
+send_packet(6,"play base_door_dest.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacket(6,"distsound base_door_dest "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+for(uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].map==beehivemap)
+{
+move_player(players[i2],map,x,y,z);
+send_reliable(players[i2],"exitplace",0);
+players[i2].health-=50000;
+}
+}
+for(uint i2=0; i2<msounds.length(); i2++)
+{
+if(msounds[i2].map==beehivemap)
+{
+msounds.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<ais.length(); i2++)
+{
+if(ais[i2].map.name==beehivemap)
+{
+if (ais[i2].voice!="" and ais[i2].rapidvoice==true) destroy_moving_sound(ais[i2].voice);
+ais.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<timeitems.length(); i2++)
+{
+if(timeitems[i2].map==beehivemap)
+{
+timeitems.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<objs.length(); i2++)
+{
+if(objs[i2].map.name==beehivemap)
+{
+objs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<silenceobjs.length(); i2++)
+{
+if(silenceobjs[i2].map.name==beehivemap)
+{
+silenceobjs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<bodyfalls.length(); i2++)
+{
+if(bodyfalls[i2].map==beehivemap)
+{
+bodyfalls.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<weapons.length(); i2++)
+{
+if(weapons[i2].map.name==beehivemap)
+{
+weapons.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<censor_bombs.length(); i2++)
+{
+if(censor_bombs[i2].map.name==beehivemap)
+{
+censor_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<nuclear_bombs.length(); i2++)
+{
+if(nuclear_bombs[i2].map.name==beehivemap)
+{
+nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<small_nuclear_bombs.length(); i2++)
+{
+if(small_nuclear_bombs[i2].map.name==beehivemap)
+{
+small_nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<large_nuclear_bombs.length(); i2++)
+{
+if(large_nuclear_bombs[i2].map.name==beehivemap)
+{
+large_nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<time_bombs.length(); i2++)
+{
+if(time_bombs[i2].map.name==beehivemap)
+{
+time_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<grenades.length(); i2++)
+{
+if(grenades[i2].map.name==beehivemap)
+{
+grenades.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<canisters.length(); i2++)
+{
+if(canisters[i2].map.name==beehivemap)
+{
+canisters.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<snares.length(); i2++)
+{
+if(snares[i2].map.name==beehivemap)
+{
+snares.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<rockets.length(); i2++)
+{
+if(rockets[i2].map.name==beehivemap)
+{
+rockets.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<rpgs.length(); i2++)
+{
+if(rpgs[i2].map.name==beehivemap)
+{
+rpgs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<turrets.length(); i2++)
+{
+if(turrets[i2].map.name==beehivemap)
+{
+turrets.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<mines.length(); i2++)
+{
+if(mines[i2].map.name==beehivemap)
+{
+mines.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<robots.length(); i2++)
+{
+if(robots[i2].map.name==beehivemap)
+{
+destroy_moving_sound(robots[i2].mid);
+robots.remove_at(i2);
+continue;
+}
+}
+file_delete("beehives/"+beehivemap+".beehive");
+remove_map(beehivemap);
+send_reliable(0, "kills "+killmsg3(beehivemap, hitby, get_zone_at(x,y,z,maps[get_map_index(map)])), 0);
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int index=get_player_index_from(hb);
+if(index>-1)
+{
+givexp(players[index],random(100, 500)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(100,200);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+beehives.remove_at(i);
+return;
+}
+}
+void beehive_save()
+{
+if(directory_exists("beehives")==false)
+directory_create("beehives");
+tempsd.add("x",x);
+tempsd.add("y",y);
+tempsd.add("z",z);
+tempsd.add("map",map);
+tempsd.add("owner",owner);
+tempsd.add("health",health);
+tempsd.add("beehivemap",beehivemap);
+tempsd.save();
+}
+}
+void spawn_beehive(int x, int y, int z, string map, string owner, int health, string beehivemap)
+{
+beehive b(x, y, z, map, owner, health, beehivemap);
+beehives.insert_last(b);
+}
+void load_beehive(string t)
+{
+int x, y, z, health;
+string map, beehivemap, owner;
+savedata tsd("beehives/"+t+".beehive","dl_beehive");
+tsd.load();
+if(tsd.d.exists("x"))
+x=tsd.readn("x");
+if(tsd.d.exists("y"))
+y=tsd.readn("y");
+if(tsd.d.exists("z"))
+z=tsd.readn("z");
+if(tsd.d.exists("map"))
+map=tsd.read("map");
+if(tsd.d.exists("owner"))
+owner=tsd.read("owner");
+if(tsd.d.exists("health"))
+health=tsd.readn("health");
+if(tsd.d.exists("beehivemap"))
+beehivemap=tsd.read("beehivemap");
+spawn_beehive(x, y, z, map, owner, health, beehivemap);
+}
+void load_all_beehives()
+{
+string[] beehivefiles=find_files("beehives/*.beehive");
+for(uint i=0; i<beehivefiles.length(); i++)
+{
+load_beehive(string_trim_right(beehivefiles[i],8));
+}
+}
+int get_beehive_index(int x, int y, int z, mapdata@m)
+{
+for(uint i=0; i<beehives.length(); i++)
+{
+if(beehives[i].map==m.name and beehives[i].x==x and beehives[i].y==y and beehives[i].z==z)
+{
+return i;
+}
+}
+return -1;
+}
+int in_beehive(player@p)
+{
+int index=get_player_index_from(p.name);
+if(index<0) return -1;
+for(uint x=0; x<beehives.length(); x++)
+{
+if(players[index].map==beehives[x].beehivemap) return x;
+}
+return -1;
+}

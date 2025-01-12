@@ -1,0 +1,288 @@
+event@[]events(0);
+class event
+{
+string eventname="untitled event";
+string eventid;
+string[] members;
+string description="This event has no description";
+string inv = "";
+mapdata@map;
+int can_leave=1;
+int itemspawn=0;
+bool ended=false;
+bool launched=false;
+bool started=false;
+int joinx=0,joiny=0,joinz=0;
+savedata settings("");
+string eventlog;
+int can_keep_inventory=0;
+event(string ename)
+{
+eventname=ename;
+eventid=randomstring(4,2);
+settings.fn="events/"+eventname+".vnt";
+settings.key="tk_events";
+event_save();
+}
+void loop(int i)
+{
+if(ended==true)
+{
+events.remove_at(i);
+return;
+}
+}
+void set(string stuff,player@pl)
+{
+string[] p=string_split(stuff,"=",false);
+if(settings.d.exists(p[0])==false)
+{
+send_reliable(pl.peer_id,"Value does not exist",2);
+return;
+}
+string w=p[0];
+int val=string_to_number(p[1]);
+string valstring=p[1];
+if(w=="map")
+{
+map.name=valstring;
+}
+if(w=="itemspawn")
+{
+itemspawn=val;
+}
+if(w=="can_leave")
+{
+can_leave=val;
+}
+if(w=="joinx")
+{
+joinx=val;
+}
+if(w=="joiny")
+{
+joiny=val;
+}
+if(w=="joinz")
+{
+joinz=val;
+}
+if(w=="can_keep_inventory")
+{
+can_keep_inventory=val;
+}
+if(w=="description")
+{
+description=valstring;
+}
+if(w=="inv")
+{
+inv = valstring;
+}
+if(w=="name" or w=="eventlog" or w=="eventid")
+{
+send_reliable(pl.peer_id,"Error: can't update these settings",0);
+return;
+}
+admintell(pl.name+" updated "+w+" in event "+eventid);
+send_reliable(pl.peer_id,w+" set",2);
+}
+void give_inv(string inv)
+{
+string[] inventory = string_split(inv, " ", false);
+for(int i=0; i<inventory.length(); i++)
+{
+for(int i=0; i<members.length(); i++)
+{
+string[] parsed=string_split(inventory[i], ":", false);
+int p = get_player_index_from(members[i]);
+if(!players[p].inv.exists(parsed[1]))
+players[p].inv_add_item(parsed[0], string_to_number(parsed[1]));
+else
+continue;
+}
+}
+}
+void start()
+{
+started=true;
+string announce = "the event "+eventname+" is now started. Players are not able to join. ";
+send_reliable(0, announce, 2);
+send_reliable(0, "play_s achievement.ogg",6);
+give_inv(inv);
+}
+void launch()
+{
+launched=true;
+string anouncement="There is a new event "+eventname+"! Type /eventinfo "+eventid+" to get more information!";
+send_reliable(0,anouncement,2);
+send_reliable(0,"play_s bigevent.ogg",6);
+}
+void end()
+{
+if(launched or started or (started and launched))
+{
+send_reliable(0,"The "+eventname+" event has ended",2);
+send_reliable(0,"play_s eventover.ogg",6);
+}
+launched=false;
+started=false;
+while(members.length()>0)
+{
+int px=get_player_index_from(members[0]);
+leave(players[px],true,true);
+}
+if(members.length==0) ended=true;
+}
+void join(player@pl)
+{
+if(launched==false)
+{
+send_reliable(pl.peer_id,"Error: can't join this event. The event hasn't been launched yet",0);
+return;
+}
+members.insert_last(pl.name);
+send_reliable(0,"play_s joinevent.ogg",6);
+send_reliable(0,pl.name+" just joined the "+eventname+" event!",2);
+write_to(pl.name,"oldx.usr",pl.x);
+write_to(pl.name,"oldy.usr",pl.y);
+write_to(pl.name,"oldz.usr",pl.z);
+write_to(pl.name,"oldmap.usr",pl.map);
+if(can_keep_inventory==0)
+{
+write_to(pl.name,"oldinv.usr",pl.get_inv());
+pl.inv.delete_all();
+}
+move_player(pl,map.name,joinx,joiny,joinz);
+}
+void leave(player@pl,bool silent=false,bool forced=false)
+{
+int px=members.find(pl.name);
+if(px>-1)
+{
+if(can_leave==0 and !forced)
+{
+send_reliable(pl.peer_id,"Sorry...can't leave this event",0);
+return;
+}
+int newx=string_to_number(get_char_val(pl.name,"oldx"));
+int newy=string_to_number(get_char_val(pl.name,"oldy"));
+int newz=string_to_number(get_char_val(pl.name,"oldz"));
+string newmap=get_char_val(pl.name,"oldmap");
+if(map_exists(newmap)==false)
+newmap="main";
+if(can_keep_inventory==0)
+{
+string newinv=get_char_val(pl.name, "oldinv");
+if(newinv=="")
+{
+newinv=file_get_contents("default.inv");
+}
+string[] invstuff=string_split(newinv,"\r\n",false);
+if(pl.inv.get_size()>0) pl.inv.delete_all();
+for(uint i=0; i<invstuff.length(); i++)
+{
+string[] parsed2=string_split(invstuff[i],"=",false);
+if(parsed2.length()==2) pl.inv_add_item(parsed2[0],string_to_number(parsed2[1]));
+}
+string charfolder="chars/"+pl.name;
+file_delete(charfolder+"/oldx.usr");
+file_delete(charfolder+"/oldy.usr");
+file_delete(charfolder+"/oldz.usr");
+file_delete(charfolder+"/oldmap.usr");
+file_delete(charfolder+"/oldinv.usr");
+}
+members.remove_at(px);
+if(!silent)
+{
+send_reliable(0,"play_s leaveevent.ogg",6);
+send_reliable(0,pl.name+" just left the "+eventname+" event",2);
+}
+move_player(pl,newmap,newx,newx,newz);
+}
+}
+void event_save()
+{
+settings.add("name",eventname);settings.add("description",description);
+settings.add("map",map.name);
+settings.add("eventid",eventid);
+settings.add("itemspawn",itemspawn);
+settings.add("eventlog",eventlog);
+settings.add("can_leave",can_leave);
+settings.add("can_keep_inventory",can_keep_inventory);
+settings.add("joinx",joinx);
+settings.add("joiny",joiny);
+settings.add("joinz",joinz);
+settings.add("inv", inv);
+settings.save();
+}
+void log(string what)
+{
+eventlog+=what+"\r\n";
+}
+}
+int get_event_index(string id)
+{
+for(uint i=0; i<events.length(); i++)
+{
+if(events[i].eventid==id)
+{
+return i;
+}
+}
+return -1;
+}
+
+string get_event_information(event@vnt)
+{
+string info="Details for the "+vnt.eventname+" event: event description: "+vnt.description+".\r\n";
+info+="This event takes place on the "+vnt.map.name+" map at "+vnt.joinx+", "+vnt.joiny+", "+vnt.joinz+".\r\n";
+if(vnt.can_leave==1)
+info+="When you join this event, you can leave at any time.\r\n";
+else
+info+="If you join this event, you will not be able to leave it until it has ended.\r\n";
+if(vnt.can_keep_inventory==0)
+{
+info+="Please note: when you join this event, your inventory will not be saved. When the event has ended or you leave, your old inventory will be reenabled. All items collected in the event will not appear in your inventory once the event has ended.\r\n";
+}
+else
+info+="All items in your inventory will work in the event. Items you collect durring the event will be kept in your inventory once the event has ended.";
+if(vnt.itemspawn==0)
+{
+info+=" Items do not spawn while you are in this event.\r\n";
+}
+else
+info+="Items spawn while you are in this event.\r\n";
+return info;
+}
+void create_event(string name,int peerid)
+{
+event gameevent(name);
+send_reliable(peerid,"event "+gameevent.eventid+" created!",2);
+send_reliable(0,"admintell an event with "+gameevent.eventid+" was started",0);
+events.insert_last(gameevent);
+}
+int is_part_of_event(string who)
+{
+for(uint i=0; i<events.length(); i++)
+{
+if(events[i].members.find(who)>-1)
+{
+return i;
+}
+}
+return -1;
+}
+bool is_event_map(mapdata@m)
+{
+if(map_exists(m.name)==false) return false;
+bool ismap=false;
+for(uint i=0; i<events.length(); i++)
+{
+if(events[i].map.name==m.name)
+{
+ismap=true;
+}
+}
+return ismap;
+}

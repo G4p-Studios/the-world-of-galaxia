@@ -1,0 +1,38 @@
+mapname:night_club
+minx:0
+maxx:50
+miny:0
+maxy:100
+minz:0
+maxz:25
+tile:0:50:0:80:0:0:0:100:concrete12
+litem:1
+starting_point:0:50:0:80:0:0
+deathpoint:0:50:0:80:0:0
+zone:0:50:0:80:0:25:night club
+src:0:50:0:60:0:10:0:100:party_crowd.ogg
+tile:0:50:60:80:0:9:0:100:wall
+tile:0:10:60:60:0:10:0:100:carpet2
+zone:0:10:60:60:0:25:dance floor stairs:trackme
+tile:0:50:61:80:10:10:0:100:carpet2
+zone:0:50:60:80:10:25:dance floor
+tile:40:50:0:40:0:0:0:100:concrete4
+zone:40:50:0:40:0:0:fastfood_store:trackme
+src:0:50:0:80:0:25:0:100:calm.ogg
+travelpoint:0:0:0:0:0:0:main:140:250:0:welcome back:silence.ogg:silence.ogg:silence.ogg
+zone:0:0:0:0:0:0:main city entrance:trackme
+src:0:0:0:0:0:0:0:100:birds35.ogg
+src:0:0:0:0:0:0:0:100:birds36.ogg
+tile:0:10:80:80:0:10:0:100:carpet2
+tile:0:50:80:100:0:0:0:100:concrete4
+zone:0:50:80:80:0:10:stairs
+src:0:50:80:100:0:25:0:100:calm.ogg
+zone:0:50:81:100:0:10:entertainment_center:trackme
+tile:0:50:80:80:0:0:0:100:carpet2
+rain:raininterior.ogg
+url:http://dl.mp3lyrics.ir/mp3/Volac%20&%20Illusionize%20-%20In%20A%20Club.mp3
+wind:none.ogg
+night:none.ogg
+item_usage_restriction:0:50:0:100:0:25:conex:partner_house:beehive:small_conex:locker:fridge:microwave:sky_racer:ford:sorento:dogan_slx:grayhound_bus:m60_tank:tank:truck:v4_by_4_jeep:dodge_charger:doom_buggy:ford_pickup_truck:mlk_mission_cruiser:muscle_car:generic_motorcycle:frog_motorcycle:ducati_street_fighter:onda_cbr_600:yamaha_r6:aprilia_v4:aprilia_rs660:ducati_diavel:yamaha_off_road:kawasaki_hipersport:kawasaki_adventure_tourer:ducati_scrumbler:bmw_off_road:motor_boat
+
+owner:mad-gamer

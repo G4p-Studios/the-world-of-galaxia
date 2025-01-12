@@ -1,0 +1,104 @@
+corpse@[]corpses(0);
+class corpse
+{
+string oldinv;
+string id;
+corpse(string inv,string newid)
+{
+oldinv=inv;
+id=newid;
+}
+string list_contents()
+{
+if(oldinv=="") return "nothing";
+string[] final_list;
+string list;
+string[] invvalues=string_split(oldinv,";",false);
+for(uint i=0; i<invvalues.length(); i++)
+{
+if(invvalues[i].is_empty() or invvalues.length()<1) return "nothing";
+string[] inv2=string_split(invvalues[i],"=",false);
+if(inv2.length()<2) return "nothing";
+final_list.insert_last(inv2[1]+" "+inv2[0]);
+}
+list=convert_to_list(final_list);
+return list;
+}
+void give_to(player@who)
+{
+if(oldinv=="") return;
+string[] invvalues=string_split(oldinv,";",false);
+for(uint i=0; i<invvalues.length(); i++)
+{
+if(invvalues[i].is_empty()) return;
+if(invvalues.length()<1) return;
+string[] inv2=string_split(invvalues[i],"=",false);
+if(inv2.length()<2) return;
+if(string_contains(inv2[0], "corpse_bomb", 1)>-1)
+{
+send_packet(6,"play corpse_bomb.ogg "+who.x+" "+who.y+" "+who.z, who.x,who.y,who.z,maps[get_map_index(who.map)]);
+who.health-=who.maxhealth;
+who.hitby="corpse_bomb";
+}
+else
+{
+who.inv_add_item(inv2[0],string_to_number(inv2[1]));
+}
+}
+int corpseid=get_corpses_from(id);
+if(corpseid>-1)
+{
+corpses.remove_at(corpseid);
+}
+}
+void nogive_to(player@who)
+{
+int corpseid=get_corpses_from(id);
+if(corpseid>-1)
+{
+corpses.remove_at(corpseid);
+}
+}
+}
+int get_corpses_from(string the_id)
+{
+for(uint i=0; i<corpses.length(); i++)
+{
+if(corpses[i].id==the_id)
+{
+return i;
+}
+}
+return -1;
+}
+void new_corpse(string inv,string id)
+{
+corpse c1(inv,id);
+corpses.insert_last(c1);
+}
+void save_corpses()
+{
+string final;
+for(uint i=0; i<corpses.length(); i++)
+{
+final+=corpses[i].id+"[]"+corpses[i].oldinv+"\r\n";
+}
+file_put_contents("corpses.svr",final,250);
+}
+void load_corpses()
+{
+file f;
+if(!file_exists("corpses.svr") or !f.open("corpses.svr", "rb")) return;
+string corpsedata=f.read();
+f.close();
+if(corpsedata=="") return;
+string[] sdata=string_split(corpsedata, "\r\n", false);
+for(uint i=0; i<sdata.length(); i++)
+{
+if(sdata[i].is_empty()) continue;
+if(sdata.length()<1) continue;
+string[] parsed=string_split(sdata[i],"[]",false);
+if(parsed.length()<2) continue;
+new_corpse(parsed[1],parsed[0]);
+}
+}

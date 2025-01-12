@@ -1,0 +1,45 @@
+timedtext@[] timedtexts(0);
+class timedtext
+{
+int minx, maxx, miny, maxy, minz, maxz, time;
+string text;
+timer texttimer;
+timedtext(int mintimedtextx, int maxtimedtextx, int mintimedtexty, int maxtimedtexty, int mintimedtextz, int maxtimedtextz, int ttime, string tx)
+{
+minx=mintimedtextx;
+maxx=maxtimedtextx;
+miny=mintimedtexty;
+maxy=maxtimedtexty;
+minz=mintimedtextz;
+maxz=maxtimedtextz;
+time=ttime;
+text=tx;
+}
+}
+void timedtextloop()
+{
+for (uint i=0; i<timedtexts.length(); i++)
+{
+if(me.x>=timedtexts[i].minx and me.x<=timedtexts[i].maxx and me.y>=timedtexts[i].miny and me.y<=timedtexts[i].maxy and me.z>=timedtexts[i].minz and me.z<=timedtexts[i].maxz)
+{
+if(timedtexts[i].texttimer.elapsed>timedtexts[i].time)
+{
+timedtexts[i].texttimer.restart();
+speak(timedtexts[i].text);
+}
+}
+}
+}
+void spawn_timedtext(int mintimedtextx, int maxtimedtextx, int mintimedtexty, int maxtimedtexty, int mintimedtextz, int maxtimedtextz, int ttime, string text)
+{
+timedtext timedtext1(mintimedtextx, maxtimedtextx, mintimedtexty, maxtimedtexty, mintimedtextz, maxtimedtextz, ttime, text);
+timedtexts.insert_last(timedtext1);
+}
+void destroy_timedtext(int d)
+{
+timedtexts.remove_at(d);
+}
+void destroy_all_timedtexts()
+{
+timedtexts.resize(0);
+}

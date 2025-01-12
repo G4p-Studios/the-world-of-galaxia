@@ -1,0 +1,43 @@
+trashcan@[] trashcans(0);
+class trashcan
+{
+int minx, maxx, miny, maxy, minz, maxz, descarga=0;
+string map;
+trashcan(int tminx, int tmaxx, int tminy, int tmaxy, int tminz, int tmaxz, string tmap)
+{
+minx=tminx;
+maxx=tmaxx;
+miny=tminy;
+maxy=tmaxy;
+minz=tminz;
+maxz=tmaxz;
+map=tmap;
+}
+}
+void spawn_trashcan(int minx, int maxx, int miny, int maxy, int minz, int maxz, string map)
+{
+trashcan t(minx, maxx, miny, maxy, minz, maxz, map);
+trashcans.insert_last(t);
+}
+void remove_trashcan(int index)
+{
+if(index>-1)
+{
+@trashcans[index]=null;
+trashcans.remove_at(index);
+}
+}
+void remove_all_trashcans()
+{
+for(uint i=0; i<trashcans.length(); i++)
+{
+remove_trashcan(i);
+}
+}
+void clear_trashcans_on_map(string map)
+{
+for(uint i=0; i<trashcans.length(); i+=1)
+{
+if(trashcans[i].map==map) remove_trashcan(i);
+}
+}

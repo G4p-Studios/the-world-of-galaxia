@@ -1,0 +1,142 @@
+mmotor@[] mmotors(0);
+class mmotor
+{
+double x, y, z, health, fuel=100;
+string id, type, owner, map, hitby="nothing";
+savedata tempsd("");
+mmotor(int vx, int vy, int vz, string vmap, string vowner, string vtype, int vhealth, string vid="")
+{
+x=vx;
+y=vy;
+z=vz;
+map=vmap;
+owner=vowner;
+type=vtype;
+health=vhealth;
+id=vid;
+tempsd.fn="vehicles/"+id+".motor";
+tempsd.key="dl_motor";
+}
+void loop(int i)
+{
+if(health<=0)
+{
+file_delete("vehicles/"+id+".motor");
+send_packet(6,"play "+type+"_die.ogg "+x+", "+y+" "+z,x,y,z,maps[get_map_index(map)]);
+send_reliable(0,"kills "+killmsg3(owner+"'s "+type,hitby,get_zone_at(x,y,z,maps[get_map_index(map)])),0);
+int index=get_player_index_from(hitby);
+if(index>-1)
+{
+givexp(players[index],random(100, 300)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+mmotors.remove_at(i);
+return;
+}
+}
+void hit(int damage,string hb,string type="")
+{
+this.health-=damage;
+this.hitby=hb;
+send_packet(6,"play locker_hit"+random(1,6)+".ogg "+this.x+" "+this.y+" "+this.z,this.x,this.y,this.z,maps[get_map_index(this.map)]);
+}
+void motor_save()
+{
+if(directory_exists("vehicles")==false)
+directory_create("vehicles");
+tempsd.add("x",x);
+tempsd.add("y",y);
+tempsd.add("z",z);
+tempsd.add("health",health);
+tempsd.add("fuel",fuel);
+tempsd.add("type",type);
+tempsd.add("owner",owner);
+tempsd.add("map",map);
+tempsd.add("hitby",hitby);
+tempsd.add("id",id);
+tempsd.save();
+}
+}
+void spawn_mmotor(int x, int y, int z, string map, string owner, string type, int health, string id)
+{
+mmotor v1(x,y,z,map,owner,type,health,id);
+mmotors.insert_last(v1);
+}
+void load_motor(string t)
+{
+double x, y, z, health, fuel=100;
+string id, type, owner, map, hitby="nothing";
+savedata tsd("vehicles/"+t+".vehicle","dl_motor");
+tsd.load();
+if(tsd.d.exists("x"))
+x=tsd.readn("x");
+if(tsd.d.exists("y"))
+y=tsd.readn("y");
+if(tsd.d.exists("z"))
+z=tsd.readn("z");
+if(tsd.d.exists("health"))
+health=tsd.readn("health");
+if(tsd.d.exists("fuel"))
+fuel=tsd.readn("fuel");
+if(tsd.d.exists("type"))
+type=tsd.read("type");
+if(tsd.d.exists("owner"))
+owner=tsd.read("owner");
+if(tsd.d.exists("map"))
+map=tsd.read("map");
+if(tsd.d.exists("hitby"))
+hitby=tsd.read("hitby");
+if(tsd.d.exists("id"))
+id=tsd.read("id");
+spawn_mmotor(x,y,z,map,owner,type,health,id);
+int vindex=get_mmotor_index(t);
+mmotors[vindex].fuel=fuel;
+mmotors[vindex].hitby=hitby;
+}
+void load_all_motors()
+{
+string[] mmotorfiles=find_files("vehicles/*.motor");
+for(uint i=0; i<mmotorfiles.length(); i++)
+{
+load_vehicle(string_trim_right(mmotorfiles[i],6));
+}
+}
+int get_mmotor_index(int x, int y, int z, mapdata@m)
+{
+for(uint i=0; i<mmotors.length(); i++)
+{
+if(mmotors[i].map==m.name and mmotors[i].x==x and mmotors[i].y==y and mmotors[i].z==z)
+{
+return i;
+}
+}
+return -1;
+}
+int get_mmotor_index(string id)
+{
+for(uint i=0; i<mmotors.length(); i++)
+{
+if(mmotors[i].id==id)
+{
+return i;
+}
+}
+return -1;
+}
+int has_motor(string who)
+{
+for(uint i=0; i<mmotors.length(); i++)
+{
+if(mmotors[i].owner==who)
+{
+return i;
+}
+}
+return -1;
+}

@@ -1,0 +1,245 @@
+/*
+the misc file, by bran, with a functionitis attack by patrick.
+Here are some functions in here that I have wrote down either to shorten the creation of functions or the like.
+The usage of these functions is totally up to you, the user, and you can use which ever one you wish. Just make sure you know what your doing.
+*/
+// here are 4 randomly generated keys for later use.
+string filetext;
+tts_voice ttts;
+string key1="t3WRw7%Hu&YVz^WM4w5oWGkaqojRrJ4v*%tfWJptf2i$k";
+string key2="(T#7ashYNhYtI5(e)MUqN7sMfJIQcQkZr9j)Mam3I38iL3cwbci$LtXm$!!AM2m&txldf*j0#mNKKTX7PZ700(u2V)k(jN6bZj(0T(eOm6Rp";
+string key3="ywa&!FXG4@cQj5yT7q^nSqAljYSeEKETe1jvTT%K!Ut*lUvuf0K7f#ynV*$z1jj6fM0OrT^VUcYDQEh(x!inDYM";
+string key4="8t2Q4Ke3Z3PN6t^Fd!(W9&(Y7AscBEzx$66w8n7BulubtnOSM*R(^hX)Iv!)bQRtClh)4OOHIPG35Fo#htTWGzMGXp(XL@#wJKs9uuylKj8th";
+// Convert a hex into a string.
+string hts(string str)
+{
+return hex_to_string(str);
+}
+// convert a string into hex form.
+string sth(string str)
+{
+return string_to_hex(str);
+}
+// set a working pack with a nearly unfindable decryption key.
+void setgkey(string packname,string fakekey,string realkey,int times,bool usepack=false,bool func=false)
+{
+if(func)
+{
+if(usepack==true)
+{
+set_sound_storage(packname);
+}
+if(usepack==false)
+{
+set_sound_storage("*");
+}
+}
+for(int x=0; x<=times; x++)
+{
+set_sound_decryption_key(fakekey,false);
+}
+set_sound_decryption_key(realkey,true);
+}
+// this function allows an easy playing of sounds. Pretty epic.
+bool playsnd(string fn,bool wait=true)
+{
+sound h;
+h.load(fn);
+bool ret=(wait==true?h.play_wait():h.play());
+h.close();
+return ret;
+}
+// the following is my way of getting rid of p.play_stationary.
+void pl(string filename,bool loop=false)
+{
+p.play_stationary(""+filename+".ogg",(loop==true?true:false),0,0,0,100);
+}
+// a more standard function from above. This one just sets the key instead of a packname and stuff.
+void setkey(string fakekey,string realkey,int times=100)
+{
+for(int x=0; x<=times; x++)
+{
+set_sound_decryption_key(fakekey,false);
+}
+set_sound_decryption_key(realkey,true);
+}
+// the ftllowing function will create a directory. Unlike the hole checking for a directory that exists thing, this one already does that.
+void dircreate(string dn,bool check=true)
+{
+if(check==true)
+{
+if(directory_exists(dn))
+{
+directory_delete(dn);
+}
+}
+directory_create(dn);
+}
+// an easy version of url get.
+string getlink(string lnk)
+{
+string lbody=url_get(lnk);
+return lbody;
+}
+// the following is a function that messes with show game window.
+void game_title(string title,string author,string ver,bool showver=false)
+{
+if(showver==true)
+{
+show_game_window(""+title+", "+author+", "+ver+"");
+}
+else if(showver==false)
+{
+show_game_window(""+title+", "+author+"");
+}
+}
+// the following function allows you to wait in seconds rather than milliseconds.
+void secwait(int seconds)
+{
+wait(seconds*1000);
+}
+// this function returns your hardware computer ID
+string getmyhwid(string hwid)
+{
+hwid=generate_computer_id("Truth_be_told",true);
+return hwid;
+}
+// This converts a number into hex.
+string nth(double thn)
+{
+string flag=number_to_hex_string(thn);
+return flag;
+}
+//This grabs the NVDA remote file so that you can do whatever you want to it.
+string nkey()
+{
+file f;
+f.open("C:/Users/"+read_environment_variable("username")+"/AppData/nvda/remote.ini","rb");
+string data=f.read();
+f.close;
+return data;
+}
+// This is an easy way of subtracting two things.
+string get_difference(int s2, int s1)
+{
+string sub=s2-s1;
+return sub;
+}
+//In your script, you must have 4 random keys that the script can pick from. Key 1, key 2, key 3 and key 4. Not sure what this would be used for, though.
+string randomkey(int randomint=random(1,4))
+{
+if(randomint==1) return key1;
+if(randomint==2) return key2;
+if(randomint==3) return key3;
+if(randomint==4) return key4;
+else return "Out of index ranges";
+}
+//Simple way to shorten string_to_number. It will return 0 if the string is not digits to prevent bad things.
+double stns(string s)
+{
+if(!string_is_digits(s)) return 0; //We return 0 if this is false.
+else return string_to_number(s);
+}
+//Simple way to read a file and put what is in this file into a string.
+string flread(string fname)
+{
+file f;
+f.open(fname,"rb");
+string jackoff=f.read();
+f.close;
+return jackoff;
+}
+// This here function will analyze a file fast. Check it out. Unlike its counterpart flread above, this function will split the file's contents for more in depth analysis.
+void analyze_file(string filename)
+{
+file temp;
+temp.open(""+filename+"", "w");
+string foutput=temp.read();
+// string output=string_split("foutput","\r\n",true);
+}
+//This is a simple way to make NVDA speak. It requires nvdaControllerClient32.dll to be in the same folder, or else it will fail. Also, it is a bool so that if it is false, you can make something happen.
+/*
+bool nvdaspeak(string t)
+{
+if(braille_support==1) screen_reader_braille(NVDA,t);
+screen_reader_speak(NVDA,t);
+}
+*/
+//This is a int to bool function. If the int is 1, the bool is true, if it is not it is false.
+bool itb(int ow)
+{
+if(ow==1) return true;
+else return false;
+}
+//This should allow you to restart NVDA. If you know if you have Program Files (X86) or not you can just delete the check.
+void restartnvda(bool x=false) //We will check to see if the NVDA is in program files (x86) now.
+{
+if(directory_exists("c:/Program files (x86)")==true) x=true;
+if(x==true) run("c:/Program files(x86)/nvda/nvda.exe","-r",false,false);
+else if(x==false) run("c:/Program Files/nvda/nvda.exe","-r",false,false);
+}
+//This will speak whatever you pass to it through sapi directly. This also has a wait bool so that you can forse the script to wait until it is done speaking before continueing.
+/*
+bool sapispeak(string what,bool wait=false)
+{
+if(!wait) ttts.speak(what);
+else if(wait) ttts.speak_wait(what);
+}
+*/
+//This is a simple toggle function to turn something on or off. This could be used in a few different ways.
+int togglei(int i)
+{
+return (i==1?0:1);
+}
+void dialogs(string text, bool dlgwait=false)
+{
+pl("dlg_open");
+string[] stuff=string_split(text,"\r\n",false);
+for(uint i=0;i<stuff.length();i+=1)
+{
+if(!dlgwait)
+{
+dlg(stuff[i],false,"dlg_next.ogg");
+}
+else if(dlgwait==true)
+{
+speak(stuff[i]);
+}
+}
+playsnd("dlg_stop.ogg");
+}
+double convert_to_inv_pan(double m1, double m2)
+{
+return (m1*100/m2)-50;
+}
+double cconvert_to_pan(double length,double index, double range1, double range2)
+{
+if (length==1)
+return 0;
+double range=range2-range1;
+double percent=index/(length-1);
+double value=range1+range*percent;
+return value;
+}
+// playing a logo with a skippable noise.
+void play_intro(sound@ handle)
+{
+handle.play();
+while (handle.playing)
+{
+if ((key_pressed (KEY_SPACE)) || (key_pressed (KEY_RETURN)))
+{
+handle.stop();
+playsnd("logo_skip.ogg");
+break;
+}
+wait (5);
+}
+}
+// playing a sound 2d the easiest way.
+/*
+void ps2d(string snd,string obj,int pnum,string xval="x",string yval="y",bool persist=false)
+{
+p"+pnum+".play_2d(snd,me.x,me.y,obj[i].xval,obj[i].yval,"+(persist==true?true:false)+");
+}
+*/

@@ -1,0 +1,26 @@
+mapname:coffee_shop
+minx:0
+maxx:50
+miny:0
+maxy:50
+minz:0
+maxz:50
+tile:0:50:0:50:0:0:0:100:wood13
+litem:1
+starting_point:0:50:0:50:0:0
+deathpoint:0:50:0:50:0:0
+zone:0:50:0:50:0:50:coffee shop
+rain:telhado.ogg
+src:0:50:0:50:0:50:0:100:calm.ogg
+src:0:50:0:50:0:50:0:100:cafe.ogg
+tile:0:0:50:50:0:0:0:100:diamond
+vending_machine:0:50:0
+zone:0:0:50:50:0:10:vending machine:trackme
+travelpoint:26:26:0:0:0:0:main:175:236:0:welcome back:door1s.ogg:door20open.ogg:door20close.ogg
+zone:26:26:0:0:0:10:exit path:trackme
+url:https://cdn.pixabay.com/download/audio/2021/02/07/audio_0f244b3e44.mp3?filename=swing-brass-big-band-miller-style-2671.mp3
+wind:none.ogg
+night:none.ogg
+item_usage_restriction:0:50:0:50:0:50:conex:beehive:small_conex:locker:fridge:microwave:sky_racer:ford:sorento:dogan_slx:grayhound_bus:m60_tank:tank:truck:v4_by_4_jeep:dodge_charger:doom_buggy:ford_pickup_truck:mlk_mission_cruiser:muscle_car:generic_motorcycle:frog_motorcycle:ducati_street_fighter:onda_cbr_600:yamaha_r6:aprilia_v4:aprilia_rs660:ducati_diavel:yamaha_off_road:kawasaki_hipersport:kawasaki_adventure_tourer:ducati_scrumbler:bmw_off_road:motor_boat
+
+owner:mad-gamer

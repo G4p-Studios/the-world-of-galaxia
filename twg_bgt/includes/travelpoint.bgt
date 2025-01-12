@@ -1,0 +1,558 @@
+travelpoint@[] travelpoints(0);
+class travelpoint
+{
+string ds, ds2, ds3;
+int travelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+travelpoint(int mintravelpointx, int maxtravelpointx, int mintravelpointy, int maxtravelpointy, int mintravelpointz, int maxtravelpointz, string newmap, int newx, int newy, int newz, string tx, string travelpointsnd, string travelpointsnd2, string travelpointsnd3)
+{
+ds=travelpointsnd;
+ds2=travelpointsnd2;
+ds3=travelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=mintravelpointx;
+maxdx=maxtravelpointx;
+mindy=mintravelpointy;
+maxdy=maxtravelpointy;
+mindz=mintravelpointz;
+maxdz=maxtravelpointz;
+text=tx;
+if(ds!="silence" and sleepmode!=0) travelpointsound=p.play_3d(ds, me.x, me.y, me.z, mintravelpointx, mintravelpointy, mintravelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(travelpointsound, mintravelpointx, mintravelpointy, mintravelpointz);
+p.update_sound_range_3d(travelpointsound, 0, maxtravelpointx-mintravelpointx, 0, maxtravelpointy-mintravelpointy, 0, maxtravelpointz-mintravelpointz);
+}
+}
+void spawn_travelpoint(int mintravelpointx, int maxtravelpointx, int mintravelpointy, int maxtravelpointy, int mintravelpointz, int maxtravelpointz, string newmap, int newx, int newy, int newz, string text, string automoversnd, string automoversnd2, string automoversnd3)
+{
+travelpoint travelpoint1(mintravelpointx, maxtravelpointx, mintravelpointy, maxtravelpointy, mintravelpointz, maxtravelpointz, newmap, newx, newy, newz, text, automoversnd, automoversnd2, automoversnd3);
+travelpoints.insert_last(travelpoint1);
+}
+void destroy_travelpoint(int d)
+{
+p.destroy_sound(travelpoints[d].travelpointsound);
+travelpoints.remove_at(d);
+}
+void destroy_all_travelpoints()
+{
+for(uint i=0; i<travelpoints.length(); i++)
+{
+p.destroy_sound(travelpoints[i].travelpointsound);
+}
+travelpoints.resize(0);
+}
+ptravelpoint@[] ptravelpoints(0);
+class ptravelpoint
+{
+string ds, ds2, ds3;
+int ptravelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+string password;
+ptravelpoint(int minptravelpointx, int maxptravelpointx, int minptravelpointy, int maxptravelpointy, int minptravelpointz, int maxptravelpointz, string newmap, int newx, int newy, int newz, string tx, string ptravelpointpassword, string ptravelpointsnd, string ptravelpointsnd2, string ptravelpointsnd3)
+{
+ds=ptravelpointsnd;
+ds2=ptravelpointsnd2;
+ds3=ptravelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=minptravelpointx;
+maxdx=maxptravelpointx;
+mindy=minptravelpointy;
+maxdy=maxptravelpointy;
+mindz=minptravelpointz;
+maxdz=maxptravelpointz;
+text=tx;
+password=ptravelpointpassword;
+if(ds!="silence" and sleepmode!=0) ptravelpointsound=p.play_3d(ds, me.x, me.y, me.z, minptravelpointx, minptravelpointy, minptravelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(ptravelpointsound, minptravelpointx, minptravelpointy, minptravelpointz);
+p.update_sound_range_3d(ptravelpointsound, 0, maxptravelpointx-minptravelpointx, 0, maxptravelpointy-minptravelpointy, 0, maxptravelpointz-minptravelpointz);
+}
+}
+void spawn_ptravelpoint(int minptravelpointx, int maxptravelpointx, int minptravelpointy, int maxptravelpointy, int minptravelpointz, int maxptravelpointz, string newmap, int newx, int newy, int newz, string text, string ptravelpointpassword, string automoversnd, string automoversnd2, string automoversnd3)
+{
+ptravelpoint ptravelpoint1(minptravelpointx, maxptravelpointx, minptravelpointy, maxptravelpointy, minptravelpointz, maxptravelpointz, newmap, newx, newy, newz, text, ptravelpointpassword, automoversnd, automoversnd2, automoversnd3);
+ptravelpoints.insert_last(ptravelpoint1);
+}
+void destroy_ptravelpoint(int d)
+{
+p.destroy_sound(ptravelpoints[d].ptravelpointsound);
+ptravelpoints.remove_at(d);
+}
+void destroy_all_ptravelpoints()
+{
+for(uint i=0; i<ptravelpoints.length(); i++)
+{
+p.destroy_sound(ptravelpoints[i].ptravelpointsound);
+}
+ptravelpoints.resize(0);
+}
+ictravelpoint@[] ictravelpoints(0);
+class ictravelpoint
+{
+string ds, ds2, ds3;
+int ictravelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+string item;
+double amount;
+ictravelpoint(int minictravelpointx, int maxictravelpointx, int minictravelpointy, int maxictravelpointy, int minictravelpointz, int maxictravelpointz, string newmap, int newx, int newy, int newz, string tx, string ictravelpointitem, int ictravelpointamount, string ictravelpointsnd, string ictravelpointsnd2, string ictravelpointsnd3)
+{
+ds=ictravelpointsnd;
+ds2=ictravelpointsnd2;
+ds3=ictravelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=minictravelpointx;
+maxdx=maxictravelpointx;
+mindy=minictravelpointy;
+maxdy=maxictravelpointy;
+mindz=minictravelpointz;
+maxdz=maxictravelpointz;
+text=tx;
+item=ictravelpointitem;
+amount=ictravelpointamount;
+if(ds!="silence" and sleepmode!=0) ictravelpointsound=p.play_3d(ds, me.x, me.y, me.z, minictravelpointx, minictravelpointy, minictravelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(ictravelpointsound, minictravelpointx, minictravelpointy, minictravelpointz);
+p.update_sound_range_3d(ictravelpointsound, 0, maxictravelpointx-minictravelpointx, 0, maxictravelpointy-minictravelpointy, 0, maxictravelpointz-minictravelpointz);
+}
+}
+void spawn_ictravelpoint(int minictravelpointx, int maxictravelpointx, int minictravelpointy, int maxictravelpointy, int minictravelpointz, int maxictravelpointz, string newmap, int newx, int newy, int newz, string text, string ictravelpointitem, int ictravelpointamount, string ictravelpointsnd, string ictravelpointsnd2, string ictravelpointsnd3)
+{
+ictravelpoint ictravelpoint1(minictravelpointx, maxictravelpointx, minictravelpointy, maxictravelpointy, minictravelpointz, maxictravelpointz, newmap, newx, newy, newz, text, ictravelpointitem, ictravelpointamount, ictravelpointsnd, ictravelpointsnd2, ictravelpointsnd3);
+ictravelpoints.insert_last(ictravelpoint1);
+}
+void destroy_ictravelpoint(int d)
+{
+p.destroy_sound(ictravelpoints[d].ictravelpointsound);
+ictravelpoints.remove_at(d);
+}
+void destroy_all_ictravelpoints()
+{
+for(uint i=0; i<ictravelpoints.length(); i++)
+{
+p.destroy_sound(ictravelpoints[i].ictravelpointsound);
+}
+ictravelpoints.resize(0);
+}
+ittravelpoint@[] ittravelpoints(0);
+class ittravelpoint
+{
+string ds, ds2, ds3;
+int ittravelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+string item;
+double amount;
+ittravelpoint(int minittravelpointx, int maxittravelpointx, int minittravelpointy, int maxittravelpointy, int minittravelpointz, int maxittravelpointz, string newmap, int newx, int newy, int newz, string tx, string ittravelpointitem, int ittravelpointamount, string ittravelpointsnd, string ittravelpointsnd2, string ittravelpointsnd3)
+{
+ds=ittravelpointsnd;
+ds2=ittravelpointsnd2;
+ds3=ittravelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=minittravelpointx;
+maxdx=maxittravelpointx;
+mindy=minittravelpointy;
+maxdy=maxittravelpointy;
+mindz=minittravelpointz;
+maxdz=maxittravelpointz;
+text=tx;
+item=ittravelpointitem;
+amount=ittravelpointamount;
+if(ds!="silence" and sleepmode!=0) ittravelpointsound=p.play_3d(ds, me.x, me.y, me.z, minittravelpointx, minittravelpointy, minittravelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(ittravelpointsound, minittravelpointx, minittravelpointy, minittravelpointz);
+p.update_sound_range_3d(ittravelpointsound, 0, maxittravelpointx-minittravelpointx, 0, maxittravelpointy-minittravelpointy, 0, maxittravelpointz-minittravelpointz);
+}
+}
+void spawn_ittravelpoint(int minittravelpointx, int maxittravelpointx, int minittravelpointy, int maxittravelpointy, int minittravelpointz, int maxittravelpointz, string newmap, int newx, int newy, int newz, string text, string ittravelpointitem, int ittravelpointamount, string ittravelpointsnd, string ittravelpointsnd2, string ittravelpointsnd3)
+{
+ittravelpoint ittravelpoint1(minittravelpointx, maxittravelpointx, minittravelpointy, maxittravelpointy, minittravelpointz, maxittravelpointz, newmap, newx, newy, newz, text, ittravelpointitem, ittravelpointamount, ittravelpointsnd, ittravelpointsnd2, ittravelpointsnd3);
+ittravelpoints.insert_last(ittravelpoint1);
+}
+void destroy_ittravelpoint(int d)
+{
+p.destroy_sound(ittravelpoints[d].ittravelpointsound);
+ittravelpoints.remove_at(d);
+}
+void destroy_all_ittravelpoints()
+{
+for(uint i=0; i<ittravelpoints.length(); i++)
+{
+p.destroy_sound(ittravelpoints[i].ittravelpointsound);
+}
+ittravelpoints.resize(0);
+}
+igtravelpoint@[] igtravelpoints(0);
+class igtravelpoint
+{
+string ds, ds2, ds3;
+int igtravelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+string item;
+double amount;
+igtravelpoint(int minigtravelpointx, int maxigtravelpointx, int minigtravelpointy, int maxigtravelpointy, int minigtravelpointz, int maxigtravelpointz, string newmap, int newx, int newy, int newz, string tx, string igtravelpointitem, int igtravelpointamount, string igtravelpointsnd, string igtravelpointsnd2, string igtravelpointsnd3)
+{
+ds=igtravelpointsnd;
+ds2=igtravelpointsnd2;
+ds3=igtravelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=minigtravelpointx;
+maxdx=maxigtravelpointx;
+mindy=minigtravelpointy;
+maxdy=maxigtravelpointy;
+mindz=minigtravelpointz;
+maxdz=maxigtravelpointz;
+text=tx;
+item=igtravelpointitem;
+amount=igtravelpointamount;
+if(ds!="silence" and sleepmode!=0) igtravelpointsound=p.play_3d(ds, me.x, me.y, me.z, minigtravelpointx, minigtravelpointy, minigtravelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(igtravelpointsound, minigtravelpointx, minigtravelpointy, minigtravelpointz);
+p.update_sound_range_3d(igtravelpointsound, 0, maxigtravelpointx-minigtravelpointx, 0, maxigtravelpointy-minigtravelpointy, 0, maxigtravelpointz-minigtravelpointz);
+}
+}
+void spawn_igtravelpoint(int minigtravelpointx, int maxigtravelpointx, int minigtravelpointy, int maxigtravelpointy, int minigtravelpointz, int maxigtravelpointz, string newmap, int newx, int newy, int newz, string text, string igtravelpointitem, int igtravelpointamount, string igtravelpointsnd, string igtravelpointsnd2, string igtravelpointsnd3)
+{
+igtravelpoint igtravelpoint1(minigtravelpointx, maxigtravelpointx, minigtravelpointy, maxigtravelpointy, minigtravelpointz, maxigtravelpointz, newmap, newx, newy, newz, text, igtravelpointitem, igtravelpointamount, igtravelpointsnd, igtravelpointsnd2, igtravelpointsnd3);
+igtravelpoints.insert_last(igtravelpoint1);
+}
+void destroy_igtravelpoint(int d)
+{
+p.destroy_sound(igtravelpoints[d].igtravelpointsound);
+igtravelpoints.remove_at(d);
+}
+void destroy_all_igtravelpoints()
+{
+for(uint i=0; i<igtravelpoints.length(); i++)
+{
+p.destroy_sound(igtravelpoints[i].igtravelpointsound);
+}
+igtravelpoints.resize(0);
+}
+automatic_travelpoint@[] automatic_travelpoints(0);
+class automatic_travelpoint
+{
+string ds, ds2, ds3;
+int automatic_travelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+automatic_travelpoint(int minautomatic_travelpointx, int maxautomatic_travelpointx, int minautomatic_travelpointy, int maxautomatic_travelpointy, int minautomatic_travelpointz, int maxautomatic_travelpointz, string newmap, int newx, int newy, int newz, string tx, string automatic_travelpointsnd, string automatic_travelpointsnd2, string automatic_travelpointsnd3)
+{
+ds=automatic_travelpointsnd;
+ds2=automatic_travelpointsnd2;
+ds3=automatic_travelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=minautomatic_travelpointx;
+maxdx=maxautomatic_travelpointx;
+mindy=minautomatic_travelpointy;
+maxdy=maxautomatic_travelpointy;
+mindz=minautomatic_travelpointz;
+maxdz=maxautomatic_travelpointz;
+text=tx;
+if(ds!="silence" and sleepmode!=0) automatic_travelpointsound=p.play_3d(ds, me.x, me.y, me.z, minautomatic_travelpointx, minautomatic_travelpointy, minautomatic_travelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(automatic_travelpointsound, minautomatic_travelpointx, minautomatic_travelpointy, minautomatic_travelpointz);
+p.update_sound_range_3d(automatic_travelpointsound, 0, maxautomatic_travelpointx-minautomatic_travelpointx, 0, maxautomatic_travelpointy-minautomatic_travelpointy, 0, maxautomatic_travelpointz-minautomatic_travelpointz);
+}
+}
+void spawn_automatic_travelpoint(int minautomatic_travelpointx, int maxautomatic_travelpointx, int minautomatic_travelpointy, int maxautomatic_travelpointy, int minautomatic_travelpointz, int maxautomatic_travelpointz, string newmap, int newx, int newy, int newz, string text, string automoversnd, string automoversnd2, string automoversnd3)
+{
+automatic_travelpoint automatic_travelpoint1(minautomatic_travelpointx, maxautomatic_travelpointx, minautomatic_travelpointy, maxautomatic_travelpointy, minautomatic_travelpointz, maxautomatic_travelpointz, newmap, newx, newy, newz, text, automoversnd, automoversnd2, automoversnd3);
+automatic_travelpoints.insert_last(automatic_travelpoint1);
+}
+void destroy_automatic_travelpoint(int d)
+{
+p.destroy_sound(automatic_travelpoints[d].automatic_travelpointsound);
+automatic_travelpoints.remove_at(d);
+}
+void destroy_all_automatic_travelpoints()
+{
+for(uint i=0; i<automatic_travelpoints.length(); i++)
+{
+p.destroy_sound(automatic_travelpoints[i].automatic_travelpointsound);
+}
+automatic_travelpoints.resize(0);
+}
+pautomatic_travelpoint@[] pautomatic_travelpoints(0);
+class pautomatic_travelpoint
+{
+string ds, ds2, ds3;
+int pautomatic_travelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+string password;
+pautomatic_travelpoint(int minpautomatic_travelpointx, int maxpautomatic_travelpointx, int minpautomatic_travelpointy, int maxpautomatic_travelpointy, int minpautomatic_travelpointz, int maxpautomatic_travelpointz, string newmap, int newx, int newy, int newz, string tx, string pautomatic_travelpointpassword, string pautomatic_travelpointsnd, string pautomatic_travelpointsnd2, string pautomatic_travelpointsnd3)
+{
+ds=pautomatic_travelpointsnd;
+ds2=pautomatic_travelpointsnd2;
+ds3=pautomatic_travelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=minpautomatic_travelpointx;
+maxdx=maxpautomatic_travelpointx;
+mindy=minpautomatic_travelpointy;
+maxdy=maxpautomatic_travelpointy;
+mindz=minpautomatic_travelpointz;
+maxdz=maxpautomatic_travelpointz;
+text=tx;
+password=pautomatic_travelpointpassword;
+if(ds!="silence" and sleepmode!=0) pautomatic_travelpointsound=p.play_3d(ds, me.x, me.y, me.z, minpautomatic_travelpointx, minpautomatic_travelpointy, minpautomatic_travelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(pautomatic_travelpointsound, minpautomatic_travelpointx, minpautomatic_travelpointy, minpautomatic_travelpointz);
+p.update_sound_range_3d(pautomatic_travelpointsound, 0, maxpautomatic_travelpointx-minpautomatic_travelpointx, 0, maxpautomatic_travelpointy-minpautomatic_travelpointy, 0, maxpautomatic_travelpointz-minpautomatic_travelpointz);
+}
+}
+void spawn_pautomatic_travelpoint(int minpautomatic_travelpointx, int maxpautomatic_travelpointx, int minpautomatic_travelpointy, int maxpautomatic_travelpointy, int minpautomatic_travelpointz, int maxpautomatic_travelpointz, string newmap, int newx, int newy, int newz, string text, string pautomatic_travelpointpassword, string automoversnd, string automoversnd2, string automoversnd3)
+{
+pautomatic_travelpoint pautomatic_travelpoint1(minpautomatic_travelpointx, maxpautomatic_travelpointx, minpautomatic_travelpointy, maxpautomatic_travelpointy, minpautomatic_travelpointz, maxpautomatic_travelpointz, newmap, newx, newy, newz, text, pautomatic_travelpointpassword, automoversnd, automoversnd2, automoversnd3);
+pautomatic_travelpoints.insert_last(pautomatic_travelpoint1);
+}
+void destroy_pautomatic_travelpoint(int d)
+{
+p.destroy_sound(pautomatic_travelpoints[d].pautomatic_travelpointsound);
+pautomatic_travelpoints.remove_at(d);
+}
+void destroy_all_pautomatic_travelpoints()
+{
+for(uint i=0; i<pautomatic_travelpoints.length(); i++)
+{
+p.destroy_sound(pautomatic_travelpoints[i].pautomatic_travelpointsound);
+}
+pautomatic_travelpoints.resize(0);
+}
+icautomatic_travelpoint@[] icautomatic_travelpoints(0);
+class icautomatic_travelpoint
+{
+string ds, ds2, ds3;
+int icautomatic_travelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+string item;
+double amount;
+icautomatic_travelpoint(int minicautomatic_travelpointx, int maxicautomatic_travelpointx, int minicautomatic_travelpointy, int maxicautomatic_travelpointy, int minicautomatic_travelpointz, int maxicautomatic_travelpointz, string newmap, int newx, int newy, int newz, string tx, string icautomatic_travelpointitem, int icautomatic_travelpointamount, string icautomatic_travelpointsnd, string icautomatic_travelpointsnd2, string icautomatic_travelpointsnd3)
+{
+ds=icautomatic_travelpointsnd;
+ds2=icautomatic_travelpointsnd2;
+ds3=icautomatic_travelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=minicautomatic_travelpointx;
+maxdx=maxicautomatic_travelpointx;
+mindy=minicautomatic_travelpointy;
+maxdy=maxicautomatic_travelpointy;
+mindz=minicautomatic_travelpointz;
+maxdz=maxicautomatic_travelpointz;
+text=tx;
+item=icautomatic_travelpointitem;
+amount=icautomatic_travelpointamount;
+if(ds!="silence" and sleepmode!=0) icautomatic_travelpointsound=p.play_3d(ds, me.x, me.y, me.z, minicautomatic_travelpointx, minicautomatic_travelpointy, minicautomatic_travelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(icautomatic_travelpointsound, minicautomatic_travelpointx, minicautomatic_travelpointy, minicautomatic_travelpointz);
+p.update_sound_range_3d(icautomatic_travelpointsound, 0, maxicautomatic_travelpointx-minicautomatic_travelpointx, 0, maxicautomatic_travelpointy-minicautomatic_travelpointy, 0, maxicautomatic_travelpointz-minicautomatic_travelpointz);
+}
+}
+void spawn_icautomatic_travelpoint(int minicautomatic_travelpointx, int maxicautomatic_travelpointx, int minicautomatic_travelpointy, int maxicautomatic_travelpointy, int minicautomatic_travelpointz, int maxicautomatic_travelpointz, string newmap, int newx, int newy, int newz, string text, string icautomatic_travelpointitem, int icautomatic_travelpointamount, string icautomatic_travelpointsnd, string icautomatic_travelpointsnd2, string icautomatic_travelpointsnd3)
+{
+icautomatic_travelpoint icautomatic_travelpoint1(minicautomatic_travelpointx, maxicautomatic_travelpointx, minicautomatic_travelpointy, maxicautomatic_travelpointy, minicautomatic_travelpointz, maxicautomatic_travelpointz, newmap, newx, newy, newz, text, icautomatic_travelpointitem, icautomatic_travelpointamount, icautomatic_travelpointsnd, icautomatic_travelpointsnd2, icautomatic_travelpointsnd3);
+icautomatic_travelpoints.insert_last(icautomatic_travelpoint1);
+}
+void destroy_icautomatic_travelpoint(int d)
+{
+p.destroy_sound(icautomatic_travelpoints[d].icautomatic_travelpointsound);
+icautomatic_travelpoints.remove_at(d);
+}
+void destroy_all_icautomatic_travelpoints()
+{
+for(uint i=0; i<icautomatic_travelpoints.length(); i++)
+{
+p.destroy_sound(icautomatic_travelpoints[i].icautomatic_travelpointsound);
+}
+icautomatic_travelpoints.resize(0);
+}
+itautomatic_travelpoint@[] itautomatic_travelpoints(0);
+class itautomatic_travelpoint
+{
+string ds, ds2, ds3;
+int itautomatic_travelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+string item;
+double amount;
+itautomatic_travelpoint(int minitautomatic_travelpointx, int maxitautomatic_travelpointx, int minitautomatic_travelpointy, int maxitautomatic_travelpointy, int minitautomatic_travelpointz, int maxitautomatic_travelpointz, string newmap, int newx, int newy, int newz, string tx, string itautomatic_travelpointitem, int itautomatic_travelpointamount, string itautomatic_travelpointsnd, string itautomatic_travelpointsnd2, string itautomatic_travelpointsnd3)
+{
+ds=itautomatic_travelpointsnd;
+ds2=itautomatic_travelpointsnd2;
+ds3=itautomatic_travelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=minitautomatic_travelpointx;
+maxdx=maxitautomatic_travelpointx;
+mindy=minitautomatic_travelpointy;
+maxdy=maxitautomatic_travelpointy;
+mindz=minitautomatic_travelpointz;
+maxdz=maxitautomatic_travelpointz;
+text=tx;
+item=itautomatic_travelpointitem;
+amount=itautomatic_travelpointamount;
+if(ds!="silence" and sleepmode!=0) itautomatic_travelpointsound=p.play_3d(ds, me.x, me.y, me.z, minitautomatic_travelpointx, minitautomatic_travelpointy, minitautomatic_travelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(itautomatic_travelpointsound, minitautomatic_travelpointx, minitautomatic_travelpointy, minitautomatic_travelpointz);
+p.update_sound_range_3d(itautomatic_travelpointsound, 0, maxitautomatic_travelpointx-minitautomatic_travelpointx, 0, maxitautomatic_travelpointy-minitautomatic_travelpointy, 0, maxitautomatic_travelpointz-minitautomatic_travelpointz);
+}
+}
+void spawn_itautomatic_travelpoint(int minitautomatic_travelpointx, int maxitautomatic_travelpointx, int minitautomatic_travelpointy, int maxitautomatic_travelpointy, int minitautomatic_travelpointz, int maxitautomatic_travelpointz, string newmap, int newx, int newy, int newz, string text, string itautomatic_travelpointitem, int itautomatic_travelpointamount, string itautomatic_travelpointsnd, string itautomatic_travelpointsnd2, string itautomatic_travelpointsnd3)
+{
+itautomatic_travelpoint itautomatic_travelpoint1(minitautomatic_travelpointx, maxitautomatic_travelpointx, minitautomatic_travelpointy, maxitautomatic_travelpointy, minitautomatic_travelpointz, maxitautomatic_travelpointz, newmap, newx, newy, newz, text, itautomatic_travelpointitem, itautomatic_travelpointamount, itautomatic_travelpointsnd, itautomatic_travelpointsnd2, itautomatic_travelpointsnd3);
+itautomatic_travelpoints.insert_last(itautomatic_travelpoint1);
+}
+void destroy_itautomatic_travelpoint(int d)
+{
+p.destroy_sound(itautomatic_travelpoints[d].itautomatic_travelpointsound);
+itautomatic_travelpoints.remove_at(d);
+}
+void destroy_all_itautomatic_travelpoints()
+{
+for(uint i=0; i<itautomatic_travelpoints.length(); i++)
+{
+p.destroy_sound(itautomatic_travelpoints[i].itautomatic_travelpointsound);
+}
+itautomatic_travelpoints.resize(0);
+}
+igautomatic_travelpoint@[] igautomatic_travelpoints(0);
+class igautomatic_travelpoint
+{
+string ds, ds2, ds3;
+int igautomatic_travelpointsound;
+int nx, ny, nz;
+string nmap;
+string text;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+string item;
+double amount;
+igautomatic_travelpoint(int minigautomatic_travelpointx, int maxigautomatic_travelpointx, int minigautomatic_travelpointy, int maxigautomatic_travelpointy, int minigautomatic_travelpointz, int maxigautomatic_travelpointz, string newmap, int newx, int newy, int newz, string tx, string igautomatic_travelpointitem, int igautomatic_travelpointamount, string igautomatic_travelpointsnd, string igautomatic_travelpointsnd2, string igautomatic_travelpointsnd3)
+{
+ds=igautomatic_travelpointsnd;
+ds2=igautomatic_travelpointsnd2;
+ds3=igautomatic_travelpointsnd3;
+nx=newx;
+ny=newy;
+nz=newz;
+nmap=newmap;
+mindx=minigautomatic_travelpointx;
+maxdx=maxigautomatic_travelpointx;
+mindy=minigautomatic_travelpointy;
+maxdy=maxigautomatic_travelpointy;
+mindz=minigautomatic_travelpointz;
+maxdz=maxigautomatic_travelpointz;
+text=tx;
+item=igautomatic_travelpointitem;
+amount=igautomatic_travelpointamount;
+if(ds!="silence" and sleepmode!=0) igautomatic_travelpointsound=p.play_3d(ds, me.x, me.y, me.z, minigautomatic_travelpointx, minigautomatic_travelpointy, minigautomatic_travelpointz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(igautomatic_travelpointsound, minigautomatic_travelpointx, minigautomatic_travelpointy, minigautomatic_travelpointz);
+p.update_sound_range_3d(igautomatic_travelpointsound, 0, maxigautomatic_travelpointx-minigautomatic_travelpointx, 0, maxigautomatic_travelpointy-minigautomatic_travelpointy, 0, maxigautomatic_travelpointz-minigautomatic_travelpointz);
+}
+}
+void spawn_igautomatic_travelpoint(int minigautomatic_travelpointx, int maxigautomatic_travelpointx, int minigautomatic_travelpointy, int maxigautomatic_travelpointy, int minigautomatic_travelpointz, int maxigautomatic_travelpointz, string newmap, int newx, int newy, int newz, string text, string igautomatic_travelpointitem, int igautomatic_travelpointamount, string igautomatic_travelpointsnd, string igautomatic_travelpointsnd2, string igautomatic_travelpointsnd3)
+{
+igautomatic_travelpoint igautomatic_travelpoint1(minigautomatic_travelpointx, maxigautomatic_travelpointx, minigautomatic_travelpointy, maxigautomatic_travelpointy, minigautomatic_travelpointz, maxigautomatic_travelpointz, newmap, newx, newy, newz, text, igautomatic_travelpointitem, igautomatic_travelpointamount, igautomatic_travelpointsnd, igautomatic_travelpointsnd2, igautomatic_travelpointsnd3);
+igautomatic_travelpoints.insert_last(igautomatic_travelpoint1);
+}
+void destroy_igautomatic_travelpoint(int d)
+{
+p.destroy_sound(igautomatic_travelpoints[d].igautomatic_travelpointsound);
+igautomatic_travelpoints.remove_at(d);
+}
+void destroy_all_igautomatic_travelpoints()
+{
+for(uint i=0; i<igautomatic_travelpoints.length(); i++)
+{
+p.destroy_sound(igautomatic_travelpoints[i].igautomatic_travelpointsound);
+}
+igautomatic_travelpoints.resize(0);
+}

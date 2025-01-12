@@ -1,0 +1,88 @@
+paid_store@[] paid_stores;
+class paid_store
+{
+string [] item_names;
+double[] prices;
+string name;
+int mode=0;
+paid_store(string n)
+{
+name=n;
+}
+void add(string item_name, double price)
+{
+item_names.insert_last(item_name);
+prices.insert_last(price);
+}
+void send(int peer, string packet="paid_buysomething")
+{
+if(item_names.length()==0)
+{
+send_reliable(peer, "this paid_store has no items. sorry.", 0);
+return;
+}
+int index=get_player_index(peer);
+if(index>-1)
+{
+string items;
+int p, canbuy;
+for(int i=0; i<item_names.length(); i++)
+{
+p=prices[i];
+canbuy=players[index].inv_item_number("credit")/p;
+if(item_names[i]=="xp_potion") items+=string_replace(item_names[i], "_", " ", true)+". costs "+p+" credit pur each minute. You can buy "+canbuy+":"+item_names[i]+"[]";
+else items+=string_replace(item_names[i], "_", " ", true)+". costs "+p+" credit. You can buy "+canbuy+":"+item_names[i]+"[]";
+}
+send_menu(peer, string_replace(name, "_", " ", true), "paid_buysomething", items);
+}
+}
+int get_item_index(string name)
+{
+for(int i=0; i<item_names.length(); i++)
+{
+if(item_names[i]==name) return i;
+}
+return -1;
+}
+}
+
+void create_paid_store(string name)
+{
+paid_store s(name);
+paid_stores.insert_last(s);
+}
+int get_paid_store_index_from(string name)
+{
+for(int i=0; i<paid_stores.length(); i++)
+{
+if(paid_stores[i].name==name) return i;
+}
+return -1;
+}
+void add_to_paid_store(string item, double price, string paid_storename="paid_store")
+{
+bool added=true;
+int index=get_paid_store_index_from(paid_storename);
+if(index>-1)
+{
+string[] tempitems=paid_stores[index].item_names;
+for(int i=0; i<tempitems.length(); i++)
+{
+if(tempitems[i]==item) added=false;
+}
+}
+else added=false;
+if(added) paid_stores[index].add(item, price);
+else
+{
+return;
+}
+}
+void reset_paid_stores()
+{
+for(uint i=0; i<paid_stores.length(); i++)
+{
+paid_stores[i].item_names.resize(0);
+paid_stores[i].prices.resize(0);
+}
+}

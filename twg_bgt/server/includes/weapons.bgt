@@ -1,0 +1,183 @@
+void weapons(player@p, string message)
+{
+string[] parsed=string_split(message, " ",true);
+if(parsed[0]=="fire")
+{
+fireweapon(p);
+}
+else if(parsed[0]=="light_punch"||parsed[0]=="punch"||parsed[0]=="heavy_punch"||parsed[0]=="light_kick"||parsed[0]=="kick"||parsed[0]=="heavy_kick")
+{
+combo(p,parsed[0],150);
+}
+else if(parsed[0]=="grab")
+{
+combo(p,parsed[0],500);
+}
+else if(parsed[0]=="throw")
+{
+combo(p,parsed[0],300);
+}
+else if(parsed[0]=="slam")
+{
+combo(p,parsed[0],600);
+}
+else if(parsed[0]=="reload")
+{
+if(p.weapon_copasity<1 or p.weapon_copasity==p.weapon_ammos)
+{
+return;
+}
+if(p.inv_item_number(p.weapon_ammo_type)<=0)
+{
+send_reliable(p, "you don't have this type of ammo.", 2);
+return;
+}
+int needed_ammo=p.weapon_copasity-p.weapon_ammos;
+p.rltm.restart();
+int ammonum=p.inv_item_number(p.weapon_ammo_type);
+if(ammonum>=needed_ammo)
+{
+p.inv_add_item(p.weapon_ammo_type, -needed_ammo);
+p.weapon_ammos+=needed_ammo;
+p.playsound(p.weapon_name+"reload");
+}
+}
+else if(parsed[0]=="unload")
+{
+if(p.weapon_copasity<1)
+{
+return;
+}
+if(p.weapon_ammos>0)
+{
+if(p.rltm.elapsed>=random(1535,3057))
+{
+p.rltm.restart();
+p.inv_add_item(p.weapon_ammo_type,+p.weapon_ammos);
+p.weapon_ammos=0;
+if(p.weapon_name=="bow" or p.weapon_name=="long_bow") p.playsound("bowunload");
+else p.playsound("unload"+random(1,3)+"");
+}
+}
+}
+}
+void combo(player@p, string combo, int firetime)
+{
+int mapindex=get_map_index(p.map);
+if(mapindex>-1)
+{
+if(maps[mapindex].szminx<=p.x and maps[mapindex].szmaxx>=p.x and maps[mapindex].szminy<=p.y and maps[mapindex].szmaxy>=p.y and maps[mapindex].szminz<=p.z and maps[mapindex].szmaxz>=p.z)
+{
+send_reliable(p,"You can't do this in safe places",2);
+return;
+}
+}
+if(p.safe==false and is_safe(p.x,p.y,p.z,maps[get_map_index(p.map)])==false and p.afk==false and p.firetime.elapsed>firetime)
+{
+if(p.newb==1)
+{
+send_reliable(p,"You can't do this if you are a newbie!",0);
+return;
+}
+p.firetime.restart();
+send_packet(6,"play "+combo+""+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, combo, p, maps[get_map_index(p.map)]);
+}
+}
+void fireweapon(player@p)
+{
+int mapindex=get_map_index(p.map);
+if(mapindex>-1)
+{
+if(maps[mapindex].szminx<=p.x and maps[mapindex].szmaxx>=p.x and maps[mapindex].szminy<=p.y and maps[mapindex].szmaxy>=p.y and maps[mapindex].szminz<=p.z and maps[mapindex].szmaxz>=p.z)
+{
+send_reliable(p,"You can't fire in safe places",2);
+return;
+}
+}
+if(p.newb==1)
+{
+send_reliable(p,"You can't fire if you are a newbie!",2);
+return;
+}
+if(p.safe==false and is_safe(p.x,p.y,p.z,maps[get_map_index(p.map)])==false and p.afk==false and p.rltm.elapsed>get_gun_reload_length(p.weapon_name))
+{
+if(p.weapon_copasity>1 and p.weapon_ammos==0)
+{
+if(p.firetime.elapsed>p.firetimer)
+{
+p.firetime.restart();
+send_packet(6,"play "+p.weapon_name+"empty.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+return;
+}
+}
+if(p.weapon_copasity<1)
+{
+if(p.firetime.elapsed>p.firetimer)
+{
+p.firetime.restart();
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, p.weapon_name, p, maps[get_map_index(p.map)]);
+if(p.weapon_name=="knife")
+{
+send_packet(6,"play knife"+random(1,4)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else if(p.weapon_name=="blake_sword")
+{
+send_packet(6,"play blake_sword"+random(1,7)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else if(p.weapon_name=="long_sword")
+{
+send_packet(6,"play long_sword"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else if(p.weapon_name=="short_sword")
+{
+send_packet(6,"play short_sword"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else send_packet(6,"play "+p.weapon_name+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packetn(6,p.name,"distsound "+p.weapon_name+"dist "+p.x+" "+p.y+" "+p.z+" "+p.map,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+}
+else if(p.weapon_ammos>0)
+{
+if(p.firetime.elapsed>p.firetimer)
+{
+p.firetime.restart();
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, p.weapon_name, p, maps[get_map_index(p.map)]);
+if(p.weapon_name=="m234minigun")
+{
+if(p.weapon_ammos>=10) p.weapon_ammos-=10;
+else p.weapon_ammos-=p.weapon_ammos;
+}
+else if(p.weapon_name=="ak9automatic_machinegun")
+{
+if(p.weapon_ammos>=4) p.weapon_ammos-=4;
+else p.weapon_ammos-=p.weapon_ammos;
+}
+else if(p.weapon_name=="blue_burst_assault_rifle")
+{
+if(p.weapon_ammos>=5) p.weapon_ammos-=5;
+else p.weapon_ammos-=p.weapon_ammos;
+}
+else if(p.weapon_name=="gold_burst_assault_rifle")
+{
+if(p.weapon_ammos>=4) p.weapon_ammos-=4;
+else p.weapon_ammos-=p.weapon_ammos;
+}
+else p.weapon_ammos--;
+if(p.weapon_name=="stp106_long_barreled_pistol")
+{
+send_packet(6,"play stp106_long_barreled_pistol"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else
+{
+send_packet(6,"play "+p.weapon_name+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+if(p.weapon_name=="famas_g2")
+{
+send_dpacket(6,"distsound "+p.weapon_name+"dist "+p.x+" "+p.y+" "+p.z+" "+p.map,maps[get_map_index(p.map)]);
+}
+else send_dpacketn(6,p.name,"distsound "+p.weapon_name+"dist "+p.x+" "+p.y+" "+p.z+" "+p.map,maps[get_map_index(p.map)]);
+}
+}
+}
+}

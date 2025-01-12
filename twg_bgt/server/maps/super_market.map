@@ -1,0 +1,34 @@
+mapname:super_market
+minx:0
+maxx:50
+miny:0
+maxy:100
+minz:0
+maxz:15
+tile:0:50:0:100:0:0:0:100:hardwood
+litem:1
+starting_point:0:50:0:49:0:0
+deathpoint:0:50:0:49:0:0
+zone:0:50:0:100:0:15:super market
+travelpoint:50:50:1:5:0:0:main:1:51:5:welcome back:silence.ogg:silence.ogg:silence.ogg
+zone:50:50:1:5:0:15:main city entrance. Press shift enter to go outside:trackme
+src:50:50:1:5:0:15:0:100:birds76.ogg
+src:0:50:0:100:0:15:-10:100:vent.ogg
+tile:0:50:50:50:0:5:0:100:wallcone
+zone:0:50:49:49:0:5:fastfood store stairs:trackme
+tile:0:50:49:49:0:5:0:100:hardwood3
+tile:0:50:51:100:0:4:0:100:wall
+tile:0:50:50:100:5:5:0:100:hardwood4
+zone:0:50:50:100:5:10:fastfood_store
+vending_machine:10:40:0
+tile:10:10:40:40:0:0:0:100:diamond
+zone:10:10:40:40:0:0:vending machine:trackme
+zone:50:50:25:25:0:0:clock:trackme
+src:50:50:25:25:0:0:0:100:clock.ogg
+src:0:50:50:100:5:10:0:100:restaurant3.ogg
+rain:raininterior.ogg
+item_usage_restriction:0:50:0:100:0:15:conex:partner_house:beehive:small_conex:locker:fridge:microwave:sky_racer:ford:sorento:dogan_slx:grayhound_bus:m60_tank:tank:truck:v4_by_4_jeep:dodge_charger:doom_buggy:ford_pickup_truck:mlk_mission_cruiser:muscle_car:generic_motorcycle:frog_motorcycle:ducati_street_fighter:onda_cbr_600:yamaha_r6:aprilia_v4:aprilia_rs660:ducati_diavel:yamaha_off_road:kawasaki_hipersport:kawasaki_adventure_tourer:ducati_scrumbler:bmw_off_road:motor_boat
+wind:none.ogg
+night:none.ogg
+
+owner:mad-gamer

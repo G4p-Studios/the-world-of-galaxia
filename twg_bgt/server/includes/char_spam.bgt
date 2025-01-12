@@ -1,0 +1,22 @@
+string chartrash()
+{
+int del=0;
+string names;
+string ret;
+string[] chars=find_directories("chars/*");
+for (uint i=0; i<chars.length(); i++)
+{
+if (chars[i].length()<=1 and !file_exists("chars/"+chars[i]+"/paid.usr"))
+{
+directory_delete("chars/"+chars[i]);
+names+="\r\n"+chars[i]+", reason: less than 3 chars.";
+del+=1;
+}
+}
+ret="Out of "+chars.length()+", there were a total of "+del+"("+round(percent(del,chars.length()),0)+"percent)  characters that were considered spam. They were "+names+"";
+file c;
+c.open("char_spam.svr","wb");
+c.write(names);
+c.close();
+return ret;
+}

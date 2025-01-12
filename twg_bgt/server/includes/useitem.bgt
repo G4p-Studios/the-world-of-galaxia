@@ -1,0 +1,2447 @@
+void useitem(player@p, string message)
+{
+string[] parsed=string_split(message, " ",true);
+if(parsed[0]=="useitem")
+{
+if(p.afk or p.away or p.stunned or p.is_dead) return;
+if(can_use_item_at(p.x,p.y,p.z,maps[get_map_index(p.map)],parsed[1])==false)
+{
+send_reliable(p,"you can't use "+parsed[1]+" here",2);
+return;
+}
+if(auction==true and auctionwho==p.name and auctionitem==parsed[1] or auction==true and auctionwho==p.name and auctioncurrency==parsed[1])
+{
+send_reliable(p,"you can't use "+parsed[1]+" while putting it in auction",2);
+return;
+}
+if (p.inv_item_number(parsed[1])>0)
+{
+p.add_log_entry("use","used a "+parsed[1]);
+if(parsed[1]=="axe")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=590;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="axe2")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=640;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="knife")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=250;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="long_knife")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=270;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="spear")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=430;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="hammer")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=490;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="ak47assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=30;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="ak48")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=30;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="arrow_gun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="arrow";
+p.weapon_copasity=20;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="a90sniper_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=4000;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=1;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="bow")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=240;
+p.weapon_ammos=0;
+p.weapon_ammo_type="arrow";
+p.weapon_copasity=1;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="blue_assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2600;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="blue_bolt_action_sniper")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2600;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=5;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="blue_burst_assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1900;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=12;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="blue_heavy_assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2800;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=2;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="blue_hunting_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2500;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=7;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="blue_infintry_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1700;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=7;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="blue_tacticle_shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1800;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=6;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="drum_shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1800;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=4;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="gold_burst_assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1900;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=15;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="gold_drum_gun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1600;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=8;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="gold_heavy_assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2900;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=2;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="gold_scar")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=5;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="gold_tacticle_shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1700;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=6;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="heavy_sniper")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=3900;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=1;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="colt_m9")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=340;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=12;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="colt_m19")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=333;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=16;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="e9pistol")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=370;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=15;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="e20shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2410;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="e235shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1823;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=6;
+send_packet(6,"play 	draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="mpt_special_shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1241;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=6;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="mb3shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=3470;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=7;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="mb5shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=3670;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=8;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="mp5machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=25;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="tranquilizer_gun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=3020;
+p.weapon_ammos=0;
+p.weapon_ammo_type="tranquilizer";
+p.weapon_copasity=1;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="famas_g2")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=140;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=25;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="k222rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=3850;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=2;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="long_bow")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=270;
+p.weapon_ammos=0;
+p.weapon_ammo_type="arrow";
+p.weapon_copasity=1;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="p3hunting_shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=3400;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="taser")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1300;
+p.weapon_ammos=0;
+p.weapon_ammo_type="battery";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="tiny_mg")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=80;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=15;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="dagger")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=145;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="hook")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=410;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="iron_shovel")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1400;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="machete")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=525;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="small_dagger")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=125;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="sword")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=490;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="long_sword")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=410;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="short_sword")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=330;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="blake_sword")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=350;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="wip")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=610;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="ar15machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=15;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="barett_m1500sniper_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2880;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="blz5machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=28;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="browning_m2heavy_machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=50;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="chainsaw")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=180;
+p.weapon_ammos=0;
+p.weapon_ammo_type="battery";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="crossbow")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=230;
+p.weapon_ammos=0;
+p.weapon_ammo_type="arrow";
+p.weapon_copasity=5;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="fn2000pistol")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=290;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=15;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="fnm_pistol")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=275;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=18;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="g36pistol")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=256;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=12;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="gouse_pistol")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=234;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=9;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="hk_machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=18;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="lr12pistol")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=280;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=12;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="m9pistol")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=310;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=12;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="m10machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=25;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="m16machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=20;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="m125assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1980;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=2;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="m125minigun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=150;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=45;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="m152minigun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=50;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="m155minigun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=55;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="m560sniper_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1680;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="mg4machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=25;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="mj420machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=23;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="mk_long_machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=35;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="mk52assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1880;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="mk215machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=25;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="mkv43machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=15;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="ml7rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=980;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=6;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="ml15rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1090;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=8;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="mlk290rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1380;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=5;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="mlr_assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=35;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="mp12machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=17;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="msb530shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1070;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=9;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="pcs_handgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=6;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="rpg_launcher")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=3980;
+p.weapon_ammos=0;
+p.weapon_ammo_type="rpg";
+p.weapon_copasity=1;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="rocket_launcher")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1000;
+p.weapon_ammos=0;
+p.weapon_ammo_type="rocket";
+p.weapon_copasity=1;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="rpg7")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=3630;
+p.weapon_ammos=0;
+p.weapon_ammo_type="rpg";
+p.weapon_copasity=2;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="nak_nk1000_decimater")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=160;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=100;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="ruga22revolver")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=480;
+p.weapon_ammos=0;
+p.weapon_ammo_type="9mm_ammo";
+p.weapon_copasity=5;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="s55assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1580;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=7;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="s110assault_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1480;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=7;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="sp5shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=980;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=6;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="sp150shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1010;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=8;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="stp106_long_barreled_pistol")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=680;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=15;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="str301machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=25;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="m90machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=32;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="qt_machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=25;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="pst500shotgun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2980;
+p.weapon_ammos=0;
+p.weapon_ammo_type="shotgun_shell";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="sfx12machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=23;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="mb93machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=34;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="stp15rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1080;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=7;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="sp3heavy_machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=65;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="ak9automatic_machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=1034;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=44;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="tsp_grenade_launcher")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=780;
+p.weapon_ammos=0;
+p.weapon_ammo_type="grenade";
+p.weapon_copasity=3;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="m234minigun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=460;
+p.weapon_ammos=0;
+p.weapon_ammo_type="7.62mm_ammo";
+p.weapon_copasity=200;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="missile_launcher")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=3050;
+p.weapon_ammos=0;
+p.weapon_ammo_type="missile";
+p.weapon_copasity=1;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="m28mini_machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=28;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="b96machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=35;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="kalashnikov_rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2650;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=10;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="ump45machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=25;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="tac50rifle")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=2500;
+p.weapon_ammos=0;
+p.weapon_ammo_type="12.7mm_ammo";
+p.weapon_copasity=5;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="uzi_machinegun")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=100;
+p.weapon_ammos=0;
+p.weapon_ammo_type="5.56mm_ammo";
+p.weapon_copasity=20;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "rapid", 0);
+}
+}
+else if(parsed[1]=="d23machete")
+{
+if(parsed[1]!=p.weapon_name)
+{
+p.weapon_name=parsed[1];
+if(p.weapon_ammos>0)
+p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+p.firetimer=175;
+p.weapon_ammos=0;
+p.weapon_ammo_type="";
+p.weapon_copasity=0;
+send_packet(6,"play draw"+get_draw_and_get_sound(parsed[1])+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,parsed[1],0);
+send_reliable(p, "notrapid", 0);
+}
+}
+else if(parsed[1]=="wood")
+{
+for(uint i=0; i<houses.length(); i++)
+{
+if(houses[i].x==p.x and houses[i].y==p.y and houses[i].z==p.z and houses[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+houses[i].health+=random(100,380);
+p.inv_add_item("wood",-1);
+return;
+}
+}
+for(uint i=0; i<microwaves.length(); i++)
+{
+if(microwaves[i].x==p.x and microwaves[i].y==p.y and microwaves[i].z==p.z and microwaves[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+microwaves[i].health+=random(100,380);
+p.inv_add_item("wood",-1);
+return;
+}
+}
+for(uint i=0; i<lockers.length(); i++)
+{
+if(lockers[i].x==p.x and lockers[i].y==p.y and lockers[i].z==p.z and lockers[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+lockers[i].health+=random(100,380);
+p.inv_add_item("wood",-1);
+return;
+}
+}
+for(uint i=0; i<fridges.length(); i++)
+{
+if(fridges[i].x==p.x and fridges[i].y==p.y and fridges[i].z==p.z and fridges[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+fridges[i].health+=random(100,380);
+p.inv_add_item("wood",-1);
+return;
+}
+}
+for(uint i=0; i<beehives.length(); i++)
+{
+if(beehives[i].x==p.x and beehives[i].y==p.y and beehives[i].z==p.z and beehives[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+beehives[i].health+=random(100,380);
+p.inv_add_item("wood",-1);
+return;
+}
+}
+for(uint i=0; i<playerstores.length(); i++)
+{
+if(playerstores[i].x==p.x and playerstores[i].y==p.y and playerstores[i].z==p.z and playerstores[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+playerstores[i].health+=random(100,380);
+p.inv_add_item("wood",-1);
+return;
+}
+}
+if(p.pvp==1 and is_safe(p.x,p.y,p.z,maps[get_map_index(p.map)])==false and p.safe==false)
+{
+send_packet(6,"play stonethrow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+if(p.cthing<10)
+{
+p.cthing++;
+}
+else if(p.cthing==10)
+{
+p.cthing=0;
+p.inv_add_item("wood",-1);
+}
+}
+}
+else if(parsed[1]=="brick")
+{
+for(uint i=0; i<houses.length(); i++)
+{
+if(houses[i].x==p.x and houses[i].y==p.y and houses[i].z==p.z and houses[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+houses[i].health+=random(905,1270);
+p.inv_add_item("brick",-1);
+return;
+}
+}
+for(uint i=0; i<microwaves.length(); i++)
+{
+if(microwaves[i].x==p.x and microwaves[i].y==p.y and microwaves[i].z==p.z and microwaves[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+microwaves[i].health+=random(905,1270);
+p.inv_add_item("brick",-1);
+return;
+}
+}
+for(uint i=0; i<lockers.length(); i++)
+{
+if(lockers[i].x==p.x and lockers[i].y==p.y and lockers[i].z==p.z and lockers[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+lockers[i].health+=random(905,1270);
+p.inv_add_item("brick",-1);
+return;
+}
+}
+for(uint i=0; i<fridges.length(); i++)
+{
+if(fridges[i].x==p.x and fridges[i].y==p.y and fridges[i].z==p.z and fridges[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+fridges[i].health+=random(905,1270);
+p.inv_add_item("brick",-1);
+return;
+}
+}
+for(uint i=0; i<beehives.length(); i++)
+{
+if(beehives[i].x==p.x and beehives[i].y==p.y and beehives[i].z==p.z and beehives[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+beehives[i].health+=random(905,1270);
+p.inv_add_item("brick",-1);
+return;
+}
+}
+for(uint i=0; i<playerstores.length(); i++)
+{
+if(playerstores[i].x==p.x and playerstores[i].y==p.y and playerstores[i].z==p.z and playerstores[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+playerstores[i].health+=random(905,1270);
+p.inv_add_item("brick",-1);
+return;
+}
+}
+if(p.pvp==1 and is_safe(p.x,p.y,p.z,maps[get_map_index(p.map)])==false and p.safe==false)
+{
+send_packet(6,"play stonethrow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+p.inv_add_item("brick",-1);
+}
+}
+else if(parsed[1]=="concrete")
+{
+for(uint i=0; i<houses.length(); i++)
+{
+if(houses[i].x==p.x and houses[i].y==p.y and houses[i].z==p.z and houses[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+houses[i].health+=random(1000,2000);
+p.inv_add_item("concrete",-1);
+return;
+}
+}
+for(uint i=0; i<microwaves.length(); i++)
+{
+if(microwaves[i].x==p.x and microwaves[i].y==p.y and microwaves[i].z==p.z and microwaves[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+microwaves[i].health+=random(1000,2000);
+p.inv_add_item("concrete",-1);
+return;
+}
+}
+for(uint i=0; i<lockers.length(); i++)
+{
+if(lockers[i].x==p.x and lockers[i].y==p.y and lockers[i].z==p.z and lockers[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+lockers[i].health+=random(1000,2000);
+p.inv_add_item("concrete",-1);
+return;
+}
+}
+for(uint i=0; i<fridges.length(); i++)
+{
+if(fridges[i].x==p.x and fridges[i].y==p.y and fridges[i].z==p.z and fridges[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+fridges[i].health+=random(1000,2000);
+p.inv_add_item("concrete",-1);
+return;
+}
+}
+for(uint i=0; i<beehives.length(); i++)
+{
+if(beehives[i].x==p.x and beehives[i].y==p.y and beehives[i].z==p.z and beehives[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+beehives[i].health+=random(1000,2000);
+p.inv_add_item("concrete",-1);
+return;
+}
+}
+for(uint i=0; i<playerstores.length(); i++)
+{
+if(playerstores[i].x==p.x and playerstores[i].y==p.y and playerstores[i].z==p.z and playerstores[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+playerstores[i].health+=random(1000,2000);
+p.inv_add_item("concrete",-1);
+return;
+}
+}
+if(p.pvp==1 and is_safe(p.x,p.y,p.z,maps[get_map_index(p.map)])==false and p.safe==false)
+{
+send_packet(6,"play stonethrow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+p.inv_add_item("concrete",-1);
+}
+}
+else if(parsed[1]=="metal")
+{
+for(uint i=0; i<houses.length(); i++)
+{
+if(houses[i].x==p.x and houses[i].y==p.y and houses[i].z==p.z and houses[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+houses[i].health+=random(530,990);
+p.inv_add_item("metal",-1);
+}
+}
+for(uint i=0; i<microwaves.length(); i++)
+{
+if(microwaves[i].x==p.x and microwaves[i].y==p.y and microwaves[i].z==p.z and microwaves[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+microwaves[i].health+=random(530,990);
+p.inv_add_item("metal",-1);
+}
+}
+for(uint i=0; i<lockers.length(); i++)
+{
+if(lockers[i].x==p.x and lockers[i].y==p.y and lockers[i].z==p.z and lockers[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+lockers[i].health+=random(530,990);
+p.inv_add_item("metal",-1);
+}
+}
+for(uint i=0; i<fridges.length(); i++)
+{
+if(fridges[i].x==p.x and fridges[i].y==p.y and fridges[i].z==p.z and fridges[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+fridges[i].health+=random(530,990);
+p.inv_add_item("metal",-1);
+}
+}
+for(uint i=0; i<beehives.length(); i++)
+{
+if(beehives[i].x==p.x and beehives[i].y==p.y and beehives[i].z==p.z and beehives[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+beehives[i].health+=random(530,990);
+p.inv_add_item("metal",-1);
+}
+}
+for(uint i=0; i<playerstores.length(); i++)
+{
+if(playerstores[i].x==p.x and playerstores[i].y==p.y and playerstores[i].z==p.z and playerstores[i].map==p.map)
+{
+send_packet(6,"play base_build"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+playerstores[i].health+=random(530,990);
+p.inv_add_item("metal",-1);
+}
+}
+int v=in_vehicle(p);
+if(v>-1)
+{
+if(vs[v].health>50000)
+{
+send_reliable(p,"this car's health must be less than 50000 to be repaired",2);
+return;
+}
+send_packet(6,"play base_tool.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+vs[v].health+=random(150,500);
+p.inv_add_item("metal",-1);
+}
+int m=in_motor(p);
+if(m>-1)
+{
+if(mos[m].health>50000)
+{
+send_reliable(p,"this motorcycle's health must be less than 50000 to be repaired",2);
+return;
+}
+send_packet(6,"play base_tool.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+mos[m].health+=random(150,500);
+p.inv_add_item("metal",-1);
+}
+}
+else if(parsed[1]=="robot")
+{
+if(is_safe(p.x,p.y,p.z,maps[get_map_index(p.map)])==true or p.pvp==0 or has_robot(p.name)>1 or in_vehicle(p)>-1)
+{
+send_reliable(p,"you can't do this!" ,2);
+return;
+}
+int index=get_player_index(e.peer_id);
+spawn_robot(index);
+send_reliable(p,"play_s notify_mario_nes_pause.ogg",6);
+p.inv_add_item("robot",-1);
+}
+else if(parsed[1]=="robot_remote")
+{
+server_menu m;
+m.intro="robot remote menu. What would you like to do?";
+m.initial_packet="rremote1";
+m.add("select a player to find","player");
+m.add("select an action to perform","action");
+m.add("status report","stats");
+m.send(p.peer_id);
+}
+else if(parsed[1]=="espionage_camera")
+{
+if(is_safe(p.x,p.y,p.z,maps[get_map_index(p.map)])==true or p.pvp==0)
+{
+send_reliable(p,"you can't do this!" ,2);
+return;
+}
+string newid=randomstring(6);
+send_packet(6,"play place"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+spawn_espionage_camera(p.x,p.y,p.z,maps[get_map_index(p.map)],p,p.facing,newid);
+p.inv_add_item("espionage_camera",-1);
+}
+else if(parsed[1]=="espionage_camera_controler")
+{
+server_menu m;
+m.intro="spy camera controler menu. What would you like to do?";
+m.initial_packet="spycameracontroler";
+for(uint i=0; i<espionage_cameras.length(); i++)
+{
+if(espionage_cameras[i].owner.name==p.name)
+{
+m.add("spy camera "+espionage_cameras[i].id+"",espionage_cameras[i].id);
+}
+}
+m.send(p.peer_id);
+}
+
+else if(parsed[1]=="grenade")
+{
+if(p.safe==false and is_safe(p.x,p.y,p.z,maps[get_map_index(p.map)])==false and p.afk==false)
+{
+send_packet(6,"play grenadethrow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+p.grenadetimer.restart();
+p.inv_add_item("grenade", -1);
+}
+}
+if(p.pvp==1 and is_safe(p.x,p.y,p.z,maps[get_map_index(p.map)])==false and p.safe==false)
+{
+if(parsed[1]=="time_bomb")
+{
+spawn_time_bomb(p.x,p.y,p.z,maps[get_map_index(p.map)],p);
+p.inv_add_item("time_bomb",-1);
+}
+else if(parsed[1]=="stone")
+{
+send_packet(6,"play stonethrow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+p.inv_add_item("stone", -1);
+}
+else if(parsed[1]=="ball")
+{
+send_packet(6,"play jump9.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+p.inv_add_item("ball", -1);
+}
+else if(parsed[1]=="turret")
+{
+send_packet(6,"play turretplace.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p, "stopmoving", 0);
+p.turrettimer.restart();
+p.turretspawning=true;
+p.inv_add_item("turret",-1);
+}
+else if(parsed[1]=="turret_cartridge")
+{
+for(uint i=0; i<turrets.length(); i++)
+{
+if(p.x==turrets[i].x and p.y==turrets[i].y and p.z==turrets[i].z and p.map==turrets[i].map.name)
+{
+if(turrets[i].clipsize>=1)
+{
+send_reliable(p, "this turret is already loaded.", 0);
+}
+else
+{
+send_packet(6,"play turretreload.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+turrets[i].clipsize+=100;
+p.inv_add_item("turret_cartridge",-1);
+}
+}
+}
+}
+else if(parsed[1]=="turret_battery")
+{
+for(uint i=0; i<turrets.length(); i++)
+{
+if(p.x==turrets[i].x and p.y==turrets[i].y and p.z==turrets[i].z and p.map==turrets[i].map.name)
+{
+if(turrets[i].chargelevel>=500)
+{
+send_reliable(p, "this turret is fully charged.", 0);
+}
+else
+{
+send_packet(6,"play turretbattery.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+turrets[i].chargelevel+=30;
+p.inv_add_item("turret_battery",-1);
+}
+}
+}
+}
+else if(parsed[1]=="nuclear_bomb")
+{
+bool t=false;
+for(uint i=0;i<nuclear_bombs.length();i++)
+{
+if(nuclear_bombs[i].owner.name==p.name)
+{
+t=true;
+break;
+}
+}
+if(t)return;
+spawn_nuclear_bomb(p.x, p.y, p.z, maps[get_map_index(p.map)],p);
+p.nuclearbombspawned=1;
+p.inv_add_item("nuclear_bomb", -1);
+}
+else if(parsed[1]=="small_nuclear_bomb")
+{
+bool t=false;
+for(uint i=0;i<small_nuclear_bombs.length();i++)
+{
+if(small_nuclear_bombs[i].owner.name==p.name)
+{
+t=true;
+break;
+}
+}
+if(t)return;
+spawn_small_nuclear_bomb(p.x, p.y, p.z, maps[get_map_index(p.map)],p);
+p.nuclearbombspawned=1;
+p.inv_add_item("small_nuclear_bomb", -1);
+}
+else if(parsed[1]=="large_nuclear_bomb")
+{
+bool t=false;
+for(uint i=0;i<large_nuclear_bombs.length();i++)
+{
+if(large_nuclear_bombs[i].owner.name==p.name)
+{
+t=true;
+break;
+}
+}
+if(t)return;
+spawn_large_nuclear_bomb(p.x, p.y, p.z, maps[get_map_index(p.map)],p);
+p.nuclearbombspawned=1;
+p.inv_add_item("large_nuclear_bomb", -1);
+}
+else if(parsed[1]=="mine")
+{
+spawn_mine(p.x,p.y,p.z,maps[get_map_index(p.map)],p);
+p.inv_add_item("mine", -1);
+}
+else if (parsed[1]=="auto_healer")
+{
+if(p.health>=p.maxhealth)
+{
+send_reliable(p, "you are at max health and you can't go any higher.", 0);
+}
+else
+{
+send_packet(6,"play auto_healer_start.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+spawn_auto_healer(p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("auto_healer",-1);
+}
+}
+else if(parsed[1]=="poison_drink")
+{
+p.poisoned=false;
+p.poisonlosses=0;
+p.poisonowner="";
+p.health+=random(100, 350);
+p.inv_add_item("poison_drink",-1);
+send_packet(6,"play storedhealth.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else if(parsed[1]=="gas_canister")
+{
+spawn_canister(p.x,p.y,p.z,maps[get_map_index(p.map)],"gas");
+p.inv_add_item("gas_canister",-1);
+}
+else if(parsed[1]=="antibiotic_canister")
+{
+spawn_canister(p.x,p.y,p.z,maps[get_map_index(p.map)],"antibiotic");
+p.inv_add_item("antibiotic_canister",-1);
+}
+else if(parsed[1]=="energogenic_canister")
+{
+spawn_canister(p.x,p.y,p.z,maps[get_map_index(p.map)],"energogenic");
+p.inv_add_item("energogenic_canister",-1);
+}
+else if(parsed[1]=="energy_reducing_canister")
+{
+spawn_canister(p.x,p.y,p.z,maps[get_map_index(p.map)],"energy_reducing");
+p.inv_add_item("energy_reducing_canister",-1);
+}
+else if(parsed[1]=="thirsting_canister")
+{
+spawn_canister(p.x,p.y,p.z,maps[get_map_index(p.map)],"thirsting");
+p.inv_add_item("thirsting_canister",-1);
+}
+else if(parsed[1]=="starvogenic_canister")
+{
+spawn_canister(p.x,p.y,p.z,maps[get_map_index(p.map)],"starvogenic");
+p.inv_add_item("starvogenic_canister",-1);
+}
+else if(parsed[1]=="pathogenic_canister")
+{
+spawn_canister(p.x,p.y,p.z,maps[get_map_index(p.map)],"pathogenic");
+p.inv_add_item("pathogenic_canister",-1);
+}
+else if(parsed[1]=="experience_canister")
+{
+spawn_canister(p.x,p.y,p.z,maps[get_map_index(p.map)],"experience");
+p.inv_add_item("experience_canister",-1);
+}
+else if(parsed[1]=="snare")
+{
+if(p.snaretimer.elapsed<15000)
+{
+return;
+}
+else
+p.snaretimer.restart();
+spawn_snare(p.x,p.y,p.z,maps[get_map_index(p.map)],p);
+p.inv_add_item("snare",-1);
+}
+else if(parsed[1]=="wand")
+{
+server_menu m;
+m.intro="what's the magic going on your head today?";
+m.initial_packet="usewand";
+m.add("shield unwealder. Costs 35 mana. Range: 25 feet","shield_unwealder");
+m.add("life drain. Costs 55 mana. Range: 15 feet","life_drain");
+m.add("fore to death. Costs 5 mana","fore_to_death");
+m.send(p.peer_id);
+}
+else if(parsed[1]=="censor_bomb" and p.cbombplacing==false)
+{
+string tile=get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(tile=="" or tile=="air")
+{
+send_reliable(p,"You can't do this in the air!",0);
+return;
+}
+for(uint i=0; i<censor_bombs.length(); i++)
+{
+if(censor_bombs[i].x==p.x and censor_bombs[i].y==p.y and censor_bombs[i].z==p.z and censor_bombs[i].map.name==p.map)
+{
+send_reliable(p,"there is already a censor bomb here. No point in wasting such powerful things on only one square",0);
+return;
+}
+}
+send_reliable(p,"stopmoving",0);
+send_packet(6,"play censor_bombplace.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.cbombtimer.restart();
+p.cbombplacing=true;
+p.inv_add_item("censor_bomb",-1);
+}
+else if(parsed[1]=="gas_bottle")
+{
+send_packet(6,"play stonethrow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+p.inv_add_item("gas_bottle", -1);
+p.inv_add_item("empty_bottle", 1);
+}
+else if(parsed[1]=="glass")
+{
+send_packet(6,"play stonethrow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+p.inv_add_item("glass", -1);
+}
+else if(parsed[1]=="mud")
+{
+send_packet(6,"play mudthrow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+p.inv_add_item("mud", -1);
+}
+else if(parsed[1]=="empty_bottle")
+{
+send_packet(6,"play empty-bottlethrow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+string wname=parsed[1];
+spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+p.inv_add_item("empty_bottle", -1);
+}
+
+}
+
+}
+}
+}

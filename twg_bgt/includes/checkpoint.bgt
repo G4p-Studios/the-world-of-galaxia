@@ -1,0 +1,62 @@
+timer cptimer, cpsoundtimer;
+checkpoint@[]cppoints(0);
+class checkpoint
+{
+	int x, y, z;
+	int cpsound=-1;
+	checkpoint(int init_x, int init_y, int init_z)
+{
+		x=init_x;
+		y=init_y;
+		z=init_z;
+	}
+}
+void checkpointloop()
+{
+	for(uint i=0; i<cppoints.length(); i++)
+	{
+		if(cpsoundtimer.elapsed>=300)
+		{
+			cpsoundtimer.restart();
+		p.play_3d("cploop.ogg", me.x, me.y, me.z, cppoints[i].x, cppoints[i].y, cppoints[i].z, calculate_theta(facing),0,0,0,0,0,0,false,0,0,0,100);
+		}
+	}
+for(uint i=0; i<cppoints.length(); i++)
+{
+if(me.x==cppoints[i].x and me.y==cppoints[i].y and me.z==cppoints[i].z)
+	{
+		p.play_3d("cpget.ogg", me.x, me.y, me.z, cppoints[i].x, cppoints[i].y, cppoints[i].z, calculate_theta(facing),0,0,0,0,0,0,false,0,0,0,100);
+		cpx=cppoints[i].x;
+		cpy=cppoints[i].y;
+		cpz=cppoints[i].z;
+		send_reliable(peer_id,"cpdata "+cppoints[i].x+" "+cppoints[i].y+" "+cppoints[i].z+" "+mapname,0);
+		if(cptimer.elapsed>=50)
+		{
+			cptimer.restart();
+cppoints[i].cpsound=-1;
+					@cppoints[i]=null;
+					cppoints.remove_at(i);
+			}
+		}
+	}
+}
+void spawn_checkpoint(int x, int y,  int z)
+{
+		checkpoint cp1(x, y, z);
+		cppoints.insert_last(cp1);
+	}
+void destroy_cppoints()
+{
+	cppoints.resize(0);
+}
+int checkpoint_at(int x, int y, int z)
+{
+	for(uint i=0; i<cppoints.length(); i++)
+	{
+		if(cppoints[i].x==x and cppoints[i].y==y and cppoints[i].z==z)
+		{
+			return i;
+		}
+	}
+	return -1;
+}

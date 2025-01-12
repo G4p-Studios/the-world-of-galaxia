@@ -1,0 +1,576 @@
+#include"number_speaker.bgt"
+sound target;
+sound gun;
+sound speaker;
+double x_position=0.0;
+double y_position=0.0;
+bool ssfalling=false;
+void shockshotmain()
+{
+target.load("target.ogg");
+if(target.active==false)
+{
+sound_error("target.ogg");
+}
+gun.load("gun2.ogg");
+if(gun.active==false)
+{
+sound_error("gun.ogg");
+}
+speaker_say("speaker_introduction.ogg");
+speaker.play();
+send_reliable(peer_id,"draw speaker_introduction.ogg", 7);
+while(speaker.playing==true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_SPACE) or key_pressed(KEY_RETURN))
+{
+entertainment_centermenu();
+break;
+}
+}
+speaker.close();
+ssstart_game();
+}
+void speaker_say(string filename)
+{
+speaker.stream("" + filename + "");
+if(speaker.active==false)
+{
+sound_error(filename);
+}
+}
+void ssstart_game()
+{
+int total_score=0;
+for(int i=0;i<10;i++)
+{
+total_score+=start_round();
+}
+speaker_say("speaker_finish.ogg");
+speaker.play_wait();
+send_reliable(peer_id,"draw speaker_finish.ogg", 7);
+number_speaker numbers;
+numbers.prepend="speaker_num_";
+numbers.append=".ogg";
+if(numbers.speak_wait(total_score)==-1)
+{
+MessageBox("Error", "An error occured while trying to speak the number sequence.");
+entertainment_centermenu();
+}
+speaker_say("speaker_average_score.ogg");
+speaker.play_wait();
+send_reliable(peer_id,"draw speaker_average_score.ogg", 7);
+double average=total_score;
+if(total_score>0)
+{
+average/=10;
+}
+if(numbers.speak_wait(average)==-1)
+{
+MessageBox("Error", "An error occured while trying to speak the number sequence.");
+entertainment_centermenu();
+}
+int comment=0;
+if(total_score<=15)
+{
+comment=1;
+}
+if(total_score>15 and total_score<=30)
+{
+comment=2;
+}
+if(total_score>30 and total_score<=45)
+{
+comment=3;
+}
+if(total_score>45 and total_score<=60)
+{
+comment=4;
+}
+if(total_score>60 and total_score<=75)
+{
+comment=5;
+}
+if(total_score>75 and total_score<=90)
+{
+comment=6;
+}
+if(total_score>90 and total_score<=105)
+{
+comment=7;
+}
+if(total_score>105)
+{
+comment=8;
+}
+speaker_say("speaker_comment_" + comment + ".ogg");
+speaker.play_wait();
+send_reliable(peer_id,"draw speaker_comment_"+comment+".ogg", 7);
+speaker_say("speaker_again.ogg");
+speaker.play();
+send_reliable(peer_id,"draw speaker_again.ogg", 7);
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_Y))
+{
+speaker_say("speaker_start_over.ogg");
+speaker.play_wait();
+send_reliable(peer_id,"draw speaker_start_over.ogg", 7);
+ssstart_game();
+}
+if(key_pressed(KEY_N))
+{
+speaker_say("speaker_bye.ogg");
+speaker.play_wait();
+send_reliable(peer_id,"draw speaker_bye.ogg", 7);
+entertainment_centermenu();
+break;
+}
+if(key_pressed(KEY_ESCAPE))
+{
+entertainment_centermenu();
+break;
+}
+if(key_down(KEY_LMENU) and key_pressed(KEY_F4))
+{
+entertainment_centermenu();
+break;
+}
+}
+}
+int start_round()
+{
+if(random(1, 2)==1)
+{
+x_position=random(-50, -15);
+}
+else
+{
+x_position=random(15, 50);
+}
+y_position=7;
+ssfalling=false;
+target.pan=x_position;
+target.pitch=y_position;
+target.volume=0;
+target.play_looped();
+double change_step=0.7;
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_down(KEY_LEFT) and x_position>-50)
+{
+x_position-=change_step;
+target.pan=x_position;
+}
+if(key_down(KEY_RIGHT) and x_position<50)
+{
+x_position+=change_step;
+target.pan=x_position;
+}
+if(key_down(KEY_UP))
+{
+if(ssfalling==true)
+{
+y_position-=change_step;
+if(y_position<2)
+{
+y_position=2;
+ssfalling=false;
+}
+}
+else
+{
+y_position+=change_step;
+if(y_position>100)
+{
+y_position=100;
+ssfalling=true;
+}
+}
+target.pitch=y_position;
+}
+if(key_down(KEY_DOWN))
+{
+if(ssfalling==true)
+{
+y_position+=change_step;
+if(y_position>100)
+{
+y_position=100;
+ssfalling=false;
+}
+}
+else
+{
+y_position-=change_step;
+if(y_position<2)
+{
+y_position=2;
+ssfalling=true;
+}
+}
+target.pitch=y_position;
+}
+if(key_pressed(KEY_SPACE))
+{
+gun.play();
+send_reliable(peer_id,"draw gun2.ogg", 7);
+timer voice_counter;
+double result=100-y_position;
+double delta=x_position+100;
+if(delta>100)
+{
+result+=(delta-100);
+}
+else
+{
+result+=(100-delta);
+}
+int score=13-result;
+if(score<0)
+{
+score=0;
+}
+if(score>12)
+{
+score=12;
+}
+while(target.pitch>target.pitch_lower_limit)
+{
+wait(5);
+mainloop();
+target.pitch=target.pitch-0.7;
+target.volume=target.volume-0.05;
+if(voice_counter.elapsed>=800)
+{
+speaker.load("speaker_" + score + ".ogg");
+if(speaker.active==false)
+{
+sound_error("speaker_" + score + ".wav");
+}
+speaker.play();
+send_reliable(peer_id,"draw speaker_"+score+".ogg", 7);
+voice_counter.restart();
+voice_counter.pause();
+}
+}
+target.stop();
+while(gun.playing==true or speaker.playing==true)
+{
+wait(5);
+mainloop();
+if(voice_counter.elapsed>=800)
+{
+speaker.load("speaker_" + score + ".ogg");
+if(speaker.active==false)
+{
+sound_error("speaker_" + score + ".wav");
+}
+speaker.play();
+send_reliable(peer_id,"draw speaker_"+score+".ogg", 7);
+voice_counter.restart();
+voice_counter.pause();
+}
+}
+return score;
+}
+if(key_pressed(KEY_ESCAPE))
+{
+entertainment_centermenu();
+break;
+}
+if(key_down(KEY_LMENU) and key_pressed(KEY_F4))
+{
+entertainment_centermenu();
+break;
+}
+}
+return 0;
+}
+void sound_error(string name)
+{
+MessageBox("Error", "Error loading " + name + ".");
+entertainment_centermenu();
+}

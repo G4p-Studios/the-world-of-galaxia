@@ -1,0 +1,43 @@
+bed@[] beds(0);
+class bed
+{
+int minx, maxx, miny, maxy, minz, maxz, descarga=0;
+string map;
+bed(int tminx, int tmaxx, int tminy, int tmaxy, int tminz, int tmaxz, string tmap)
+{
+minx=tminx;
+maxx=tmaxx;
+miny=tminy;
+maxy=tmaxy;
+minz=tminz;
+maxz=tmaxz;
+map=tmap;
+}
+}
+void spawn_bed(int minx, int maxx, int miny, int maxy, int minz, int maxz, string map)
+{
+bed t(minx, maxx, miny, maxy, minz, maxz, map);
+beds.insert_last(t);
+}
+void remove_bed(int index)
+{
+if(index>-1)
+{
+@beds[index]=null;
+beds.remove_at(index);
+}
+}
+void remove_all_beds()
+{
+for(uint i=0; i<beds.length(); i++)
+{
+remove_bed(i);
+}
+}
+void clear_beds_on_map(string map)
+{
+for(uint i=0; i<beds.length(); i+=1)
+{
+if(beds[i].map==map) remove_bed(i);
+}
+}

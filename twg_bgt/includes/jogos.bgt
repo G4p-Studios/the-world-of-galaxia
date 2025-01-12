@@ -1,0 +1,1657 @@
+class jogoparouimpar
+{
+double moedas, quantidade;
+string tescolha;;
+sound s, ambiente;
+void fim()
+{
+s.close();
+ambiente.close();
+entertainment_centermenu();
+}
+void jogar()
+{
+if(ausente)return;
+add_buffer_item("entertainment_center", "Even or odd!");
+ambiente.load("menumus40.ogg");
+ambiente.volume=-20;
+ambiente.play_looped();
+while(true)
+{
+wait(5);
+mainloop();
+if(ausente)
+{
+fim();
+break;
+}
+moedas=inv_item_number("coins");
+if(key_pressed(KEY_ESCAPE) and quantidade<=0)
+{
+fim();
+break;
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_C)) add_buffer_item("entertainment_center", "You have "+moedas+" coins to bet");
+if(key_pressed(KEY_1))
+{
+string quanto=v.input("How many coins do you wish to bet?");
+quantidade=string_to_number(quanto);
+if(quantidade>moedas)
+{
+add_buffer_item("entertainment_center", "you have "+quantidade+" coins to bet");
+quantidade=0;
+}
+if(quantidade<1||quantidade>20)
+{
+add_buffer_item("entertainment_center", "The bet value must be more than 1 and less than 20");
+quantidade=0;
+}
+}
+if(key_pressed(KEY_2))
+{
+setupmenu();
+m.add_item_tts("even", "Par");
+m.add_item_tts("odd", "Ímpar");
+m.add_item_tts("go back", "voltar");
+int mres=m.run("Choose the type of number you want to bet", true);
+if(m.get_item_name(mres)!="voltar") tescolha=m.get_item_name(mres);
+}
+if(key_pressed(KEY_RETURN))
+{
+if(quantidade<0 || tescolha=="") add_buffer_item("entertainment_center", "You must define the amount and choose the type of number you will bet");
+else
+{
+add_buffer_item("entertainment_center", "Randomizing the numbers from 1 to 10...");
+s.close();
+s.load("dado1.ogg");
+s.play();
+while(s.playing)
+{
+wait(5);
+mainloop();
+}
+int resultado=random(1, 10);
+if(resultado==1||resultado==3||resultado==5||resultado==7||resultado==9)
+{
+if(tescolha=="Ímpar")
+{
+add_buffer_item("entertainment_center", "Good, the number is odd!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+tescolha="";
+fim();
+break;
+}
+else if(tescolha=="Par")
+{
+add_buffer_item("entertainment_center", "The number is odd, I won!");
+send_reliable(peer_id, "acoins -"+quantidade, 0);
+tescolha="";
+fim();
+break;
+}
+}
+else if(resultado==2||resultado==4||resultado==6||resultado==8||resultado==10)
+{
+if(tescolha=="Par")
+{
+add_buffer_item("entertainment_center", "Good, the number is even!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+tescolha="";
+fim();
+break;
+}
+else if(tescolha=="Ímpar")
+{
+add_buffer_item("entertainment_center", "The number is even, I won!");
+send_reliable(peer_id, "acoins -"+quantidade, 0);
+tescolha="";
+fim();
+break;
+}
+}
+}
+}
+}//fim do while
+}//Fim do void
+}
+class dadodasorte{
+int chances=0, moedas, quantidade, nescolhido;
+sound s, ambiente;
+void fim()
+{
+s.close();
+ambiente.close();
+entertainment_centermenu();
+}
+void jogar()
+
+{
+add_buffer_item("entertainment_center", "Welcome to the lucky dice!");
+nescolhido=random(1, 6);
+add_buffer_item("entertainment_center", "The number that will have to be correct will be "+nescolhido+"");
+chances=2;
+ambiente.load("menumus40.ogg");
+ambiente.volume=-20;
+ambiente.play_looped();
+while(true)
+{
+wait(5);
+mainloop();
+if(ausente)
+{
+fim();
+break;
+}
+moedas=inv_item_number("coins");
+if(key_pressed(KEY_ESCAPE) and quantidade<=0)
+{
+fim();
+break;
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_C)) add_buffer_item("entertainment_center", "You have "+moedas+" coins to bet");
+if(key_pressed(KEY_1))
+{
+string quanto=v.input("How many coins do you want to bet?");
+quantidade=string_to_number(quanto);
+if(quantidade>moedas)
+{
+add_buffer_item("entertainment_center", "You don't have "+quantidade+" coins to bet");
+quantidade=0;
+}
+if(quantidade<1||quantidade>20)
+{
+add_buffer_item("entertainment_center", "The bet value must be more than 1 and less than 20");
+quantidade=0;
+}
+}
+if(key_pressed(KEY_RETURN))
+{
+if(quantidade<=0) add_buffer_item("entertainment_center", "You must define the amount you will bet");
+else{
+add_buffer_item("entertainment_center", "Rolling the dice...");
+s.close();
+s.load("dado1.ogg");
+s.play();
+send_reliable(peer_id,"draw dado1.ogg",7);
+while(s.playing)
+{
+wait(5);
+mainloop();
+}
+int resultado=random(1, 6);
+add_buffer_item("entertainment_center", resultado);
+if(resultado==nescolhido)
+{
+s.close();
+s.load("dado2.ogg");
+s.play();
+add_buffer_item("entertainment_center", "Good! You got it right!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+wait(200);
+fim();
+break;
+}
+else if(resultado!=nescolhido)
+{
+s.close();
+s.load("dado2.ogg");
+s.play();
+add_buffer_item("entertainment_center", "You missed!");
+if(chances>0)
+{
+add_buffer_item("entertainment_center", "You have another chance");
+chances-=1;
+}
+else if(chances<=0)
+{
+add_buffer_item("entertainment_center", "you have no chance");
+send_reliable(peer_id, "acoins -"+quantidade, 0);
+quantidade=0;
+wait(200);
+fim();
+break;
+}
+}
+
+}
+}
+}//fim do while
+}//Fim do void
+}
+class jogoroletadasorte{
+double moedas, quantidade;
+string animalapostar;
+sound s, ambiente;
+void fim()
+{
+s.close();
+ambiente.close();
+entertainment_centermenu();
+//animais.resize(0);
+}
+void jogar()
+{
+string[] animais2;
+string[] animais(51);
+animais2.insert_last ("dog");
+animais2.insert_last ("cat");
+animais2.insert_last ("peacock");
+animais2.insert_last ("dove");
+animais2.insert_last ("fish");
+animais2.insert_last ("goose");
+animais2.insert_last ("parrot");
+animais2.insert_last ("sheep");
+animais2.insert_last ("hawk");
+animais2.insert_last ("seagull");
+animais2.insert_last ("whale");
+animais2.insert_last ("horse");
+animais2.insert_last ("lion");
+animais2.insert_last ("tiger");
+animais2.insert_last ("onsa");
+animais2.insert_last ("urub ú");
+animais2.insert_last ("alligator");
+animais [0] = "dog";
+animais [1] = "dog";
+animais [2] = "dog";
+animais [3] = "cat";
+animais [4] = "cat";
+animais [5] = "cat";
+animais [6] = "peacock";
+animais [7] = "peacock";
+animais [8] = "peacock";
+animais [9] = "dove";
+animais [10] = "dove";
+animais [11] = "dove";
+animais [12] = "fish";
+animais [13] = "fish";
+animais [14] = "fish";
+animais [15] = "goose";
+animais [16] = "goose";
+animais [17] = "goose";
+animais [18] = "parrot";
+animais [19] = "parrot";
+animais [20] = "parrot";
+animais [21] = "sheep";
+animais [22] = "sheep";
+animais [23] = "sheep";
+animais [24] = "hawk";
+animais [25] = "hawk";
+animais [26] = "hawk";
+animais [27] = "seagull";
+animais [28] = "seagull";
+animais [29] = "seagull";
+animais [30] = "whale";
+animais [31] = "whale";
+animais [32] = "whale";
+animais [33] = "horse";
+animais [34] = "horse";
+animais [35] = "horse";
+animais [36] = "lion";
+animais [37] = "lion";
+animais [38] = "lion";
+animais [39] = "tiger";
+animais [40] = "tiger";
+animais [41] = "tiger";
+animais [42] = "onsa";
+animais [43] = "onsa";
+animais [44] = "onsa";
+animais [45] = "vulture";
+animais [46] = "vulture";
+animais [47] = "vulture";
+animais [48] = "alligator";
+animais [49] = "alligator";
+animais [50] = "alligator";
+add_buffer_item("entertainment_center", "Welcome to the animal game! bet, spin the wheel and count on luck!");
+ambiente.load("menumus40.ogg");
+ambiente.volume=-20;
+ambiente.play_looped();
+while(true)
+{
+wait(5);
+mainloop();
+if(ausente)
+{
+fim();
+break;
+}
+moedas=inv_item_number("coins");
+if(key_pressed(KEY_ESCAPE) and quantidade<=0)
+{
+fim();
+break;
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_C)) add_buffer_item("entertainment_center", "you have "+moedas+" coins to bet");
+if(key_pressed(KEY_1))
+{
+string quanto=v.input("How many coins do you want to bet?");
+quantidade=string_to_number(quanto);
+if(quantidade>moedas)
+{
+add_buffer_item("entertainment_center", "you haven't "+quantidade+" coins to bet.");
+quantidade=0;
+}
+if(quantidade<1||quantidade>20)
+{
+add_buffer_item("entertainment_center", "The bet value must be more than 1 and less than 20");
+quantidade=0;
+}
+}
+if(key_pressed(KEY_2))
+{
+setupmenu();
+for(uint i=0;i<animais2.length();i++)
+{
+m.add_item_tts(animais2[i], animais2[i]);
+}
+m.add_item_tts("go back", "voltar");
+int mres=m.run("Choose the animal you want to bet on", true);
+if(m.get_item_name(mres)!="voltar") animalapostar=m.get_item_name(mres);
+}
+if(key_pressed(KEY_RETURN))
+{
+if(animalapostar=="" || quantidade<0) add_buffer_item("entertainment_center", "You must choose an animal and define the amount you will bet!");
+else{
+add_buffer_item("entertainment_center", "Spinning the Roulette Wheel...");
+s.close();
+s.load("roleta2.ogg");
+s.play();
+send_reliable(peer_id,"draw roleta2.ogg",7);
+while(s.playing)
+{
+wait(5);
+mainloop();
+}
+int resultado=random(0, animais.length()-1);
+add_buffer_item("entertainment_center", animais[resultado]);
+if(animais[resultado]==animalapostar)
+{
+s.close();
+s.load("acertou.ogg");
+s.play();
+add_buffer_item("entertainment_center", "Good! You're right!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+}
+else if(animais[resultado]!=animalapostar)
+
+{
+s.close();
+s.load("erro2.ogg");
+s.play();
+send_reliable(peer_id, "acoins -"+quantidade, 0);
+}
+animalapostar="";
+quantidade=0;
+}
+}
+}//fim do while
+}//Fim do void
+}
+class jogopoker{
+int num1,num2, quantidade=0, moedas;
+bool at=true;
+sound s;
+void fim()
+{
+s.close();
+entertainment_centermenu();
+}
+void jogar()
+{
+s.load("menumus40.ogg");
+s.play_looped();
+add_buffer_item("entertainment_center", "Choose 1 for stone, 2 for paper, 3 for scissors or escape to leave. Space to define the amount you will bet that must be more than 0 coins");
+while(true)
+{
+wait(5);
+mainloop();
+if(ausente)
+{
+break;
+}
+moedas=inv_item_number("coins");
+if(at==true)
+{
+num2=random(1,3);
+at=false;
+}
+if(key_pressed(KEY_ESCAPE) and quantidade<=0)
+{
+s.close();
+fim();
+break;
+}
+if(key_pressed(KEY_SPACE)&&quantidade<=0)
+{
+string quanto=v.input("How many coins do you want to bet?");
+quantidade=string_to_number(quanto);
+if(quantidade<1||quantidade>20)
+{
+add_buffer_item("entertainment_center", "The bet value must be more than 1 and less than 20");
+quantidade=0;
+}
+if(quantidade>moedas)
+{
+add_buffer_item("entertainment_center", "You don't have "+quantidade+" coins to bet");
+quantidade=0;
+}
+}
+if(key_pressed(KEY_1)&&quantidade>0)
+{
+num1=1;
+checar();
+s.close();
+fim();
+break;
+}
+else if(key_pressed(KEY_2)&&quantidade>0)
+{
+num1=2;
+checar();
+s.close();
+fim();
+break;
+}
+else if(key_pressed(KEY_3)&&quantidade>0)
+{
+num1=3;
+checar();
+s.close();
+fim();
+break;
+}
+}
+}
+void checar()
+{
+if(num1==1&&num2==1)
+{
+add_buffer_item("entertainment_center", "Wow! stone and stone! it's an impact!");
+}
+else if(num1==2&&num2==2)
+{
+add_buffer_item("entertainment_center", "Wow! paper and paper! it's an impact!");
+}
+else if(num1==3&&num2==3)
+{
+add_buffer_item("entertainment_center", "Wow! scissors and scissors! it's an impact!");
+}
+else
+{
+if(num1==1)
+{
+if(num2==2)
+{
+add_buffer_item("entertainment_center", "yay! paper wraps stone! I won! you are nothing!");
+send_reliable(peer_id, "acoins -"+quantidade, 0);
+}
+else if(num2==3)
+{
+add_buffer_item("entertainment_center", "Oops, stone breaks scissors, congratulations, you won!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+}
+}
+if(num1==2)
+{
+if(num2==1)
+{
+add_buffer_item("entertainment_center", "Oops, paper wraps stone, congratulations! you won!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+}
+else if(num2==3)
+{
+add_buffer_item("entertainment_center", "yay! scissors cut paper! I won! you are nothing!");
+send_reliable(peer_id, "acoins -"+quantidade, 0);
+}
+}
+else if(num1==3)
+{
+if(num2==1)
+{
+add_buffer_item("entertainment_center", "wow! rock breaking scissors! I won! you are nothing!");
+send_reliable(peer_id, "acoins -"+quantidade, 0);
+}
+else if(num2==2)
+{
+add_buffer_item("entertainment_center", "Oops, scissors cut paper, congratulations, you won!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+}
+}
+}
+at=true;
+}
+}
+class jogofarkle{
+bool iniciou=false, turno1=false, vaijogar=false;//Não iniciou ainda, nenhum turno aconteceu e ninguém vai jogar
+int seudado=0, dadocomputador=0, quemjoga=0, ganhou=0;//Seu dado, o dádo da máquina, quem joga e ganhou em zero.
+int quantidade=0, moedas;
+sound ambiente;
+void fim()
+{
+ambiente.close();
+entertainment_centermenu();
+}
+void jogar()
+{
+sound d1, d2, d3;
+d1.load("dado1.ogg");
+d2.load("dado2.ogg");
+d3.load("dado3.ogg");
+ambiente.load("menumus40.ogg");
+ambiente.volume=-15;
+ambiente.play_looped();
+while(true)
+{
+wait(5);
+mainloop();
+if(ausente)
+{
+fim();
+break;
+}
+moedas=inv_item_number("coins");
+if(key_pressed(KEY_ESCAPE) and quantidade<=0)
+{
+fim();
+break;
+}
+if(key_pressed(KEY_1))
+{
+string quanto=v.input("How many coins do you want to bet?");
+quantidade=string_to_number(quanto);
+if(quantidade>moedas)
+{
+add_buffer_item("entertainment_center", "you haven't  "+quantidade+" coins to bet");
+quantidade=0;
+}
+if(quantidade<1||quantidade>20)
+{
+add_buffer_item("entertainment_center", "The bet value must be more than 1 and less than 20");
+quantidade=0;
+}
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_RETURN))
+{
+if(quantidade<=0)add_buffer_item("entertainment_center", "Set the amount you will bet first!");
+else{
+if(!iniciou)
+{//Se não jogou ainda
+add_buffer_item("entertainment_center", "Dice game. Play against me and see if you are strong enough to win this battle!");
+iniciou=true;//define que o jogo iniciou.
+}
+}
+}
+if(iniciou&&!turno1)
+{
+turno1=true;
+add_buffer_item("entertainment_center", "Attention! The time has come to decide who will start...");
+wait(2000);
+p.play_stationary("dado3.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw dado3.ogg",7);
+wait(300);
+p.play_stationary("dado3.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw dado3.ogg",7);
+wait(100);
+p.play_stationary("dado3.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw dado3.ogg",7);
+int a=random(1, 2);
+if(a==1)
+{
+add_buffer_item("entertainment_center", "You start!");
+quemjoga=1;
+}
+else if(a==2)
+{
+add_buffer_item("entertainment_center", "I begin!");
+quemjoga=2;
+}
+vaijogar=true;
+}
+if(vaijogar==true)
+{
+if(quemjoga==1)
+{
+add_buffer_item("entertainment_center", "Your turn");
+while(true)
+{
+wait(5);
+if(ausente)
+{
+fim();
+break;
+}
+mainloop();
+if(key_pressed(KEY_ESCAPE) and quantidade<=0)
+{
+fim();
+break;
+}
+if(key_pressed(KEY_RETURN)&&ganhou<=0)
+{
+int a=random(1, 6);
+send_reliable(peer_id,"draw dado1.ogg",7);
+d1.play_wait();
+d2.play();
+add_buffer_item("entertainment_center", "You rolled the dice, and it fell on square "+a+"");
+wait(1000);
+for(uint i=0;i<a;i++)
+{
+d3.play_wait();
+wait(300);
+}
+seudado+=a;
+if(seudado>50)seudado=50;
+add_buffer_item("entertainment_center", "You are in "+seudado+"");
+if(seudado==50)
+{
+send_reliable(peer_id, "acoins "+quantidade, 0);
+add_buffer_item("entertainment_center", "You won the game !!!");
+ganhou=1;
+}
+quemjoga=2;
+break;
+}
+}
+if(ganhou>0)
+{
+fim();
+break;
+}
+}
+if(quemjoga==2&&ganhou<=0)
+{
+add_buffer_item("entertainment_center", "My turn...");
+wait(1000);
+int a=random(1, 6);
+send_reliable(peer_id,"draw dado1.ogg",7);
+d1.play_wait();
+d2.play();
+add_buffer_item("entertainment_center", "I threw the dice, and it fell in Square "+a+"");
+for(uint i=0;i<a;i++)
+{
+d3.play_wait();
+wait(300);
+}
+dadocomputador+=a;
+if(dadocomputador>50)dadocomputador=50;
+add_buffer_item("entertainment_center", "I'm in "+dadocomputador+"");
+if(dadocomputador==50)
+{
+send_reliable(peer_id, "acoins -"+quantidade, 0);
+add_buffer_item("entertainment_center", "I won again ... Like I said, you are nothing!");
+ganhou=2;
+}
+quemjoga=1;
+}
+if(ganhou>0)
+{
+fim();
+break;
+}
+}
+}
+}
+}
+class jogoblackjack{
+string[] cartas;//Matriz de cartas
+int seuspontos=0, pontoscomputador=0, quemjoga=0, ganhou=0, quantidade=0;//Variáveis em zero pois não começou nada
+int vparou=0, pparou=0;//Você e o computador não pararam de jogar.
+int moedas;//moedas
+bool iniciou=false, parou=false;//Não iniciou e não parou
+sound carta;//Som da carta
+sound ambiente;
+void fim()
+{
+cartas.resize(0);
+carta.close();
+ambiente.close();
+iniciou=false;parou=false;
+seuspontos=0; pontoscomputador=0; quemjoga=0; ganhou=0; quantidade=0;
+vparou=0; pparou=0;
+garbage_collect();
+entertainment_centermenu();
+}
+void jogar()
+{
+carta.load("pegar_carta.ogg");
+ambiente.load("menumus40.ogg");
+ambiente.volume=-20;
+ambiente.play_looped();
+add_buffer_item("entertainment_center", "Play Black Jack");
+while(true)
+{
+wait(5);
+mainloop();
+if(ausente)
+{
+fim();
+break;
+}
+moedas=inv_item_number("coins");
+if(key_pressed(KEY_ESCAPE) and quantidade<=0)
+{
+fim();
+break;
+}
+if(iniciou==false&&quantidade>0)
+{
+wait(1500);
+//Limpa matriz
+cartas.resize(0);
+//Começa a adição de cartas
+cartas.insert_last("ace of diamonds");
+cartas.insert_last("2 of diamonds");
+cartas.insert_last("3 of diamonds");
+cartas.insert_last("4 of diamonds");
+cartas.insert_last("5 of diamonds");
+cartas.insert_last("6 of diamonds");
+cartas.insert_last("7 of diamonds");
+cartas.insert_last("8 of diamonds");
+cartas.insert_last("9 of diamonds");
+cartas.insert_last("10 of diamonds");
+cartas.insert_last("jack of diamonds");
+cartas.insert_last("queen of diamonds");
+cartas.insert_last("king of diamonds");
+cartas.insert_last("ace of spades");
+cartas.insert_last("2 of spades");
+cartas.insert_last("3 of spades");
+cartas.insert_last("4 of spades");
+cartas.insert_last("5 of spades");
+cartas.insert_last("6 of spades");
+cartas.insert_last("7 of spades");
+cartas.insert_last("8 of spades");
+cartas.insert_last("9 of spades");
+cartas.insert_last("10 of spades");
+cartas.insert_last("jack of spades");
+cartas.insert_last("queen of spades");
+cartas.insert_last("king of spades");
+cartas.insert_last("ace of clubs");
+cartas.insert_last("2 of clubs");
+cartas.insert_last("3 of clubs");
+cartas.insert_last("4 of clubs");
+cartas.insert_last("5 of clubs");
+cartas.insert_last("6 of clubs");
+cartas.insert_last("7 of clubs");
+cartas.insert_last("8 of clubs");
+cartas.insert_last("9 of clubs");
+cartas.insert_last("10 of clubs");
+cartas.insert_last("jack of clubs");
+cartas.insert_last("queen of clubs");
+cartas.insert_last("king of clubs");
+cartas.insert_last("ace of hearts");
+cartas.insert_last("2 of hearts");
+cartas.insert_last("3 of hearts");
+cartas.insert_last("4 of hearts");
+cartas.insert_last("5 of hearts");
+cartas.insert_last("6 of hearts");
+cartas.insert_last("7 of hearts");
+cartas.insert_last("8 of hearts");
+cartas.insert_last("9 of hearts");
+cartas.insert_last("10 of hearts");
+cartas.insert_last("jack of hearts");
+cartas.insert_last("queen of hearts");
+cartas.insert_last("king of hearts");
+//Fim da adição de cartas
+add_buffer_item("entertainment_center", "Let's draw who will start playing ...");
+add_buffer_item("entertainment_center", "For this, we will use a six-sided die. From four down, I start. If you fall in four or more, you start");
+wait(500);
+p.play_stationary("dado1.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw dado1.ogg",7);
+int a=random(1, 6);
+if(a<=4)
+{
+add_buffer_item("entertainment_center", "And I'm the one who starts! I started well ...");
+quemjoga=1;//Computador jogando
+}
+else{
+add_buffer_item("entertainment_center", "And you're the one who starts, very good ...");
+quemjoga=2;//Você jogando
+}
+iniciou=true;//Começou a partida
+}
+if(key_pressed(KEY_1)&&quantidade<=0)
+{
+string quanto=v.input("how much coins you'd like to bet?");
+quantidade=string_to_number(quanto);
+if(quantidade>moedas)
+{
+add_buffer_item("entertainment_center", "you haven't "+quantidade+" coins to bet");
+quantidade=0;
+}
+if(quantidade<1||quantidade>20)
+{
+add_buffer_item("entertainment_center", "The bet value must be more than 1 and less than 20");
+quantidade=0;
+}
+}
+if(key_pressed(KEY_RETURN)&&ganhou>0||key_pressed(KEY_RETURN)&&parou)
+{
+ganhou=0;
+quemjoga=0;
+seuspontos=0;
+pontoscomputador=0;
+iniciou=false;
+parou=false;
+vparou=0; pparou=0;
+quantidade=0;
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_2))add_buffer_item("entertainment_center", "Your score: "+seuspontos+" Computer points: "+pontoscomputador+"");
+if(key_pressed(KEY_DOWN)&&vparou==0&&ganhou==0)
+{
+if(seuspontos<18)
+{
+add_buffer_item("entertainment_center", "No, you can't stop with that amount of points...");
+}
+else if(seuspontos>=18)
+{
+add_buffer_item("entertainment_center", "You decided to stop!");
+vparou=1;
+}
+}
+if(key_pressed(KEY_1))
+{
+string quanto=v.input("How many coins do you want to bet?");
+quantidade=string_to_number(quanto);
+if(quantidade>moedas)
+{
+add_buffer_item("entertainment_center", "you haven't "+quantidade+" coins to bet");
+quantidade=0;
+}
+if(quantidade<1||quantidade>20)
+{
+add_buffer_item("entertainment_center", "The bet value must be more than 1 and less than 20");
+quantidade=0;
+}
+}
+if(key_pressed(KEY_SPACE)&&ganhou==0&&vparou==0&&quemjoga==2)
+{
+if(quantidade<=0)add_buffer_item("entertainment_center", "Set the amount you will bet first!");
+else{
+carta.play();//Som da carta tocando.
+send_reliable(peer_id,"draw pegar_carta.ogg",7);
+int c=random(0, cartas.length()-1);
+add_buffer_item("entertainment_center", "You removed "+cartas[c]+"");
+if(string_contains(string_to_lower_case(cartas[c]),"ace",1)>-1)seuspontos+=1;
+if(string_contains(string_to_lower_case(cartas[c]),"jack",1)>-1)seuspontos+=10;
+if(string_contains(string_to_lower_case(cartas[c]),"queen",1)>-1)seuspontos+=10;
+if(string_contains(string_to_lower_case(cartas[c]),"king",1)>-1)seuspontos+=10;
+if(string_contains(string_to_lower_case(cartas[c]),"10",1)>-1)seuspontos+=10;
+if(string_contains(string_to_lower_case(cartas[c]),"9",1)>-1)seuspontos+=9;
+if(string_contains(string_to_lower_case(cartas[c]),"8",1)>-1)seuspontos+=8;
+if(string_contains(string_to_lower_case(cartas[c]),"7",1)>-1)seuspontos+=7;
+if(string_contains(string_to_lower_case(cartas[c]),"6",1)>-1)seuspontos+=6;
+if(string_contains(string_to_lower_case(cartas[c]),"5",1)>-1)seuspontos+=5;
+if(string_contains(string_to_lower_case(cartas[c]),"4",1)>-1)seuspontos+=4;
+if(string_contains(string_to_lower_case(cartas[c]),"3",1)>-1)seuspontos+=3;
+if(string_contains(string_to_lower_case(cartas[c]),"2",1)>-1)seuspontos+=2;
+add_buffer_item("entertainment_center", "You have now  "+seuspontos+" points");
+cartas.remove_at(c);
+if(seuspontos==21)
+{
+add_buffer_item("entertainment_center", "You won!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+ganhou=2;
+quemjoga=0;
+}
+if(seuspontos>21)
+{
+add_buffer_item("entertainment_center", "You extorted the points, I won");
+send_reliable(peer_id, "acoins -"+quantidade, 2);
+ganhou=1;
+quemjoga=0;
+}
+else{
+if(pparou==1)quemjoga=2;
+else quemjoga=1;
+}
+}
+}//Fim do espaço
+if(ganhou==0&&quemjoga==1&&pparou==0||vparou==1&&quemjoga>0&&pparou==0)
+{//Ninguém ganhou e quem joga é o computador
+add_buffer_item("entertainment_center", "My turn:");
+wait(1800);
+carta.play();//Som da carta tocando.
+send_reliable(peer_id,"draw pegar_carta.ogg",7);
+int c=random(0, cartas.length()-1);
+add_buffer_item("entertainment_center", "I took "+cartas[c]+"");
+if(string_contains(string_to_lower_case(cartas[c]),"ace",1)>-1)pontoscomputador+=1;
+if(string_contains(string_to_lower_case(cartas[c]),"jack",1)>-1)pontoscomputador+=10;
+if(string_contains(string_to_lower_case(cartas[c]),"queen",1)>-1)pontoscomputador+=10;
+if(string_contains(string_to_lower_case(cartas[c]),"king",1)>-1)pontoscomputador+=10;
+if(string_contains(string_to_lower_case(cartas[c]),"10",1)>-1)pontoscomputador+=10;
+if(string_contains(string_to_lower_case(cartas[c]),"9",1)>-1)pontoscomputador+=9;
+if(string_contains(string_to_lower_case(cartas[c]),"8",1)>-1)pontoscomputador+=8;
+if(string_contains(string_to_lower_case(cartas[c]),"7",1)>-1)pontoscomputador+=7;
+if(string_contains(string_to_lower_case(cartas[c]),"6",1)>-1)pontoscomputador+=6;
+if(string_contains(string_to_lower_case(cartas[c]),"5",1)>-1)pontoscomputador+=5;
+if(string_contains(string_to_lower_case(cartas[c]),"4",1)>-1)pontoscomputador+=4;
+if(string_contains(string_to_lower_case(cartas[c]),"3",1)>-1)pontoscomputador+=3;
+if(string_contains(string_to_lower_case(cartas[c]),"2",1)>-1)pontoscomputador+=2;
+add_buffer_item("entertainment_center", "I have now "+pontoscomputador+" points");
+cartas.remove_at(c);
+if(pontoscomputador==21)
+{
+add_buffer_item("entertainment_center", "I won!");
+send_reliable(peer_id, "acoins -"+quantidade, 2);
+ganhou=1;
+quemjoga=0;
+}
+if(pontoscomputador>21)
+{
+add_buffer_item("entertainment_center", "I extorted the points, you won");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+ganhou=2;
+quemjoga=0;
+}
+else{
+if(pontoscomputador>=18&&quemjoga>0)
+{
+int parar=random(1, 6);
+if(parar<=3)
+{
+add_buffer_item("entertainment_center", "I decided to stop!");
+pparou=1;
+ganhou=0;
+}
+}
+if(vparou==0&&ganhou==0||pparou==1&&ganhou==0)quemjoga=2;
+else if(vparou==1&&ganhou==0||pparou==0&&ganhou==0)quemjoga=1;
+//else if(vparou==1&&ganhou==0)quemjoga=1;
+}
+if(ganhou==0&&quemjoga==2&&vparou==0)add_buffer_item("entertainment_center", "Your turn");
+}//Fim do ganhou
+if(vparou==1&&pparou==1&&ganhou==0&&parou==false)
+{
+add_buffer_item("entertainment_center", "oh, we decided to stop!");
+wait(1000);
+parou=true;
+if(seuspontos>pontoscomputador)
+{
+add_buffer_item("entertainment_center", "You won!");
+ganhou=2;
+quemjoga=0;
+}
+else if(pontoscomputador>seuspontos)
+{
+add_buffer_item("entertainment_center", "I won!");
+}
+else{
+add_buffer_item("entertainment_center", "It was a draw! Nobody won");
+ganhou=3;
+quemjoga=0;
+}
+}
+}//Fim do while
+//fim do void jogar
+}//Fim da classe
+}
+class jogoroledice{
+int myskore;
+int computerskore;
+int myroles=0;
+int computerroles=0;
+int turn=2;
+int square= 0;
+int maxqube=1000;
+int cube_count;
+double moedas, quantidade;
+sound ambiente;
+void fim()
+{
+ambiente.close();
+entertainment_centermenu();
+}
+void jogar()
+{
+if(ausente)return;
+add_buffer_item("entertainment_center", "Role the dice");
+ambiente.load("menumus40.ogg");
+ambiente.volume=-20;
+ambiente.play_looped();
+while(true)
+{
+mainloop();
+if(ausente)
+{
+fim();
+break;
+}
+moedas=inv_item_number("coins");
+if(key_pressed(KEY_ESCAPE) and quantidade<=0)
+{
+fim();
+break;
+}
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(turn==1 and key_pressed(KEY_RETURN))
+{
+p.play_stationary("dado1.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw dado1.ogg",7);
+dostuf(1);
+}
+if(turn==2)
+{
+wait(250);
+p.play_stationary("dado1.ogg",false,0,0,0,100);
+send_reliable(peer_id,"draw dado1.ogg",7);
+dostuf(2);
+}
+if(key_pressed(KEY_C))
+{
+add_buffer_item("entertainment_center", "your score: "+myskore+". Computer skore: "+computerskore+"");
+}
+if(key_pressed(KEY_1))
+{
+string quanto=v.input("How many coins do you wish to bet?");
+quantidade=string_to_number(quanto);
+if(quantidade>moedas)
+{
+add_buffer_item("entertainment_center", "you have "+quantidade+" coins to bet");
+quantidade=0;
+}
+if(quantidade<1||quantidade>20)
+{
+add_buffer_item("entertainment_center", "The bet value must be more than 1 and less than 20");
+quantidade=0;
+}
+}
+if(myroles>=10)
+{
+if(myskore>=computerskore)
+{
+add_buffer_item("entertainment_center", "the game have ended. Each one of you roled the dice 10 times and the game ended. You won the game because you got more points. Congrats!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+myroles=0;
+computerroles=0;
+
+fim();
+break;
+}
+if(computerskore>=myskore)
+{
+add_buffer_item("entertainment_center", "the game have ended. Each one of you roled the dice 10 times and the game ended. You lost! because you wasn't able to get more points than computer. I hope you win next time!");
+send_reliable(peer_id, "acoins "+quantidade, 0);
+fim();
+break;
+}
+}
+}
+}
+void dostuf(int who)
+{
+int[] randoms(6);
+randoms[0]=random(1, 6);
+randoms[1]=random(1, 6);
+randoms[2]=random(1, 6);
+randoms[3]=random(1, 6);
+randoms[4]=random(1, 6);
+randoms[5]=random(1, 6);
+int totals=randoms[0]+randoms[1]+randoms[2]+randoms[3]+randoms[4]+randoms[5];
+if(who==1)
+{
+add_buffer_item("entertainment_center", "you role the dice 6 times, and the result is  written below "+randoms[0]+", "+randoms[1]+", "+randoms[2]+", "+randoms[3]+", "+randoms[4]+", "+randoms[5]+". For a total of "+totals+"");
+myskore+=totals;
+turn=2;
+totals=0;
+myroles++;
+}
+if(who==2 and computerroles<10)
+{
+add_buffer_item("entertainment_center", "computer role the dice 6 times, and the result is  written below "+randoms[0]+", "+randoms[1]+", "+randoms[2]+", "+randoms[3]+", "+randoms[4]+", "+randoms[5]+". For a total of "+totals+"");
+computerskore+=totals;
+totals=0;
+turn=1;
+computerroles++;
+}
+}
+}

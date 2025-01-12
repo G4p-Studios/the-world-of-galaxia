@@ -1,0 +1,10 @@
+void progress_pan(sound@ handle, int current, int max) {
+handle.pan=(current*200/max)-100;
+//handle.stop();
+//handle.play();
+}
+void progress_pitch(sound@ handle, int current, int max) {
+handle.pitch=(current*200/max);
+handle.stop();
+handle.play();
+}

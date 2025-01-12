@@ -1,0 +1,323 @@
+#include "game.bgt"
+int[] computer_sequence; //the sequence that is read out to the user
+int[] user_sequence; //the sequence that you are entering.
+int[] sequence_check; //this is to check the computer sequence against the current position of the user sequence.
+bool all_numbers; //determines whether all numbers are spoken or just the most recently added number.
+uint speech_count=0; //used for allowing interruptable number pressing. has to be uint because otherwise a signed/unsigned mismatch warning will appear.
+sound ncspeech, buzz, sound1, sound2;
+void NumberChallengemain()
+{
+initialise_game("Number Challenge!", "", 0);
+verbosity_selection();
+}
+void verbosity_selection()
+{
+int verbosity=question("Game options","should the game speak all numbers (yes), or just the added number (no)?");
+if(verbosity==1)
+{
+all_numbers=true; //yes was pressed.
+}
+else
+{
+all_numbers=false; //no was pressed.
+}
+create_sequence(1); //create sequence starting with only one digit.
+start_game(all_numbers);
+}
+void create_sequence(int start_amount)
+{
+computer_sequence.resize(0); //reset the array in case it holds any other previous values
+computer_sequence.resize(start_amount);
+for(int counter=0; counter<start_amount; counter++)
+{
+computer_sequence[counter]=random(0,9);
+}
+}
+void start_game(bool all_numbers_value)
+{
+bool check;
+bool comparison;
+play_sequence(all_numbers_value);
+while(true)
+{
+wait(5);
+mainloop();
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_ESCAPE) or (key_down(KEY_LMENU))&&(key_pressed(KEY_F4)))
+{
+entertainment_centermenu();
+break;
+}
+if(key_pressed(KEY_1))
+{
+add_to_user_sequence(1);
+}
+if(key_pressed(KEY_2))
+{
+add_to_user_sequence(2);
+}
+if(key_pressed(KEY_3))
+{
+add_to_user_sequence(3);
+}
+if(key_pressed(KEY_4))
+{
+add_to_user_sequence(4);
+}
+if(key_pressed(KEY_5))
+{
+add_to_user_sequence(5);
+}
+if(key_pressed(KEY_6))
+{
+add_to_user_sequence(6);
+}
+if(key_pressed(KEY_7))
+{
+add_to_user_sequence(7);
+}
+if(key_pressed(KEY_8))
+{
+add_to_user_sequence(8);
+}
+if(key_pressed(KEY_9))
+{
+add_to_user_sequence(9);
+}
+if(key_pressed(KEY_0))
+{
+add_to_user_sequence(0);
+}
+check=check_sequence(concatinate_sequence(sequence_check),concatinate_sequence(user_sequence));
+if(check==false)
+{
+wrong();
+break;
+}
+else
+{
+comparison=compare_sequences();
+if(comparison==true)
+{
+reset_user_sequence();
+add_to_computer_sequence(random(0,9));
+}
+}
+}
+}
+void play_sequence(bool speak_all_numbers)
+{
+if(computer_sequence.length()==1)
+{
+sound1.load("start2.ogg"); //round starting.
+}
+if(computer_sequence.length()>1)
+{
+if(computer_sequence.length()%10==1) //we use 1 because of the 0-based array indexing, etc.
+{
+sound1.load("10c.ogg"); //another 10 numbers correct! yea!
+}
+else
+{
+sound1.load("1c.ogg"); //previous sequence correct, stand by for next addition.
+}
+}
+sound1.play_wait();
+if(speak_all_numbers==true)
+{
+for(uint counter=0; counter<computer_sequence.length(); counter++)
+{
+ncspeech.load("nc"+computer_sequence[counter]+".ogg");
+ncspeech.play_wait();
+send_reliable(peer_id,"draw nc"+computer_sequence[counter]+".ogg", 7);
+}
+}
+else
+{
+ncspeech.load("nc"+computer_sequence[computer_sequence.length()-1]+".ogg");
+ncspeech.play_wait();
+send_reliable(peer_id,"draw nc"+computer_sequence[computer_sequence.length()-1]+".ogg", 7);
+}
+}
+bool check_sequence(string the_computer_sequence, string the_user_sequence)
+{
+if(the_computer_sequence==the_user_sequence)
+{
+return true;
+}
+else
+{
+return false;
+}
+}
+string concatinate_sequence(int[] the_sequence_array)
+{
+string concatination="";
+if(the_sequence_array.length()<1)
+{
+return "";
+}
+for(uint counter=0; counter<the_sequence_array.length(); counter++)
+{
+concatination=concatination+the_sequence_array[counter];
+}
+return concatination;
+}
+bool compare_sequences()
+{
+if(user_sequence.length()==computer_sequence.length())
+{
+return true;
+}
+else
+{
+return false;
+}
+}
+void add_to_computer_sequence(int the_number)
+{
+sequence_check.resize(0); //reset the sequence_check array
+computer_sequence.resize(computer_sequence.length()+1);
+computer_sequence[computer_sequence.length()-1]=the_number;
+play_sequence(all_numbers);
+}
+void add_to_user_sequence(int the_number)
+{
+user_sequence.resize(user_sequence.length()+1);
+sequence_check.resize(user_sequence.length());
+user_sequence[user_sequence.length()-1]=the_number;
+sequence_check[user_sequence.length()-1]=computer_sequence[user_sequence.length()-1];
+speech_count++;
+ncspeech.load("nc"+the_number+".ogg");
+if(speech_count==computer_sequence.length())
+{
+ncspeech.play_wait();
+send_reliable(peer_id,"draw nc"+the_number+".ogg", 7);
+}
+else
+{
+ncspeech.play();
+send_reliable(peer_id,"draw nc"+the_number+".ogg", 7);
+}
+}
+void reset_user_sequence()
+{
+user_sequence.resize(0); //reset the user sequence
+speech_count=0; //reset the speech counter
+}
+void reset_all_sequences()
+{
+user_sequence.resize(0); //reset the user sequence
+computer_sequence.resize(0); //reset the computer sequence
+sequence_check.resize(0); //reset the comparison sequence
+speech_count=0; //reset the speech counter
+}
+void wrong()
+{
+buzz.load("i.ogg");
+buzz.play_wait();
+alert("Information", "You got "+(computer_sequence.length()-1)+" numbers correct.");
+int again=question("Play again", "Would you like to play again?");
+if(again==1)
+{
+alert("OK then.", "Stand by for the new sequence! Good luck!");
+reset_all_sequences();
+verbosity_selection();
+}
+if(again==2)
+{
+alert("OK then.", "Thanks for playing.");
+entertainment_centermenu();
+}
+}

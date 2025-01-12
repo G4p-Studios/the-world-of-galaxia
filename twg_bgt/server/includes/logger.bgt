@@ -1,0 +1,68 @@
+file logfile;
+void log(string name, string what,bool dir=true, bool eventstream=false)
+{
+string currentdate=get_date(false,true);
+if (!directory_exists("logs"))
+directory_create("logs");
+if(directory_exists("logs\\"+currentdate)==false and dir==true)
+directory_create("logs\\"+currentdate);
+if(dir==true)
+logfile.open("logs\\"+currentdate+"\\"+name+".log","ab");
+else
+logfile.open("logs\\"+name+".log","ab");
+logfile.write("\r\n"+what+" "+get_date()+", "+get_time());
+logfile.close();
+if(eventstream)
+{
+logfile.open("logs\\"+currentdate+"\\eventstream.log","ab");
+logfile.write("\r\n"+what+" "+get_date()+", "+get_time());
+logfile.close();
+}
+}
+void vlog(string name, string what,bool dir=true, bool eventstream=false)
+{
+string currentdate=get_date(false,true);
+if (!directory_exists("logs"))
+directory_create("logs");
+if(directory_exists("logs\\"+currentdate)==false and dir==true)
+directory_create("logs\\"+currentdate);
+if(dir==true)
+logfile.open("logs\\"+currentdate+"\\"+name+"_"+currentdate+".ogg","ab");
+else
+logfile.open("logs\\"+name+"_"+currentdate+".ogg","ab");
+logfile.write(what);
+logfile.close();
+if(eventstream)
+{
+logfile.open("logs\\"+currentdate+"\\eventstream_"+currentdate+".log","ab");
+logfile.write(what);
+logfile.close();
+}
+}
+string get_log(string name)
+{
+if (!directory_exists("logs"))
+directory_create("logs");
+file f;
+f.open("logs/"+name+".log","rb");
+string data=f.read();
+f.close();
+return data;
+}
+void clear_log(string name)
+{
+if (!directory_exists("logs"))
+directory_create("logs");
+file f;
+f.open("logs/"+name+".log","wb");
+f.close();
+}
+void clear_all_logs()
+{
+directory_delete("logs");
+directory_create("logs");
+}
+bool log_exists(string log)
+{
+return file_exists("logs/"+log+".log");
+}

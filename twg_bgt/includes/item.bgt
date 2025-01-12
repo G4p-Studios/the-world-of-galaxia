@@ -1,0 +1,113 @@
+track []tracks;
+class track
+{
+int x;
+int y;
+int z;
+string name;
+int slot;
+track() {
+}
+track(int tx, int ty, int tz, string n)
+{
+x=tx;
+y=ty;
+z=tz;
+name=n;
+slot=p.play_3d("objbeacon.ogg", me.x, me.y, me.z, x, y, z, calculate_theta(facing),0,0,0,0,0,0,true,0,0,0,100);
+}
+}
+bool track_exists(int x, int y, int z)
+{
+for(int i=0; i<tracks.length(); i++)
+{
+if(tracks[i].x==x and tracks[i].y==y and tracks[i].z==z)
+return true;
+}
+return false;
+}
+void destroy_track(int x, int y, int z)
+{
+for(int i=0; i<tracks.length(); i++)
+{
+if(tracks[i].x==x and tracks[i].y==y and tracks[i].z==z)
+{
+p.destroy_sound(tracks[i].slot);
+tracks.remove_at(i);
+}
+}
+}
+void destroy_all_tracks()
+{
+for(int i=0; i<tracks.length(); i++)
+p.destroy_sound(tracks[i].slot);
+tracks.resize(0);
+}
+void items_menu(string data)
+{
+string []temp=string_split(data, "@", true);
+int counter=0;
+string []items;
+double distance=0;
+int index=0;
+while(temp.length()>0)
+{
+for(int i=0; i<temp.length(); i++)
+{
+string []item=string_split(temp[i], ":", true);
+if(string_to_number(item[5])>=distance)
+distance=string_to_number(item[5]);
+}
+for(int i=0; i<temp.length(); i++)
+{
+string []item=string_split(temp[i], ":", true);
+if(string_to_number(item[5])<=distance)
+{
+distance=string_to_number(item[5]);
+index=i;
+}
+}
+items.insert_last(temp[index]);
+temp.remove_at(index);
+}
+speak("items menu");
+while(true)
+{
+wait(5);
+mainloop();
+if(key_pressed(KEY_ESCAPE))
+break;
+if(key_pressed(KEY_UP))
+{
+if(counter>0)
+counter--;
+string []item=string_split(items[counter], ":", true);
+speak(item[0]+" "+item[1]+" "+calculate_x_y_string(calculate_x_y_angle(round(me.x, 0), round(me.y, 0), string_to_number(item[2]), string_to_number(item[3]), facing))+", "+item[5]+" tiles away");
+}
+if(key_pressed(KEY_DOWN))
+{
+if(counter<items.length()-1)
+counter++;
+string []item=string_split(items[counter], ":", true);
+speak(item[0]+" "+item[1]+" "+calculate_x_y_string(calculate_x_y_angle(round(me.x, 0), round(me.y, 0), string_to_number(item[2]), string_to_number(item[3]), facing))+", "+item[5]+" tiles away");
+}
+if(key_pressed(KEY_RETURN))
+{
+string []item=string_split(items[counter], ":", true);
+if(track_exists(string_to_number(item[2]), string_to_number(item[3]), string_to_number(item[4])))
+destroy_track(string_to_number(item[2]), string_to_number(item[3]), string_to_number(item[4]));
+else if(tracks.length()>=1 and !track_exists(string_to_number(item[2]), string_to_number(item[3]), string_to_number(item[4])))
+{
+destroy_all_tracks();
+track t(string_to_number(item[2]), string_to_number(item[3]), string_to_number(item[4]), item[0]+" "+item[1]);
+tracks.insert_last(t);
+}
+else
+{
+track t(string_to_number(item[2]), string_to_number(item[3]), string_to_number(item[4]), item[0]+" "+item[1]);
+tracks.insert_last(t);
+}
+break;
+}
+}
+}

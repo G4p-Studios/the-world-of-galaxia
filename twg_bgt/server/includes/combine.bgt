@@ -1,0 +1,4150 @@
+void combine(player@p, string message)
+{
+string[] parsed=string_split(message, " ",true);
+if(parsed[0]=="combine")
+{
+if(p.afk or p.away or p.stunned or p.is_dead) return;
+string lefthand=string_replace(string_replace(parsed[1], ")", "", false), "(", "", false);
+string righthand=string_replace(string_replace(parsed[2], ")", "", false), "(", "", false);
+if(auction==true and auctionwho==p.name and auctionitem==lefthand or auction==true and auctionwho==p.name and auctioncurrency==lefthand)
+{
+send_reliable(p,"you can't combine "+lefthand+" while putting it in auction",2);
+return;
+}
+if(auction==true and auctionwho==p.name and auctionitem==righthand or auction==true and auctionwho==p.name and auctioncurrency==righthand)
+{
+send_reliable(p,"you can't combine "+righthand+" while putting it for auction",2);
+return;
+}
+p.add_log_entry("combine","combined "+lefthand+" with "+righthand);
+if(p.inv_item_number(lefthand)<=0)
+{
+send_reliable(p, "hempty 1", 0);
+}
+if(p.inv_item_number(righthand)<=0)
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="knife" and righthand=="knife")
+{
+send_packet(6,"play getlong_knife.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("long_knife",1);
+p.inv_add_item("knife",-2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(string_contains(lefthand,"bag_of_",1)>-1 and righthand=="" or lefthand=="" and string_contains(righthand,"bag_of_",1)>-1)
+{
+string cid;
+if(string_contains(lefthand,"bag_of_",1)>-1) cid=string_right(lefthand,5);
+else if(string_contains(righthand,"bag_of_",1)>-1) cid=string_right(righthand,5);
+int c=get_corpses_from(cid);
+if(c<0)
+{
+send_reliable(p,"invalid bag",2);
+if(string_contains(lefthand,"bag_of_",1)>-1) p.inv_add_item(lefthand,-1);
+else if(string_contains(righthand,"bag_of_",1)>-1) p.inv_add_item(righthand,-1);
+return;
+}
+string clist=corpses[c].list_contents();
+if(clist!="") send_reliable(p,"bag contained "+clist,2);
+send_packet(6,"play bagopen.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+corpses[c].give_to(p);
+if(string_contains(lefthand,"bag_of_",1)>-1)
+{
+p.inv_add_item(lefthand,-1);
+send_reliable(p,"hempty 1",0);
+}
+else if(string_contains(righthand,"bag_of_",1)>-1)
+{
+p.inv_add_item(righthand,-1);
+send_reliable(p,"hempty 2",0);
+}
+}
+else if(string_contains(lefthand,"box_of_",1)>-1 and righthand=="" or lefthand=="" and string_contains(righthand,"box_of_",1)>-1)
+{
+string cid;
+if(string_contains(lefthand,"box_of_",1)>-1) cid=string_right(lefthand,5);
+else if(string_contains(righthand,"box_of_",1)>-1) cid=string_right(righthand,5);
+int c=get_corpses_from(cid);
+if(c<0)
+{
+send_reliable(p,"invalid box",2);
+if(string_contains(lefthand,"box_of_",1)>-1) p.inv_add_item(lefthand,-1);
+else if(string_contains(righthand,"box_of_",1)>-1) p.inv_add_item(righthand,-1);
+return;
+}
+string clist=corpses[c].list_contents();
+if(clist!="") send_reliable(p,"box contained "+clist,2);
+send_packet(6,"play openbox.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+corpses[c].give_to(p);
+if(string_contains(lefthand,"box_of_",1)>-1)
+{
+p.inv_add_item(lefthand,-1);
+send_reliable(p,"hempty 1",0);
+}
+else if(string_contains(righthand,"box_of_",1)>-1)
+{
+p.inv_add_item(righthand,-1);
+send_reliable(p,"hempty 2",0);
+}
+}
+else if(string_contains(lefthand,"pack_of_",1)>-1 and righthand=="" or lefthand=="" and string_contains(righthand,"pack_of_",1)>-1)
+{
+string cid;
+if(string_contains(lefthand,"pack_of_",1)>-1) cid=string_right(lefthand,5);
+else if(string_contains(righthand,"pack_of_",1)>-1) cid=string_right(righthand,5);
+int c=get_corpses_from(cid);
+if(c<0)
+{
+send_reliable(p,"invalid pack",2);
+if(string_contains(lefthand,"pack_of_",1)>-1) p.inv_add_item(lefthand,-1);
+else if(string_contains(righthand,"pack_of_",1)>-1) p.inv_add_item(righthand,-1);
+return;
+}
+string clist=corpses[c].list_contents();
+if(clist!="") send_reliable(p,"pack contained "+clist,2);
+send_packet(6,"play openpack.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+corpses[c].give_to(p);
+if(string_contains(lefthand,"pack_of_",1)>-1)
+{
+p.inv_add_item(lefthand,-1);
+send_reliable(p,"hempty 1",0);
+}
+else if(string_contains(righthand,"pack_of_",1)>-1)
+{
+p.inv_add_item(righthand,-1);
+send_reliable(p,"hempty 2",0);
+}
+}
+else if(string_contains(lefthand,"skillet_with_",1)>-1 and righthand=="" or lefthand=="" and string_contains(righthand,"skillet_with_",1)>-1)
+{
+string cid;
+if(string_contains(lefthand,"skillet_with_",1)>-1) cid=string_right(lefthand,5);
+else if(string_contains(righthand,"skillet_with_",1)>-1) cid=string_right(righthand,5);
+int c=get_corpses_from(cid);
+if(c<0)
+{
+send_reliable(p,"invalid skillet",2);
+if(string_contains(lefthand,"skillet_with_",1)>-1) p.inv_add_item(lefthand,-1);
+else if(string_contains(righthand,"skillet_with_",1)>-1) p.inv_add_item(righthand,-1);
+return;
+}
+string clist=corpses[c].list_contents();
+if(clist!="") send_reliable(p,"skillet contained "+clist,2);
+send_packet(6,"play getskillet.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+corpses[c].give_to(p);
+if(string_contains(lefthand,"skillet_with_",1)>-1)
+{
+p.inv_add_item(lefthand,-1);
+send_reliable(p,"hempty 1",0);
+}
+else if(string_contains(righthand,"skillet_with_",1)>-1)
+{
+p.inv_add_item(righthand,-1);
+send_reliable(p,"hempty 2",0);
+}
+p.inv_add_item("skillet",1);
+}
+else if(string_contains(lefthand,"sword",1)>-1 and string_contains(righthand,"sword",1)>-1)
+{
+if(p.waitingtimer.elapsed>400)
+{
+p.waitingtimer.restart();
+send_packet(6,"play sword_block"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+}
+else if(lefthand=="knife" and righthand=="" or lefthand=="" and righthand=="knife")
+{
+if(p.waitingtimer.elapsed>=200 )
+{
+send_packet(6,"play handslice.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play v"+string_to_number(p.voice)+"hit"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.health-=random(100,140);
+}
+}
+else if(lefthand=="lighter" and righthand=="" or lefthand=="" and righthand=="lighter")
+{
+if(p.waitingtimer.elapsed>=200 )
+{
+send_packet(6,"play lighterempty.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.health-=random(100,140);
+}
+}
+else if(lefthand=="long_knife" and righthand=="" or lefthand=="" and righthand=="long_knife")
+{
+if(p.waitingtimer.elapsed>=200 )
+{
+send_packet(6,"play handslice.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play v"+string_to_number(p.voice)+"hit"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.health-=random(210,240);
+}
+}
+else if(lefthand=="glass" and righthand=="" or lefthand=="" and righthand=="glass")
+{
+for(uint i2=0; i2<arenas.length(); i2++)
+{
+if(p.map==arenas[i2].map) continue;
+}
+if(p.waitingtimer.elapsed>=250)
+{
+send_packet(6,"play glasscut.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.health-=random(100,150);
+}
+}
+else if(lefthand=="starter_pack" and righthand=="" or lefthand=="" and righthand=="starter_pack")
+{
+send_packet(6,"play opendlpack.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("starter_pack",-1);
+p.inv_add_item("knife",1);
+p.inv_add_item("colt_m9",1);
+p.inv_add_item("9mm_ammo",random(45,55));
+p.inv_add_item("e235shotgun",1);
+p.inv_add_item("shotgun_shell",random(15,30));
+p.inv_add_item("coins",random(500,1500));
+p.inv_add_item("hat",1);
+p.inv_add_item("watch",1);
+p.inv_add_item("leather_jacket",1);
+p.inv_add_item("shield",5);
+p.inv_add_item("warm_pants",1);
+p.inv_add_item("warm_leather_boots",1);
+p.inv_add_item("fishing_pole",1);
+p.inv_add_item("sleeping_pill",random(3,5));
+p.inv_add_item("glue_bottle",1);
+p.inv_add_item("match_box",1);
+string cid=randomstring(5);
+new_corpse("piece_of_bread=5",cid);
+p.inv_add_item("pack_of_5_piece_of_bread_"+cid,1);
+p.inv_add_item("water_bottle",1);
+p.inv_add_item("smart_phone",1);
+p.inv_add_item("phone_battery",random(3,6));
+p.inv_add_item("roll_bandage",random(3,5));
+p.inv_add_item("thermometer",1);
+send_reliable(p,"you've opened the starter pack and it contained: 1 knife, 1 colt m9, some 9mm ammos, 1 e235shotgun, some shotgun shells, some coins, 1 small saw, 1 large saw, 1 hat, 1 watch, 1 leather jacket, 5 shields, 1 warm pants, 1 warm leather boots, 1 fishing pool, some sleeping pills, 1 glue bottle, 1 match box, 1 pack of 5 piece of bread, 1 water bottle, 1 smart phone, some phone batteries, some roll bandages and 1 thermometer",2);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="starter_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="5.56mm_ammo_pack" and righthand=="" or lefthand=="" and righthand=="5.56mm_ammo_pack")
+{
+p.inv_add_item("5.56mm_ammo",50);
+send_packet(6,"play openammopack.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("5.56mm_ammo_pack",-1);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="5.56mm_ammo_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="7.62mm_ammo_pack" and righthand=="" or lefthand=="" and righthand=="7.62mm_ammo_pack")
+{
+p.inv_add_item("7.62mm_ammo",35);
+	p.inv_add_item("7.62mm_ammo_pack",-1);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="7.62mm_ammo_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="9mm_ammo_pack" and righthand=="" or lefthand=="" and righthand=="9mm_ammo_pack")
+{
+p.inv_add_item("9mm_ammo",35);
+send_packet(6,"play openammopack.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("9mm_ammo_pack",-1);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="9mm_ammo_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="12.7mm_ammo_pack" and righthand=="" or lefthand=="" and righthand=="12.7mm_ammo_pack")
+{
+p.inv_add_item("12.7mm_ammo",3);
+send_packet(6,"play openammopack.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("12.7mm_ammo_pack",-1);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="12.7mm_ammo_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="shotgun_shell_pack" and righthand=="" or lefthand=="" and righthand=="shotgun_shell_pack")
+{
+p.inv_add_item("shotgun_shell",15);
+send_packet(6,"play openammopack.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("shotgun_shell_pack",-1);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="shotgun_shell_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="flour_pack" and righthand=="" or lefthand=="" and righthand=="flour_pack")
+{
+send_packet(6,"play getvery_long_paper.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("flour_pack",-1);
+p.inv_add_item("flour",50);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="flour_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="smart_phone" and righthand=="" or lefthand=="" and righthand=="smart_phone")
+{
+if(p.smartphoneon==0)
+{
+p.smartphoneon=1;
+send_reliable(p, "your smart phone has been turned on", 2);
+}
+else if(p.smartphoneon==1)
+{
+p.smartphoneon=0;
+send_reliable(p, "your smart phone has been turned off", 2);
+}
+}
+else if(lefthand=="smart_phone" and righthand=="phone_battery" or lefthand=="phone_battery" and righthand=="smart_phone")
+{
+if(p.waitingtimer.elapsed>=400)
+{
+p.waitingtimer.restart();
+if(p.smartphoneon==1)
+{
+send_reliable(p, "you can't do this when phone is on", 2);
+return;
+}
+send_packet(6,"play taserreload.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.smartphonecharge=100;
+p.inv_add_item("phone_battery", -1);
+if(lefthand=="phone_battery")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+else if(lefthand=="long_wood" and righthand=="sharpened_metal" or lefthand=="sharpened_metal" and righthand=="long_wood")
+{
+if(p.waitingtimer.elapsed>=400)
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawwood.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play sharpen2.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<40)
+{
+p.cthing++;
+}
+else if(p.cthing==40)
+{
+p.cthing=0;
+send_packet(6,"play getknife.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("knife", 1);
+p.inv_add_item("long_wood",-1);
+p.inv_add_item("sharpened_metal",-1);
+if(lefthand=="sharpened_metal")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="long_wood")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="cigarrette" and righthand=="lighter" or lefthand=="lighter" and righthand=="cigarrette")
+{
+if(p.waitingtimer.elapsed>=300)
+{
+p.waitingtimer.restart();
+if(p.gasswigs==40)
+{
+send_packet(6,"play getlighter.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else
+{
+send_packet(6,"play lighterempty.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<2)
+{
+p.cthing++;
+p.gasswigs+=1;
+}
+else if(p.cthing==2)
+{
+p.cthing=0;
+p.gasswigs+=1;
+send_packet(6,"play smoke.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("cigarrette", -1);
+p.cigarrette++;
+if(lefthand=="cigarrette")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+}
+else if(lefthand=="firework" and righthand=="lighter" or lefthand=="lighter" and righthand=="firework")
+{
+if(p.waitingtimer.elapsed>=random(350,470))
+{
+p.waitingtimer.restart();
+if(p.gasswigs==40)
+{
+send_packet(6,"play getlighter.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else
+{
+send_packet(6,"play lighterempty.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<1)
+{
+p.cthing++;
+p.gasswigs+=1;
+}
+else if(p.cthing==1)
+{
+p.cthing=0;
+p.gasswigs+=1;
+send_packet(6,"play firework"+random(1,4)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+givexp(p,random(100, 1000)*p.reinforcement);
+p.inv_add_item("firework",-1);
+}
+}
+}
+}
+else if(lefthand=="firecracker" and righthand=="lighter" or lefthand=="lighter" and righthand=="firecracker")
+{
+if(p.waitingtimer.elapsed>=300)
+{
+p.waitingtimer.restart();
+if(p.gasswigs==40)
+{
+send_packet(6,"play getlighter.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else
+{
+send_packet(6,"play lighterempty.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<2)
+{
+p.cthing++;
+p.gasswigs+=1;
+}
+else if(p.cthing==2)
+{
+p.cthing=0;
+p.gasswigs+=1;
+send_packet(6,"play firecrackers.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("firecracker", -1);
+if(lefthand=="firecracker")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+}
+else if(lefthand=="hammer" and righthand=="sharpened_metal" or lefthand=="sharpened_metal" and righthand=="hammer")
+{
+if(p.waitingtimer.elapsed>=750)
+{
+p.waitingtimer.restart();
+send_packet(6,"play hammer_"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<10)
+{
+p.cthing++;
+}
+else if(p.cthing==10)
+{
+p.cthing=0;
+send_packet(6,"play get12.7mm_ammo.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("broken_ammo", 1);
+p.inv_add_item("sharpened_metal",-1);
+if(lefthand=="sharpened_metal")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="hammer" and righthand=="skillet" or lefthand=="skillet" and righthand=="hammer")
+{
+if(p.waitingtimer.elapsed>=500)
+{
+p.waitingtimer.restart();
+send_packet(6,"play forge"+random(17,18)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<65)
+{
+p.cthing++;
+}
+else if(p.cthing==65)
+{
+p.cthing=0;
+send_packet(6,"play getmedal.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("metal", random(45,75));
+p.inv_add_item("skillet",-1);
+if(lefthand=="skillet")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="hammer" and righthand=="broken_ammo" or lefthand=="broken_ammo" and righthand=="hammer")
+{
+if(p.waitingtimer.elapsed>=500)
+{
+p.waitingtimer.restart();
+send_packet(6,"play hammer_"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<5)
+{
+p.cthing++;
+}
+else if(p.cthing==5)
+{
+p.cthing=0;
+send_packet(6,"play get5.56mm_ammo.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("5.56mm_ammo", 1);
+p.inv_add_item("broken_ammo",-1);
+if(lefthand=="broken_ammo")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="stone" and righthand=="broken_ammo" or lefthand=="broken_ammo" and righthand=="stone")
+{
+if(p.waitingtimer.elapsed>=500)
+{
+p.waitingtimer.restart();
+send_packet(6,"play hammer_"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play drawstone.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<7)
+{
+p.cthing++;
+}
+else if(p.cthing==7)
+{
+p.cthing=0;
+send_packet(6,"play get7.62mm_ammo.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("7.62mm_ammo", 1);
+p.inv_add_item("broken_ammo",-1);
+p.inv_add_item("stone",-1);
+if(lefthand=="broken_ammo")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="stone")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="sharpened_stone" and righthand=="broken_ammo" or lefthand=="broken_ammo" and righthand=="sharpened_stone")
+{
+if(p.waitingtimer.elapsed>=500)
+{
+p.waitingtimer.restart();
+send_packet(6,"play hammer_"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getstone.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<9)
+{
+p.cthing++;
+}
+else if(p.cthing==9)
+{
+p.cthing=0;
+send_packet(6,"play get9mm_ammo.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("9mm_ammo", 1);
+p.inv_add_item("broken_ammo",-1);
+p.inv_add_item("sharpened_stone",-1);
+if(lefthand=="broken_ammo")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="sharpened_stone")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="sharpened_metal" and righthand=="broken_ammo" or lefthand=="broken_ammo" and righthand=="sharpened_metal")
+{
+if(p.waitingtimer.elapsed>=500)
+{
+p.waitingtimer.restart();
+send_packet(6,"play hammer_"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getmedal.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<12)
+{
+p.cthing++;
+}
+else if(p.cthing==12)
+{
+p.cthing=0;
+send_packet(6,"play get12.7mm_ammo.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("12.7mm_ammo", 1);
+p.inv_add_item("broken_ammo",-1);
+p.inv_add_item("sharpened_metal",-1);
+if(lefthand=="broken_ammo")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="sharpened_metal")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="metal" and righthand=="broken_ammo" or lefthand=="broken_ammo" and righthand=="metal")
+{
+if(p.waitingtimer.elapsed>=500)
+{
+p.waitingtimer.restart();
+send_packet(6,"play hammer_"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play drawmetal.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<10)
+{
+p.cthing++;
+}
+else if(p.cthing==10)
+{
+p.cthing=0;
+send_packet(6,"play getshotgun_shell.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("shotgun_shell", 1);
+p.inv_add_item("broken_ammo",-1);
+p.inv_add_item("metal",-1);
+if(lefthand=="broken_ammo")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="metal")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="long_wood" and righthand=="stone" or lefthand=="stone" and righthand=="long_wood")
+{
+if(p.waitingtimer.elapsed>=400)
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawwwood.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play drawstone.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<45)
+{
+p.cthing++;
+}
+else if(p.cthing==45)
+{
+p.cthing=0;
+send_packet(6,"play getspear.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("spear", 1);
+p.inv_add_item("long_wood",-1);
+p.inv_add_item("stone",-1);
+if(lefthand=="stone")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="long_wood")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="long_wood" and righthand=="string" or lefthand=="string" and righthand=="long_wood")
+{
+if(p.inv_item_number("string")>=10 and p.waitingtimer.elapsed>=400)
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawwwood.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play drawstring.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<32)
+{
+p.cthing++;
+}
+else if(p.cthing==32)
+{
+p.cthing=0;
+send_packet(6,"play getbow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("bow", 1);
+p.inv_add_item("long_wood",-1);
+p.inv_add_item("string",-1);
+if(lefthand=="string")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="long_wood")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="shaft" and righthand=="string" or lefthand=="string" and righthand=="shaft")
+{
+if(p.waitingtimer.elapsed>=400)
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawwwood.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play drawstring.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<42)
+{
+p.cthing++;
+}
+else if(p.cthing==42)
+{
+p.cthing=0;
+send_packet(6,"play getlong_bow.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("long_bow", 1);
+p.inv_add_item("shaft",-1);
+p.inv_add_item("string",-2);
+if(lefthand=="string")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="shaft")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="grass" and righthand=="grass" or righthand=="grass" and lefthand=="grass")
+{
+if(p.waitingtimer.elapsed>=400)
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawgrass.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<4)
+{
+p.cthing++;
+}
+else if(p.cthing==4)
+{
+p.cthing=0;
+send_packet(6,"play getstring.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("string",1);
+p.inv_add_item("grass",-10);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+return;
+}
+}
+}
+else if(lefthand=="wood" and righthand=="wood" or righthand=="wood" and lefthand=="wood")
+{
+send_packet(6,"play getlong_wood.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("long_wood",1);
+p.inv_add_item("wood",-2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="metal" and righthand=="metal" or lefthand=="metal" and righthand=="metal")
+{
+if(p.waitingtimer.elapsed>=random(750,1100))
+{
+p.waitingtimer.restart();
+send_packet(6,"play sharpen"+random(2,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<50)
+{
+p.cthing++;
+}
+else if(p.cthing==50)
+{
+p.cthing=0;
+send_packet(6,"play getmedal.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("sharpened_metal", 1);
+p.inv_add_item("metal", -1);
+if(lefthand=="metal")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="stone" and righthand=="metal" or lefthand=="metal" and righthand=="stone")
+{
+if(p.waitingtimer.elapsed>=random(640,1020))
+{
+p.waitingtimer.restart();
+send_packet(6,"play sharpen"+random(2,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<35)
+{
+p.cthing++;
+}
+else if(p.cthing==35)
+{
+p.cthing=0;
+send_packet(6,"play getstone.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("sharpened_stone", 1);
+p.inv_add_item("stone", -1);
+if(lefthand=="stone")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="snow" and righthand=="snow" or righthand=="snow" and lefthand=="snow")
+{
+send_packet(6,"play getsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("snow_ball",1);
+p.inv_add_item("snow",-2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="cigarrette_pack" and righthand=="" or lefthand=="" and righthand=="cigarrette_pack")
+{
+send_packet(6,"play opencigarrette_pack.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("cigarrette",15);
+p.inv_add_item("cigarrette_pack",-1);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="cigarrette_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="glue_bottle" and righthand=="" or lefthand=="" and righthand=="glue_bottle")
+{
+send_packet(6,"play openglue.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("glue",25);
+p.inv_add_item("open_glue_bottle",1);
+p.inv_add_item("cap",1);
+p.inv_add_item("glue_bottle",-1);
+if(lefthand=="glue_bottle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="open_glue_bottle" and righthand=="cap" or lefthand=="cap" and righthand=="open_glue_bottle" and p.inv_item_number("glue")>=25)
+{
+send_packet(6,"play closeglue.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("glue",-25);
+p.inv_add_item("open_glue_bottle",-1);
+p.inv_add_item("cap",-1);
+p.inv_add_item("glue_bottle",1);
+if(lefthand=="open_glue_bottle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="cap")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="water_bottle" and righthand=="" or lefthand=="" and righthand=="water_bottle")
+{
+send_packet(6,"play openwater_boddle.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("open_water_bottle",1);
+p.inv_add_item("cap",1);
+p.inv_add_item("water_bottle",-1);
+if(lefthand=="water_bottle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="cola" and righthand=="" or lefthand=="" and righthand=="cola")
+{
+send_packet(6,"play pop"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("opened_cola",1);
+p.inv_add_item("cap",1);
+p.inv_add_item("cola",-1);
+if(lefthand=="cola")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="oil_bottle" and righthand=="" or lefthand=="" and righthand=="oil_bottle")
+{
+send_packet(6,"play openwater_boddle.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("oil",25);
+p.inv_add_item("oil_bottle",-1);
+if(lefthand=="oil_bottle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="gas_bottle" and righthand=="lighter" or lefthand=="lighter" and righthand=="gas_bottle")
+{
+if(p.waitingtimer.elapsed>=1000)
+{
+p.waitingtimer.restart();
+if(p.cthing<10)
+{
+send_packet(6,"play gasleak1.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.cthing++;
+}
+else if(p.cthing==10)
+{
+p.cthing=0;
+p.gasswigs-=40;
+p.inv_add_item("gas_bottle",-1);
+p.inv_add_item("empty_bottle",1);
+if(lefthand=="gas_bottle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="salt_pack" and righthand=="" or lefthand=="" and righthand=="salt_pack")
+{
+send_packet(6,"play openpackage3.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("salt",100);
+p.inv_add_item("salt_pack",-1);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="salt_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="match_box" and righthand=="" or lefthand=="" and righthand=="match_box")
+{
+send_packet(6,"play openmatchbox.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("match",25);
+p.inv_add_item("match_box",-1);
+p.inv_add_item("opened_match_box",1);
+if(lefthand=="match_box")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="glue" and righthand=="glass" or lefthand=="glass" and righthand=="glue")
+{
+send_packet(6,"play glue.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("sticky_glass",1);
+p.inv_add_item("glue",-1);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="clay" and righthand=="clay" or lefthand=="clay" and righthand=="clay")
+{
+send_packet(6,"play getpot.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("pot",1);
+p.inv_add_item("clay",-2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="sticky_glass" and righthand=="glass" or lefthand=="glass" and righthand=="sticky_glass")
+{
+send_packet(6,"play getempty_glass.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("empty_glass",1);
+p.inv_add_item("glass",-1);
+p.inv_add_item("sticky_glass",-1);
+p.inv_add_item("glass",-1);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="glass_of_water" and righthand=="glass_of_water" or righthand=="glass_of_water" and lefthand=="glass_of_water")
+{
+send_packet(6,"play obj_break"+random(1,6)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play cleancup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("glass_of_water",-2);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("glass",2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="empty_glass" and righthand=="empty_glass" or righthand=="empty_glass" and lefthand=="empty_glass")
+{
+send_packet(6,"play obj_break"+random(1,6)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("empty_glass",-2);
+p.inv_add_item("glass",2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="glass_of_water" and righthand=="empty_glass" or righthand=="empty_glass" and lefthand=="glass_of_water")
+{
+send_packet(6,"play cleancup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play obj_break"+random(1,6)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("glass_of_water",-1);
+p.inv_add_item("empty_glass",-1);
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("glass",2);
+if(lefthand=="glass_of_water")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="empty_glass")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="glass_of_water" or righthand=="glass_of_water")
+{
+send_packet(6,"play cleancup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("glass_of_water",-1);
+p.inv_add_item("empty_glass",1);
+if(lefthand=="glass_of_water")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="cup_of_water" and righthand=="cup_of_water" or righthand=="cup_of_water" and lefthand=="cup_of_water")
+{
+send_packet(6,"play cleancup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("cup_of_water",-2);
+p.inv_add_item("cup",2);
+if(lefthand=="cup_of_water")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="cup_of_cola" and righthand=="cup_of_cola" or righthand=="cup_of_cola" and lefthand=="cup_of_cola")
+{
+send_packet(6,"play cleancup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("cup_of_cola",-2);
+p.inv_add_item("cup",2);
+if(lefthand=="cup_of_cola")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="cup_of_beer" and righthand=="cup_of_beer" or righthand=="cup_of_beer" and lefthand=="cup_of_beer")
+{
+send_packet(6,"play cleancup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("cup_of_beer",-2);
+p.inv_add_item("cup",2);
+if(lefthand=="cup_of_beer")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="glass_of_cola" and righthand=="glass_of_cola" or righthand=="glass_of_cola" and lefthand=="glass_of_cola")
+{
+send_packet(6,"play obj_break"+random(1,6)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play cleanglass.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("glass_of_cola",-2);
+p.inv_add_item("glass",2);
+if(lefthand=="glass_of_cola")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="glass_of_beer" and righthand=="glass_of_beer" or righthand=="glass_of_beer" and lefthand=="glass_of_beer")
+{
+send_packet(6,"play obj_break"+random(1,6)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play cleanglass.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("glass_of_beer",-2);
+p.inv_add_item("glass",2);
+if(lefthand=="glass_of_beer")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="cup" and righthand=="cup" or righthand=="cup" and lefthand=="cup")
+{
+send_packet(6,"play getcup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+else if(lefthand=="cup_of_water" and righthand=="" or lefthand=="" and righthand=="cup_of_water")
+{
+send_packet(6,"play cleancup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("cup_of_water",-1);
+p.inv_add_item("cup",1);
+if(lefthand=="cup_of_water")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="cup_of_cola" and righthand=="" or lefthand=="" and righthand=="cup_of_cola")
+{
+send_packet(6,"play cleancup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("cup_of_cola",-1);
+p.inv_add_item("cup",1);
+if(lefthand=="cup_of_cola")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="cup_of_beer" and righthand=="" or lefthand=="" and righthand=="cup_of_beer")
+{
+send_packet(6,"play cleancup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("cup_of_beer",-1);
+p.inv_add_item("cup",1);
+if(lefthand=="cup_of_beer")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="glass_of_cola" and righthand=="" or lefthand=="" and righthand=="glass_of_cola")
+{
+send_packet(6,"play obj_break"+random(1,6)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play cleanglass.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("glass_of_cola",-1);
+p.inv_add_item("glass",1);
+if(lefthand=="glass_of_cola")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="glass_of_beer" and righthand=="" or lefthand=="" and righthand=="glass_of_beer")
+{
+send_packet(6,"play obj_break"+random(1,6)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play cleanglass.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<players.length();i++)
+{
+if(players[i].is_dead==true||in_vehicle(players[i])>-1||players[i].afk==true) continue;
+if(players[i].map==p.map and players[i].looking=="" and get_3d_distance(players[i].x,players[i].y,players[i].z,p.x,p.y,p.z)<=5)
+{
+send_packet(6,"play v"+string_to_number(players[i].voice)+"hit"+random(1,5)+".ogg "+players[i].x+" "+players[i].y+" "+players[i].z,players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]);
+players[i].wet+=random(1,6);
+if(players[i].sleeping==true) players[i].wake();
+}
+}
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==true)
+{
+send_packet(6,"play fireburn"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play firehit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+for(uint i=0;i<fire_starters.length();i++)
+{
+fire_starters[i].health-=random(10,20);
+}
+}
+p.inv_add_item("glass_of_beer",-1);
+p.inv_add_item("glass",1);
+if(lefthand=="glass_of_beer")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="jelly_pack" and righthand=="" or lefthand=="" and righthand=="jelly_pack")
+{
+p.inv_add_item("jelly",10);
+send_packet(6,"play opensmallpack.ogg",p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("jelly_pack",-1);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="jelly_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="opened_cola" and righthand=="cup" or lefthand=="cup" and righthand=="opened_cola")
+{
+send_packet(6,"play fill_cup_pop.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.colaswigs++;
+p.inv_add_item("cup",-1);
+p.inv_add_item("cup_of_cola",1);
+if(lefthand=="cup")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="open_beer_bottle" and righthand=="cup" or lefthand=="cup" and righthand=="open_beer_bottle")
+{
+send_packet(6,"play fill_cup_beer.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.beerswigs+=5;
+p.inv_add_item("cup",-1);
+p.inv_add_item("cup_of_beer",1);
+if(lefthand=="cup")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="open_water_bottle" and righthand=="cup" or lefthand=="cup" and righthand=="open_water_bottle")
+{
+send_packet(6,"play fill_cup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.waterbswigs+=7;
+p.inv_add_item("cup",-1);
+p.inv_add_item("cup_of_water",1);
+if(lefthand=="cup")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="opened_cola" and righthand=="empty_glass" or lefthand=="empty_glass" and righthand=="opened_cola")
+{
+send_packet(6,"play fill_cup_pop.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.colaswigs+=1;
+p.inv_add_item("empty_glass",-1);
+p.inv_add_item("glass_of_cola",1);
+if(lefthand=="empty_glass")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="open_beer_bottle" and righthand=="empty_glass" or lefthand=="empty_glass" and righthand=="open_beer_bottle")
+{
+send_packet(6,"play fill_cup_beer.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.beerswigs+=5;
+p.inv_add_item("empty_glass",-1);
+p.inv_add_item("glass_of_beer",1);
+if(lefthand=="empty_glass")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="open_water_bottle" and righthand=="empty_glass" or lefthand=="empty_glass" and righthand=="open_water_bottle")
+{
+send_packet(6,"play fill_cup.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.waterbswigs+=7;
+p.inv_add_item("empty_glass",-1);
+p.inv_add_item("glass_of_water",1);
+if(lefthand=="empty_glass")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if(lefthand=="corpse_of_shark" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_shark")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<73)
+{
+p.skin++;
+}
+else if(p.skin==73)
+{
+p.skin=0;
+send_packet(6,"play getshark.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_shark", -1);
+p.inv_add_item("skinned_shark", 1);
+p.inv_add_item("shark_skin", 1);
+if(lefthand=="corpse_of_shark")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_shark" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_shark")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<66)
+{
+p.cut++;
+}
+else if(p.cut==66)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_shark", -1);
+p.inv_add_item("gutted_shark_meat", 4);
+if(lefthand=="skinned_shark")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_wolf" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_wolf")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<23)
+{
+p.skin++;
+}
+else if(p.skin==23)
+{
+p.skin=0;
+send_packet(6,"play getwolf.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_wolf", -1);
+p.inv_add_item("skinned_wolf", 1);
+p.inv_add_item("wolf_skin", 1);
+if(lefthand=="corpse_of_wolf")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_wolf" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_wolf")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<26)
+{
+p.cut++;
+}
+else if(p.cut==26)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_wolf", -1);
+p.inv_add_item("gutted_wolf_meat", 3);
+if(lefthand=="skinned_wolf")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_dog" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_dog")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<27)
+{
+p.skin++;
+}
+else if(p.skin==27)
+{
+p.skin=0;
+send_packet(6,"play getwolf.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_dog", -1);
+p.inv_add_item("skinned_dog", 1);
+p.inv_add_item("dog_skin", 1);
+if(lefthand=="corpse_of_dog")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_dog" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_dog")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<29)
+{
+p.cut++;
+}
+else if(p.cut==29)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_dog", -1);
+p.inv_add_item("gutted_dog_meat", 3);
+if(lefthand=="skinned_dog")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_goat" and righthand=="knife" or lefthand=="knife" and righthand=="corpse_of_goat")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<10)
+{
+p.skin++;
+}
+else if(p.skin==10)
+{
+p.skin=0;
+send_packet(6,"play getwolf.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_goat", -1);
+p.inv_add_item("skinned_goat", 1);
+p.inv_add_item("goat_skin", 1);
+if(lefthand=="corpse_of_goat")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_goat" and righthand=="knife" or lefthand=="knife" and righthand=="skinned_goat")
+{
+if(p.waitingtimer.elapsed>=700)
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<20)
+{
+p.cut++;
+}
+else if(p.cut==20)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_goat", -1);
+p.inv_add_item("gutted_goat_meat", 5);
+if(lefthand=="skinned_goat")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_goose" and righthand=="knife" or lefthand=="knife" and righthand=="corpse_of_goose")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<10)
+{
+p.skin++;
+}
+else if(p.skin==10)
+{
+p.skin=0;
+send_packet(6,"play getwolf.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_goose", -1);
+p.inv_add_item("skinned_goose", 1);
+p.inv_add_item("goose_skin", 1);
+if(lefthand=="corpse_of_goose")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_goose" and righthand=="knife" or lefthand=="knife" and righthand=="skinned_goose")
+{
+if(p.waitingtimer.elapsed>=700)
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<20)
+{
+p.cut++;
+}
+else if(p.cut==20)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_goose", -1);
+p.inv_add_item("gutted_goose_meat", 5);
+if(lefthand=="skinned_goose")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_rabbit" and righthand=="knife" or lefthand=="knife" and righthand=="corpse_of_rabbit")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<8)
+{
+p.skin++;
+}
+else if(p.skin==8)
+{
+p.skin=0;
+send_packet(6,"play getrabbit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_rabbit", -1);
+p.inv_add_item("skinned_rabbit", 1);
+p.inv_add_item("rabbit_skin", 1);
+if(lefthand=="corpse_of_rabbit")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_rabbit" and righthand=="knife" or lefthand=="knife" and righthand=="skinned_rabbit")
+{
+if(p.waitingtimer.elapsed>=700)
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<15)
+{
+p.cut++;
+}
+else if(p.cut==15)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_rabbit", -1);
+p.inv_add_item("gutted_rabbit_meat", 5);
+if(lefthand=="skinned_rabbit")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_bear" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_bear")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<40)
+{
+p.skin++;
+}
+else if(p.skin==40)
+{
+p.skin=0;
+send_packet(6,"play getbear.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_bear", -1);
+p.inv_add_item("skinned_bear", 1);
+p.inv_add_item("bear_skin", 1);
+if(lefthand=="corpse_of_bear")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_bear" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_bear")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<45)
+{
+p.cut++;
+}
+else if(p.cut==45)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_bear", -1);
+p.inv_add_item("gutted_bear_meat", 3);
+if(lefthand=="skinned_bear")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_horse" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_horse")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<18)
+{
+p.skin++;
+}
+else if(p.skin==18)
+{
+p.skin=0;
+send_packet(6,"play getwolf.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_horse", -1);
+p.inv_add_item("skinned_horse", 1);
+p.inv_add_item("horse_skin", 1);
+if(lefthand=="corpse_of_horse")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_horse" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_horse")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<25)
+{
+p.cut++;
+}
+else if(p.cut==25)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_horse", -1);
+p.inv_add_item("gutted_horse_meat", 3);
+if(lefthand=="skinned_horse")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_cow" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_cow")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<18)
+{
+p.skin++;
+}
+else if(p.skin==18)
+{
+p.skin=0;
+send_packet(6,"play getwolf.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_cow", -1);
+p.inv_add_item("skinned_cow", 1);
+p.inv_add_item("cow_skin", 1);
+if(lefthand=="corpse_of_cow")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_cow" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_cow")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<25)
+{
+p.cut++;
+}
+else if(p.cut==25)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_cow", -1);
+p.inv_add_item("gutted_cow_meat", 3);
+if(lefthand=="skinned_cow")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_boar" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_boar")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<35)
+{
+p.skin++;
+}
+else if(p.skin==35)
+{
+p.skin=0;
+send_packet(6,"play getbear.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_boar", -1);
+p.inv_add_item("skinned_boar", 1);
+p.inv_add_item("boar_skin", 1);
+if(lefthand=="corpse_of_boar")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_boar" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_boar")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<30)
+{
+p.cut++;
+}
+else if(p.cut==30)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_boar", -1);
+p.inv_add_item("gutted_boar_meat", 3);
+if(lefthand=="skinned_boar")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_chimpanzee" and righthand=="knife" or lefthand=="knife" and righthand=="corpse_of_chimpanzee")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<35)
+{
+p.skin++;
+}
+else if(p.skin==35)
+{
+p.skin=0;
+send_packet(6,"play getrabbit.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_chimpanzee", -1);
+p.inv_add_item("skinned_chimpanzee", 1);
+p.inv_add_item("chimpanzee_skin", 1);
+if(lefthand=="corpse_of_chimpanzee")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_chimpanzee" and righthand=="knife" or lefthand=="knife" and righthand=="skinned_chimpanzee")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<32)
+{
+p.cut++;
+}
+else if(p.cut==32)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_chimpanzee", -1);
+p.inv_add_item("gutted_chimpanzee_meat", 2);
+if(lefthand=="skinned_chimpanzee")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_tiger" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_tiger")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<62)
+{
+p.skin++;
+}
+else if(p.skin==62)
+{
+p.skin=0;
+send_packet(6,"play getbear.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_tiger", -1);
+p.inv_add_item("skinned_tiger", 1);
+p.inv_add_item("tiger_skin", 1);
+if(lefthand=="corpse_of_tiger")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_tiger" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_tiger")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<46)
+{
+p.cut++;
+}
+else if(p.cut==46)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_tiger", -1);
+p.inv_add_item("gutted_tiger_meat", 2);
+if(lefthand=="skinned_tiger")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_lion" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_lion")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<70)
+{
+p.skin++;
+}
+else if(p.skin==70)
+{
+p.skin=0;
+send_packet(6,"play getbear.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_lion", -1);
+p.inv_add_item("skinned_lion", 1);
+p.inv_add_item("lion_skin", 1);
+if(lefthand=="corpse_of_lion")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_lion" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_lion")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<50)
+{
+p.cut++;
+}
+else if(p.cut==50)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_lion", -1);
+p.inv_add_item("gutted_lion_meat", 2);
+if(lefthand=="skinned_lion")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_elephant" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_elephant")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<91)
+{
+p.skin++;
+}
+else if(p.skin==91)
+{
+p.skin=0;
+send_packet(6,"play getbear.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_elephant", -1);
+p.inv_add_item("skinned_elephant", 1);
+p.inv_add_item("elephant_skin", 1);
+if(lefthand=="corpse_of_elephant")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_elephant" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_elephant")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<64)
+{
+p.cut++;
+}
+else if(p.cut==64)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_elephant", -1);
+p.inv_add_item("gutted_elephant_meat", 2);
+if(lefthand=="skinned_elephant")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_gorilla" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_gorilla")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<20)
+{
+p.skin++;
+}
+else if(p.skin==20)
+{
+p.skin=0;
+send_packet(6,"play getbear.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_gorilla", -1);
+p.inv_add_item("skinned_gorilla", 1);
+p.inv_add_item("gorilla_skin", 1);
+if(lefthand=="corpse_of_gorilla")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_gorilla" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_gorilla")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<35)
+{
+p.cut++;
+}
+else if(p.cut==35)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_gorilla", -1);
+p.inv_add_item("gutted_gorilla_meat", 3);
+if(lefthand=="skinned_gorilla")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="corpse_of_leopard" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="corpse_of_leopard")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play skin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<25)
+{
+p.skin++;
+}
+else if(p.skin==25)
+{
+p.skin=0;
+send_packet(6,"play getbear.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getskin.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"skinned!",2);
+p.inv_add_item("corpse_of_leopard", -1);
+p.inv_add_item("skinned_leopard", 1);
+p.inv_add_item("leopard_skin", 1);
+if(lefthand=="corpse_of_leopard")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="skinned_leopard" and righthand=="long_knife" or lefthand=="long_knife" and righthand=="skinned_leopard")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play blood"+random(1,10)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cut<40)
+{
+p.cut++;
+}
+else if(p.cut==40)
+{
+p.cut=0;
+send_packet(6,"play getmeat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("skinned_leopard", -1);
+p.inv_add_item("gutted_leopard_meat", 3);
+if(lefthand=="skinned_leopard")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="long_wood" and righthand=="metal" or lefthand=="metal" and righthand=="long_wood")
+{
+if(p.waitingtimer.elapsed>=500)
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawlarge_saw.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play sharpen4.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<35)
+{
+p.cthing++;
+}
+else if(p.cthing==35)
+{
+p.cthing=0;
+send_packet(6,"play getlong_wood.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("combined_handle", 1);
+p.inv_add_item("long_wood",-10);
+p.inv_add_item("metal",-5);
+if(lefthand=="long_wood")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="metal")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="combined_handle" and righthand=="sharpened_metal" or lefthand=="sharpened_metal" and righthand=="combined_handle")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawwood.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getmedal.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<50)
+{
+p.cthing++;
+}
+else if(p.cthing==50)
+{
+p.cthing=0;
+send_packet(6,"play gethandle.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("disfiggered_taser", 1);
+p.inv_add_item("combined_handle", -1);
+p.inv_add_item("sharpened_metal",-15);
+if(lefthand=="combined_handle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="sharpened_metal")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="sharpened_metal" and righthand=="disfiggered_taser" or lefthand=="disfiggered_taser" and righthand=="sharpened_metal")
+{
+if(p.waitingtimer.elapsed>=850)
+{
+p.waitingtimer.restart();
+send_packet(6,"play forge21.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<50)
+{
+p.cthing++;
+}
+else if(p.cthing==50)
+{
+p.cthing=0;
+send_packet(6,"play drawtaser.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("taser",1);
+p.inv_add_item("disfiggered_taser", -1);
+p.inv_add_item("sharpened_metal", -5);
+if(lefthand=="sharpened_metal")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="disfiggered_taser")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="combined_handle" and righthand=="broomstick" or lefthand=="broomstick" and righthand=="combined_handle")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawwood.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play draw.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<50)
+{
+p.cthing++;
+}
+else if(p.cthing==50)
+{
+p.cthing=0;
+send_packet(6,"play gethandle.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("disfiggered_broom", 1);
+p.inv_add_item("combined_handle", -1);
+p.inv_add_item("broomstick",-1);
+if(lefthand=="combined_handle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="broomstick")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="long_wood" and righthand=="long_wood")
+{
+send_packet(6,"play getshaft.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("shaft",1);
+p.inv_add_item("long_wood",-2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="shaft" and righthand=="shaft")
+{
+send_packet(6,"play getplank.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("plank",1);
+p.inv_add_item("shaft",-2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="plank" and righthand=="plank")
+{
+send_packet(6,"play getplank.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("long_plank",1);
+p.inv_add_item("plank",-2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="long_plank" and righthand=="long_plank")
+{
+send_packet(6,"play getplank.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("very_long_plank",1);
+p.inv_add_item("long_plank",-2);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="long_plank" and righthand=="shaft" or lefthand=="shaft" and righthand=="long_plank")
+{
+send_packet(6,"play getplank.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("disfigured_paddle",1);
+p.inv_add_item("long_plank",-1);
+p.inv_add_item("shaft",-1);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+}
+else if(lefthand=="disfigured_paddle" and righthand=="small_saw" or lefthand=="small_saw" and righthand=="disfigured_paddle")
+{
+if(p.waitingtimer.elapsed>=400)
+{
+p.waitingtimer.restart();
+send_packet(6,"play smallsaw"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<10)
+{
+p.cthing++;
+}
+else if(p.cthing==10)
+{
+p.cthing=0;
+send_packet(6,"play getpaddle.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("paddle",2);
+p.inv_add_item("disfigured_paddle",-1);
+if(lefthand=="disfigured_paddle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="very_long_plank" and righthand=="string" or lefthand=="string" and righthand=="very_long_plank")
+{
+if (p.inv_item_number("very_long_plank")>=9 and p.inv_item_number("string")>=4)
+{
+if(p.waitingtimer.elapsed>=800)
+{
+p.waitingtimer.restart();
+send_packet(6,"play getplank.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getstring.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<50)
+{
+p.cthing++;
+}
+else if(p.cthing==50)
+{
+p.cthing=0;
+send_packet(6,"play getboat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("boat",1);
+p.inv_add_item("very_long_plank",-10);
+p.inv_add_item("string",-5);
+if(lefthand=="very_long_plank")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="string")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+}
+else if(lefthand=="long_wood" and righthand=="wood" or lefthand=="wood" and righthand=="long_wood")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawwood.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<50)
+{
+p.cthing++;
+}
+else if(p.cthing==50)
+{
+p.cthing=0;
+send_packet(6,"play getplank.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("broomstick", 1);
+p.inv_add_item("long_wood", -10);
+if(lefthand=="long_wood")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="long_wood" and righthand=="disfiggered_broom" or lefthand=="disfiggered_broom" and righthand=="long_wood")
+{
+if(p.waitingtimer.elapsed>=850)
+{
+p.waitingtimer.restart();
+send_packet(6,"play forge16.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<50)
+{
+p.cthing++;
+}
+else if(p.cthing==50)
+{
+p.cthing=0;
+send_packet(6,"play draw.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play broom.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("broom",1);
+p.inv_add_item("disfiggered_broom", -1);
+p.inv_add_item("long_wood", -5);
+if(lefthand=="long_wood")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="disfiggered_broom")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+
+else if(lefthand=="fleece" and righthand=="fleece")
+{
+if(p.waitingtimer.elapsed>=450)
+{
+p.waitingtimer.restart();
+send_packet(6,"play draw.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<50)
+{
+p.cthing++;
+}
+else if(p.cthing==50)
+{
+p.cthing=0;
+send_packet(6,"play get.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("thread",1);
+p.inv_add_item("fleece", -2);
+if(lefthand=="fleece")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="thread" and righthand=="thread")
+{
+if(p.waitingtimer.elapsed>=450)
+{
+p.waitingtimer.restart();
+send_packet(6,"play draw.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<100)
+{
+p.cthing++;
+}
+else if(p.cthing==100)
+{
+p.cthing=0;
+send_packet(6,"play get.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("cotton",1);
+p.inv_add_item("thread", -5);
+if(lefthand=="thread")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="cotton" and righthand=="cotton")
+{
+if(p.waitingtimer.elapsed>=850)
+{
+p.waitingtimer.restart();
+send_packet(6,"play draw.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<70)
+{
+p.cthing++;
+}
+else if(p.cthing==70)
+{
+p.cthing=0;
+send_packet(6,"play gethat.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("hat",1);
+p.inv_add_item("cotton", -5);
+if(lefthand=="cotton")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="magic_corpse" and righthand=="wand" or lefthand=="wand" and righthand=="magic_corpse")
+{
+if(p.waitingtimer.elapsed>=2234)
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawcorpse.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play auto_healer_loop.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<200)
+{
+p.cthing++;
+}
+else if(p.cthing==200)
+{
+p.cthing=0;
+if(p.cthing==199) send_packet(6,"play death_free.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing==200) send_packet(6,"play large_distruction.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("death_free_card",1);
+p.inv_add_item("majiv_corpse",-1);
+p.inv_add_item("mega_mana", -100);
+if(lefthand=="wand")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="magic_corpse")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="mana" and righthand=="" or lefthand=="" and righthand=="mana")
+{
+if(p.waitingtimer.elapsed>=2607)
+{
+p.waitingtimer.restart();
+send_packet(6,"play auto_healer_start.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<5)
+{
+p.cthing++;
+}
+else if(p.cthing==5)
+{
+p.cthing=0;
+send_packet(6,"play auto_healer_stop.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("mega_mana",1);
+p.inv_add_item("mana", -1);
+if(lefthand=="mana")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="peacock_key" and righthand=="phoenix_key" or lefthand=="phoenix_key" and righthand=="peacock_key")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play chain"+random(1,2)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<35)
+{
+p.cthing++;
+}
+else if(p.cthing==35)
+{
+p.cthing=0;
+send_packet(6,"play drawlarge_crystal_fragment.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play tele.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("diamond_peace",1);
+p.inv_add_item("peacock_key", -1);
+p.inv_add_item("phoenix_key", -1);
+if(lefthand=="peacock_key")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="phoenix_key")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="first_key" and righthand=="second_key" or lefthand=="second_key" and righthand=="first_key")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play chain"+random(1,2)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<15)
+{
+p.cthing++;
+}
+else if(p.cthing==15)
+{
+p.cthing=0;
+send_packet(6,"play chainget.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("connected_keys",1);
+p.inv_add_item("first_key", -1);
+p.inv_add_item("second_key", -1);
+if(lefthand=="first_key")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="second_key")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="third_key" and righthand=="forth_key" or lefthand=="forth_key" and righthand=="third_key")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play chain"+random(1,2)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<35)
+{
+p.cthing++;
+}
+else if(p.cthing==35)
+{
+p.cthing=0;
+send_packet(6,"play chainget.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("additional_key",1);
+p.inv_add_item("third_key", -1);
+p.inv_add_item("forth_key", -1);
+if(lefthand=="third_key")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="forth_key")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="connected_keys" and righthand=="additional_key" or lefthand=="additional_key" and righthand=="connected_keys")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play chain"+random(1,2)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<75)
+{
+p.cthing++;
+}
+else if(p.cthing==75)
+{
+p.cthing=0;
+send_packet(6,"play chainget.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("magic_key",1);
+p.inv_add_item("connected_keys",-1);
+p.inv_add_item("additional_key",-1);
+if(lefthand=="connected_keys")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="additional_key")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="boat" and righthand=="paddle" or lefthand=="paddle" and righthand=="boat")
+{
+if(can_use_item_at(p.x,p.y,p.z,maps[get_map_index(p.map)],"boat")==false)
+{
+send_reliable(p,"you can't use your boat here",2);
+return;
+}
+if(p.sitting==1)
+{
+string tile=get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if (tile=="water" or tile=="water2" or tile=="water3" or tile=="water4" or tile=="water5" or tile=="water6" or tile=="water7" or tile=="water8" or tile=="water9" or tile=="water10" or tile=="puddle" or tile=="deepwater" or tile=="swim" or tile=="swimming" or tile=="swimming2" or tile=="spring" or tile=="spring2" or tile=="wallboat")
+{
+send_packet(6,"play paddle"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(e.peer_id,"boat",0);
+}
+if(p.cthing<10000)
+{
+p.cthing++;
+}
+else if(p.cthing==10000)
+{
+p.cthing=0;
+send_packet(6,"play woodfall.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("boat",-1);
+p.inv_add_item("paddle",-1);
+if(lefthand=="boat")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="paddle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="beer_bottle" and righthand=="fork" or lefthand=="fork" and righthand=="beer_bottle")
+{
+send_packet(6,"play openbeer.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("open_beer_bottle",1);
+p.inv_add_item("beer_bottle",-1);
+send_reliable(p,"You pop the cap, and you see the shiny cold liquid!",2);
+if(lefthand=="beer_bottle")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="chips" and righthand=="" or lefthand=="" and righthand=="chips")
+{
+send_packet(6,"play openchips.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("chip",50);
+p.inv_add_item("chips",-1);
+if(lefthand=="chips")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="chip" and righthand=="chip" or lefthand=="chip" and righthand=="chip")
+{
+if(p.nhunger>=2000)
+{
+p.nhunger=2000;
+send_reliable(p,"you are full!",2);
+}
+else
+{
+send_packet(6,"play chip"+random(15,18)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.hunger-=random(8,12);
+p.nhunger+=random(8,12);
+p.inv_add_item("chip",-10);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+return;
+}
+}
+else if(lefthand=="chip" and righthand=="" or lefthand=="" and righthand=="chip")
+{
+if(p.nhunger>=2000)
+{
+p.nhunger=2000;
+send_reliable(p,"you are full!",2);
+}
+else
+{
+send_packet(6,"play chip"+random(1,14)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.hunger-=random(1,2);
+p.nhunger+=random(1,2);
+p.inv_add_item("chip",-2);
+if(lefthand=="chip")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+else if(lefthand=="popcorn_pack" and righthand=="" or lefthand=="" and righthand=="popcorn_pack")
+{
+send_packet(6,"play openchips.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("popcorn",30);
+p.inv_add_item("popcorn_pack",-1);
+p.inv_add_item("empty_pack", 1);
+if(lefthand=="popcorn_pack")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="popcorn" and righthand=="popcorn" or lefthand=="popcorn" and righthand=="popcorn")
+{
+if(p.nhunger>=2000)
+{
+p.nhunger=2000;
+send_reliable(p,"you are full!",2);
+}
+else
+{
+send_packet(6,"play eatpopcorn.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.hunger-=random(8,12);
+p.nhunger+=random(8,12);
+p.inv_add_item("popcorn",-5);
+send_reliable(p, "hempty 1", 0);
+send_reliable(p, "hempty 2", 0);
+return;
+}
+}
+else if(lefthand=="popcorn" and righthand=="" or lefthand=="" and righthand=="popcorn")
+{
+if(p.nhunger>=2000)
+{
+p.nhunger=2000;
+send_reliable(p,"you are full!",2);
+}
+else
+{
+send_packet(6,"play eatpopcorn.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.hunger-=random(1,2);
+p.nhunger+=random(1,2);
+p.inv_add_item("popcorn",-2);
+if(lefthand=="popcorn")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+else if(lefthand=="fish" and righthand=="knife" or lefthand=="knife" and righthand=="fish")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play slice"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<1)
+{
+p.skin++;
+}
+else if(p.skin==1)
+{
+p.skin=0;
+send_packet(6,"play getfish.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"gutted!",2);
+p.inv_add_item("fish", -1);
+p.inv_add_item("gutted_fish", 1);
+if(lefthand=="fish")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="hotdog" and righthand=="sos" or lefthand=="sos" and righthand=="hotdog" or lefthand=="hamburger" and righthand=="sos" or lefthand=="sos" and righthand=="hamburger" or lefthand=="cheeseburger" and righthand=="sos" or lefthand=="sos" and righthand=="cheeseburger" or lefthand=="chicken_sandwich" and righthand=="sos" or lefthand=="sos" and righthand=="chicken_sandwich")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play glue.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<4)
+{
+p.skin++;
+}
+else if(p.skin==4)
+{
+p.skin=0;
+send_packet(6,"play getbag.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(lefthand=="hotdog" or lefthand=="hamburger" or lefthand=="cheeseburger" or lefthand=="chicken_sandwich")
+{
+p.inv_add_item(lefthand, -1);
+p.inv_add_item(lefthand+"_with_sos", 1);
+send_reliable(p, "hempty 1", 0);
+}
+else if(righthand=="hotdog" or righthand=="hamburger" or righthand=="cheeseburger" or righthand=="chicken_sandwich")
+{
+p.inv_add_item(righthand, -1);
+p.inv_add_item(righthand+"_with_sos", 1);
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="sos")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="piece_of_hotdog" and righthand=="sos" or lefthand=="sos" and righthand=="piece_of_hotdog" or lefthand=="piece_of_hamburger" and righthand=="sos" or lefthand=="sos" and righthand=="piece_of_hamburger" or lefthand=="piece_of_cheeseburger" and righthand=="sos" or lefthand=="sos" and righthand=="piece_of_cheeseburger" or lefthand=="piece_of_chicken_sandwich" and righthand=="sos" or lefthand=="sos" and righthand=="piece_of_chicken_sandwich")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play glue.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<4)
+{
+p.skin++;
+}
+else if(p.skin==4)
+{
+p.skin=0;
+send_packet(6,"play getbag.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(lefthand=="piece_of_hotdog" or lefthand=="piece_of_hamburger" or lefthand=="piece_of_cheeseburger" or lefthand=="piece_of_chicken_sandwich")
+{
+p.inv_add_item(lefthand, -1);
+p.inv_add_item(lefthand+"_with_sos", 1);
+send_reliable(p, "hempty 1", 0);
+}
+else if(righthand=="piece_of_hotdog" or righthand=="piece_of_hamburger" or righthand=="piece_of_cheeseburger" or righthand=="piece_of_chicken_sandwich")
+{
+p.inv_add_item(righthand, -1);
+p.inv_add_item(righthand+"_with_sos", 1);
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="piece_of_sos")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="hotdog" and righthand=="knife" or lefthand=="knife" and righthand=="hotdog" or lefthand=="hamburger" and righthand=="knife" or lefthand=="knife" and righthand=="hamburger" or lefthand=="cheeseburger" and righthand=="knife" or lefthand=="knife" and righthand=="cheeseburger" or lefthand=="chicken_sandwich" and righthand=="knife" or lefthand=="knife" and righthand=="chicken_sandwich")
+{
+if(p.waitingtimer.elapsed>=random(1600,1800))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawbanana.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<12)
+{
+p.skin++;
+}
+else if(p.skin==12)
+{
+p.skin=0;
+send_packet(6,"play getbag.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(lefthand=="hotdog" or lefthand=="hamburger" or lefthand=="cheeseburger" or lefthand=="chicken_sandwich")
+{
+p.inv_add_item(lefthand, -1);
+p.inv_add_item("piece_of_"+lefthand+"", 3);
+send_reliable(p, "hempty 1", 0);
+}
+else if(righthand=="hotdog" or righthand=="hamburger" or righthand=="cheeseburger" or righthand=="chicken_sandwich")
+{
+p.inv_add_item(righthand, -1);
+p.inv_add_item("piece_of_"+righthand+"", 3);
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="cake" and righthand=="knife" or lefthand=="knife" and righthand=="cake")
+{
+if(p.waitingtimer.elapsed>=random(1600,1800))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawbanana.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<12)
+{
+p.skin++;
+}
+else if(p.skin==12)
+{
+p.skin=0;
+send_packet(6,"play get.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("cake", -1);
+p.inv_add_item("piece_of_cake", 6);
+if(lefthand=="cake")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="sos" and righthand=="knife" or lefthand=="knife" and righthand=="sos")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play knifehit"+random(1,4)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<2)
+{
+p.skin++;
+}
+else if(p.skin==2)
+{
+p.skin=0;
+p.inv_add_item("sos", -1);
+if(lefthand=="sos")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="flour" and righthand=="" or lefthand=="" and righthand=="flour" and string_contains(get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)]),"water", 1)>-1)
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play drawwater_balloon.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<20)
+{
+p.cthing++;
+}
+else if(p.cthing==20)
+{
+p.cthing=0;
+send_packet(6,"play getsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("flour", -30);
+p.inv_add_item("unfinished_yeast", 1);
+if(lefthand=="flour")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="unfinished_yeast" and righthand=="knife" or lefthand=="knife" and righthand=="unfinished_yeast")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play knifehit"+random(1,4)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<2)
+{
+p.cthing++;
+}
+else if(p.cthing==2)
+{
+p.cthing=0;
+send_packet(6,"play getsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("unfinished_yeast", -1);
+p.inv_add_item("yeast", 1);
+if(lefthand=="unfinished_yeast")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="yeast" and righthand=="knife" or lefthand=="knife" and righthand=="yeast")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play knifehit"+random(1,4)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<4)
+{
+p.cthing++;
+}
+else if(p.cthing==4)
+{
+p.cthing=0;
+send_packet(6,"play getsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("yeast", -1);
+p.inv_add_item("piece_of_yeast", 4);
+if(lefthand=="yeast")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="flour" and righthand=="oil" or lefthand=="oil" and righthand=="flour")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<25)
+{
+p.cthing++;
+}
+else if(p.cthing==25)
+{
+p.cthing=0;
+send_packet(6,"play getsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("flour", -5);
+p.inv_add_item("oil", -5);
+p.inv_add_item("unfinished_loaf", 1);
+if(lefthand=="flour")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="oil")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="unfinished_loaf" and righthand=="piece_of_yeast" or lefthand=="piece_of_yeast" and righthand=="unfinished_loaf")
+{
+if(p.waitingtimer.elapsed>=random(450,600))
+{
+p.waitingtimer.restart();
+send_packet(6,"play drawsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<1)
+{
+p.cthing++;
+}
+else if(p.cthing==1)
+{
+p.cthing=0;
+send_packet(6,"play getsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("unfinished_loaf", -1);
+p.inv_add_item("piece_of_yeast", -1);
+p.inv_add_item("uncooked_loaf", 1);
+if(lefthand=="unfinished_loaf")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="piece_of_yeast")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="cooked_loaf" and righthand=="knife" or lefthand=="knife" and righthand=="cooked_loaf")
+{
+if(p.waitingtimer.elapsed>=random(1800,2700))
+{
+p.waitingtimer.restart();
+send_packet(6,"play cutbread"+random(1,3)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<10)
+{
+p.cthing++;
+}
+else if(p.cthing==10)
+{
+p.cthing=0;
+send_packet(6,"play getsnowball.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.inv_add_item("cooked_loaf", -1);
+p.inv_add_item("piece_of_bread", 5);
+if(lefthand=="cooked_loaf")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="oyster" and righthand=="knife" or lefthand=="knife" and righthand=="oyster")
+{
+p.waitingtimer.restart();
+send_packet(6,"play openoyster.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"shelled",2);
+p.inv_add_item("oyster", -1);
+p.inv_add_item("shelled_oyster", 1);
+p.inv_add_item("oyster_shell", 1);
+if(lefthand=="oyster")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="shelled_oyster" and righthand=="" or lefthand=="" and righthand=="shelled_oyster")
+{
+send_packet(6,"play getoyster.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_reliable(p,"opened",2);
+p.inv_add_item("shelled_oyster", -1);
+p.inv_add_item("eatable_oyster", 1);
+if(lefthand=="shelled_oyster")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+else if(lefthand=="watch" and righthand=="" or lefthand=="" and righthand=="watch")
+{
+if(p.relogio==1)
+{
+send_reliable(p,get_time(),2);
+}
+else
+{
+send_reliable(p,"wear the watch first",2);
+}
+}
+else if(lefthand=="marriage_ring" and righthand=="" or lefthand=="" and righthand=="marriage_ring")
+{
+if(p.marriage_ring==1)
+{
+if(p.partner=="")
+{
+send_reliable(p,"you can't use this!",2);
+return;
+}
+if(p.pvp==1)
+{
+send_reliable(p,"you can't use this when you are pvp",2);
+return;
+}
+if(in_vehicle(p)>-1)
+{
+send_reliable(p,"you can't use this inside a vehicle",2);
+return;
+}
+if(in_motor(p)>-1)
+{
+send_reliable(p,"you can't use this inside a motorcycle",2);
+return;
+}
+int ind=get_player_index_from(p.partner);
+if(ind>-1)
+{
+send_packet(6,"play tele.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+move_player(p,players[ind].map,players[ind].x,players[ind].y,players[ind].z);
+int mi=get_map_index(players[ind].map);
+if((mi>-1))
+{
+if(maps[mi].pvp==1)
+{
+if(p.pvp!=1)
+{
+p.pvp=1;
+send_reliable(p,"You are now pvp!",2);
+send_reliable(0,"play_s pvpon.ogg",6);
+send_reliable(0,""+p.nickname+" is now pvp!",2);
+}
+}
+}
+}
+else
+{
+send_reliable(p,""+p.partner+" is offline at the moment",2);
+}
+}
+else
+{
+send_reliable(p,"wear the ring first",2);
+}
+}
+else if(lefthand=="opened_match_box" and righthand=="match" or lefthand=="match" and righthand=="opened_match_box")
+{
+int c=get_candle_at(p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(c>-1)
+{
+if(p.map==candles[c].map.name and get_3d_distance(p.x,p.y,p.z,candles[c].x,candles[c].y,candles[c].z)<=1)
+{
+send_packet(6,"play match_light.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+candles[c].on=1;
+p.inv_add_item("match",-1);
+if(lefthand=="match")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+}
+else
+{
+if(starter_exist_on(p.x,p.y,p.z,maps[get_map_index(p.map)])==false)
+{
+string tile=get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(tile=="wood" or tile=="wood2" or tile=="wood3" or tile=="wood4" or tile=="wood5" or tile=="wood6" or tile=="wood7" or tile=="wood8" or tile=="wood9" or tile=="wood10" or tile=="branch" or tile=="branch2" or tile=="carpet" or tile=="carpet2" or tile=="carpet3" or tile=="carpet4" or tile=="carpet5" or tile=="carpet6" or tile=="carpet7" or tile=="carpet8" or tile=="carpet9" or tile=="tile" or tile=="tile2" or tile=="tile3" or tile=="tile4" or tile=="tile5" or tile=="tile6")
+{
+send_packet(6,"play match_light.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+spawn_fire(p.x,p.y,p.z,maps[get_map_index(p.map)],random(30,50));
+p.inv_add_item("match", -1);
+if(lefthand=="match")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+else if (tile=="water" or tile=="water2" or tile=="water3" or tile=="water4" or tile=="water5" or tile=="water6" or tile=="water7" or tile=="water8" or tile=="water9" or tile=="water10" or tile=="puddle" or tile=="deepwater" or tile=="swim" or tile=="swimming" or tile=="swimming2" or tile=="spring" or tile=="spring2" or tile=="wallboat" or tile=="air" or tile=="")
+{
+send_reliable(p,"You can't use this here",2);
+send_reliable(p, "hempty "+parsed[2], 0);
+}
+else
+{
+spawn_fire_starter(p.x,p.y,p.z,maps[get_map_index(p.map)],random(15,25));
+send_reliable(p,"spawn_fire "+p.x+" "+p.y+" "+p.z+" "+p.map,0);
+p.inv_add_item("match", -1);
+if(lefthand=="match")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+}
+}
+else
+{
+send_reliable(p,"there is already a fire here",2);
+send_reliable(p, "hempty "+parsed[2], 0);
+}
+}
+}
+else if(lefthand=="black_bra" or lefthand=="white_bra" or lefthand=="green_bra" or lefthand=="lemon_bra" or lefthand=="blue_bra" or lefthand=="black_spongy_bra" or lefthand=="white_spongy_bra" or lefthand=="green_spongy_bra" or lefthand=="lemon_spongy_bra" or lefthand=="blue_spongy_bra" or lefthand=="lacy_bra" and righthand=="knife" or lefthand=="knife" and righthand=="black_bra" or righthand=="white_bra" or righthand=="green_bra" or righthand=="lemon_bra" or righthand=="blue_bra" or righthand=="black_spongy_bra" or righthand=="white_spongy_bra" or righthand=="green_spongy_bra" or righthand=="lemon_spongy_bra" or righthand=="blue_spongy_bra" or righthand=="lacy_bra")
+{
+if(p.waitingtimer.elapsed>=919)
+{
+p.waitingtimer.restart();
+send_packet(6,"play armor_break.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.skin<3)
+{
+p.skin++;
+}
+else if(p.skin==3)
+{
+p.skin=0;
+send_packet(6,"play drawshirt.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(lefthand=="black_bra" or lefthand=="white_bra" or lefthand=="green_bra" or lefthand=="lemon_bra" or lefthand=="blue_bra" or lefthand=="black_spongy_bra" or lefthand=="white_spongy_bra" or lefthand=="green_spongy_bra" or lefthand=="lemon_spongy_bra" or lefthand=="blue_spongy_bra" or lefthand=="lacy_bra")
+{
+p.inv_add_item(lefthand, -1);
+p.inv_add_item("ripped_up_"+lefthand, random(2,5));
+}
+else if(righthand=="black_bra" or righthand=="white_bra" or righthand=="green_bra" or righthand=="lemon_bra" or righthand=="blue_bra" or righthand=="black_spongy_bra" or righthand=="white_spongy_bra" or righthand=="green_spongy_bra" or righthand=="lemon_spongy_bra" or righthand=="blue_spongy_bra" or righthand=="lacy_bra")
+{
+p.inv_add_item(righthand, -1); 
+p.inv_add_item("ripped_up_"+righthand, random(2,5));
+}
+if(lefthand=="black_bra" or lefthand=="white_bra" or lefthand=="green_bra" or lefthand=="lemon_bra" or lefthand=="blue_bra" or lefthand=="black_spongy_bra" or lefthand=="white_spongy_bra" or lefthand=="green_spongy_bra" or lefthand=="lemon_spongy_bra" or lefthand=="blue_spongy_bra" or lefthand=="lacy_bra")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+else if(lefthand=="iron_shovel" and string_contains(righthand,"corpse_of_",1)>-1 or string_contains(lefthand,"corpse_of_",1)>-1 and righthand=="iron_shovel")
+{
+if(string_contains(get_zone_at(p.x,p.y,p.z,maps[get_map_index(p.map)]), "cemetery", 1)>-1)
+{
+if(p.waitingtimer.elapsed>=1340)
+{
+p.waitingtimer.restart();
+send_packet(6,"play cavando_ouro.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play getdirt.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<55)
+{
+p.cthing++;
+}
+else if(p.cthing==55)
+{
+p.cthing=0;
+send_packet(6,"play invdrop.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(string_contains(lefthand,"corpse_of_",1)!=-1) p.inv_add_item(lefthand,-1);
+else if(string_contains(righthand,"corpse_of_",1)!=-1) p.inv_add_item(righthand,-1);
+int ganhar=random(20, 210);
+p.inv_add_item("coins",ganhar);
+string msgg;
+if(string_contains(lefthand,"corpse_of_",1)!=-1) msgg=string_replace(lefthand, "corpse_of_", "", false);
+else if(string_contains(righthand,"corpse_of_",1)!=-1) msgg=string_replace(righthand, "corpse_of_", "", false);
+send_reliable(p, "You bury the "+msgg+". Great job! you've received "+ganhar+" coins", 2);
+if(string_contains(lefthand,"corpse_of_",1)!=-1)
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+if(lefthand=="iron_shovel")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+}
+else if(lefthand=="bell" and righthand=="hammer" or lefthand=="hammer" and righthand=="bell")
+{
+for(uint i=0; i<houses.length(); i++)
+{
+if(houses[i].x==p.x and houses[i].y==p.y and houses[i].z==p.z and houses[i].map==p.map)
+{
+if(p.waitingtimer.elapsed>=random(700,1200))
+{
+p.waitingtimer.restart();
+send_packet(6,"play forge16.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<7)
+{
+p.cthing++;
+}
+else if(p.cthing==7)
+{
+p.cthing=0;
+send_packet(6,"play drawbell.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+houses[i].canbell=1;
+int n=random(1,2);
+if(n==1) houses[i].bellsound="doorbell";
+else houses[i].bellsound="doorbell2";
+p.inv_add_item("bell",-1);
+if(lefthand=="bell")
+{
+send_reliable(p, "hempty 1", 0);
+}
+else
+{
+send_reliable(p, "hempty 2", 0);
+}
+return;
+}
+}
+}
+}
+}
+else if(lefthand=="" and righthand=="hammer" or lefthand=="hammer" and righthand=="")
+{
+for(uint i=0; i<houses.length(); i++)
+{
+if(houses[i].x==p.x and houses[i].y==p.y and houses[i].z==p.z and houses[i].map==p.map and houses[i].canbell==1)
+{
+if(p.waitingtimer.elapsed>=random(700,1200))
+{
+p.waitingtimer.restart();
+send_packet(6,"play forge16.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+if(p.cthing<3)
+{
+p.cthing++;
+}
+else if(p.cthing==3)
+{
+p.cthing=0;
+send_packet(6,"play getbell.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+send_packet(6,"play bell.ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+houses[i].health-=random(100,500);
+houses[i].canbell=0;
+houses[i].bellsound="";
+return;
+}
+}
+}
+}
+}
+
+else
+{
+if(lefthand!="" and righthand!="") send_reliable(p,"you can't combine "+lefthand+" with "+righthand+"",2);
+if(lefthand!="knife" and lefthand!="long_knife" and lefthand!="glass" and lefthand!="lighter" and righthand!="knife" and righthand!="long_knife" and righthand!="glass" and righthand!="lighter")
+{
+if(lefthand!="" and righthand=="") send_reliable(p,"you can't combine "+lefthand+" with nothing",2);
+else if(lefthand=="" and righthand!="") send_reliable(p,"you can't combine nothing with "+righthand+"",2);
+}
+}
+}
+}

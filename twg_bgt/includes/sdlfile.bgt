@@ -1,0 +1,27 @@
+#include"downloader.bgt"
+downloader sdl;
+string sdl_file(string url, string disk_file,bool quiet=false,string msg="")
+{
+sdl.initiate_download(url, disk_file);
+if(!quiet) speak(msg);
+string status;
+double dlpercent=-1;
+while(sdl.is_active())
+{
+sdl.monitor();
+if (key_pressed(KEY_ESCAPE))
+{
+sdl.abort();
+status="canceled";
+wait(600);
+return status;
+}
+}
+if (status!="canceled")
+{
+status="finished";
+wait(600);
+return status;
+}
+return "";
+}

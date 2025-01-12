@@ -1,0 +1,66 @@
+dialog@[] dialogs(0);
+class dialog
+{
+int minx, maxx, miny, maxy, minz, maxz;
+string text;
+dialog(int mindialogx, int maxdialogx, int mindialogy, int maxdialogy, int mindialogz, int maxdialogz, string tx)
+{
+minx=mindialogx;
+maxx=maxdialogx;
+miny=mindialogy;
+maxy=maxdialogy;
+minz=mindialogz;
+maxz=maxdialogz;
+text=tx;
+}
+}
+void spawn_dialog(int mindialogx, int maxdialogx, int mindialogy, int maxdialogy, int mindialogz, int maxdialogz, string text)
+{
+dialog dialog1(mindialogx, maxdialogx, mindialogy, maxdialogy, mindialogz, maxdialogz, text);
+dialogs.insert_last(dialog1);
+}
+void destroy_dialog(int d)
+{
+dialogs.remove_at(d);
+}
+void destroy_all_dialogs()
+{
+dialogs.resize(0);
+}
+void silencedialogs(string text)
+{
+string[] stuff=string_split(text,"==",false);
+for(uint i=0;i<stuff.length();i+=1)
+{
+dlg(stuff[i]);
+}
+}
+automatic_dialog@[] automatic_dialogs(0);
+class automatic_dialog
+{
+int minx, maxx, miny, maxy, minz, maxz;
+string text;
+automatic_dialog(int minautomatic_dialogx, int maxautomatic_dialogx, int minautomatic_dialogy, int maxautomatic_dialogy, int minautomatic_dialogz, int maxautomatic_dialogz, string tx)
+{
+minx=minautomatic_dialogx;
+maxx=maxautomatic_dialogx;
+miny=minautomatic_dialogy;
+maxy=maxautomatic_dialogy;
+minz=minautomatic_dialogz;
+maxz=maxautomatic_dialogz;
+text=tx;
+}
+}
+void spawn_automatic_dialog(int minautomatic_dialogx, int maxautomatic_dialogx, int minautomatic_dialogy, int maxautomatic_dialogy, int minautomatic_dialogz, int maxautomatic_dialogz, string text)
+{
+automatic_dialog automatic_dialog1(minautomatic_dialogx, maxautomatic_dialogx, minautomatic_dialogy, maxautomatic_dialogy, minautomatic_dialogz, maxautomatic_dialogz, text);
+automatic_dialogs.insert_last(automatic_dialog1);
+}
+void destroy_automatic_dialog(int d)
+{
+automatic_dialogs.remove_at(d);
+}
+void destroy_all_automatic_dialogs()
+{
+automatic_dialogs.resize(0);
+}

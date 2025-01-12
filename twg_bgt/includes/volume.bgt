@@ -1,0 +1,62 @@
+void vvolume_menu()
+{
+double original_volume = stbspeech.volume;
+stbspeech.speak_interrupt("Adjust volume.");
+speak_volume(false);
+while(true)
+{
+if(key_down(KEY_LMENU) && key_pressed(KEY_F4)) goodbye();
+if(key_pressed(KEY_ESCAPE)) {
+stbspeech.volume = original_volume;
+stbspeech.speak_interrupt("Canceled.");
+return;
+}
+if(key_pressed(KEY_RETURN)) {
+stbspeech.speak_interrupt("Volume set.");
+return;
+}
+if(key_pressed(KEY_UP))
+{
+adjust_volume(5);
+if(stbspeech.volume >= 0) continue;
+int wait_time=500;
+while(key_down(KEY_UP)) {
+wait(wait_time);
+if(wait_time == 500) wait_time = 100;
+if(key_down(KEY_UP)) adjust_volume(5);
+if(stbspeech.volume >= 0) break;
+}
+}
+if(key_pressed(KEY_DOWN)) {
+adjust_volume(-5);
+if(stbspeech.volume <= -100) continue;
+int wait_time=500;
+while(key_down(KEY_DOWN)) {
+wait(wait_time);
+if(wait_time == 500) wait_time = 100;
+if(key_down(KEY_DOWN)) adjust_volume(-5);
+if(stbspeech.volume <= -100) break;
+}
+}
+if(key_pressed(KEY_PRIOR)) {
+adjust_volume(100);
+}
+if(key_pressed(KEY_NEXT)) {
+adjust_volume(-100);
+}
+wait(5);}
+}
+
+void speak_volume( bool interrupt) {
+string vol_str = stbspeech.volume + 100 + " percent";
+if(interrupt) stbspeech.speak_interrupt(vol_str);
+else stbspeech.speak(vol_str);
+}
+void adjust_volume(double amount) {
+double newvol = stbspeech.volume + amount;
+if(newvol > 0) newvol = 0;
+if(newvol < -100) newvol = -100;
+stbspeech.volume = newvol;
+speak_volume(true);
+}
+

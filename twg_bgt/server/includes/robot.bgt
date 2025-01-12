@@ -1,0 +1,347 @@
+const int Left=-1;
+const int Right=1;
+const int Backward=0;
+const int Forward=2;
+const int Down=-2;
+const int Up=3;
+robot@[] robots;
+string[] acttypes={"cannon","laser","macgun","macgun2"};
+class robot
+{
+bool started=false,starting=false,sounding=false,activated=false,acting=false,fighting=true,enterable=true,fact=false;
+int x,y,z,health=7500;
+string destplayer,destf,action,mid,mid2,id,hitby;
+mapdata@map;
+player@owner;
+timer movetimer,soundtimer,actiontimer,firetimer,acttimer;
+bool actsoundplaying=false;
+int action_cannon=1460,action_explode=2435,action_laser=1804,action_macgun=1252,action_macgun2=1410,sound_start=6009,remotebeep=760,sound_lookstop=786,actiontime,acttime;
+bool dead=false;
+int actstage=0;
+int facing=Right;
+robot(int sx, int sy, int sz, mapdata@m, player@p)
+{
+x=sx;y=sy;z=sz;@map=m;@owner=p;id=randomstring();players[get_player_index_from(owner.name)].rid=id;
+send_packet(6,"play robotdrop.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+acttime=random(500,5000);
+}
+void act(string force="")
+{
+acting=false;
+if(force=="") action=acttypes[random(0,(acttypes.length()-1))];
+else action=force;
+if(action=="explode") actiontime=action_explode;
+if(action=="cannon") actiontime=action_cannon;
+if(action=="macgun") actiontime=action_macgun;
+if(action=="macgun2") actiontime=action_macgun2;
+if(action=="laser") actiontime=action_laser;
+if(force!=""&&action!="explode") actiontime=760;
+actsoundplaying=true;
+actstage=0;
+actiontimer.restart();
+if(force!="") send_packet(6,"play robot_remote_action.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+else if(action=="macgun2") send_packet(6,"play robot_action_macgun.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+else send_packet(6,"play robot_action_"+action+".ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+if(action=="explode") send_packet(6,"play robot_action_explode.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+if(force!="") fact=true;
+acttime=random(500,5000);
+}
+void start()
+{
+if(started==false)
+{
+sounding=true;starting=true;
+send_packet(6,"play robotstart.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+soundtimer.restart();
+enterable=false;
+}
+else
+{
+if(activated==false)
+{
+activated=true;
+send_packet(6,"play robot_looking_finished.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+destroy_moving_sound(mid);
+mid=spawn_moving_sound("robot_loop.ogg",x,y,z,map.name);
+}
+}
+}
+void loop(int i)
+{
+if(@map==null or @owner==null)
+{
+destroy_moving_sound(mid);
+robots.remove_at(i);
+return;
+}
+if(dead==true)
+{
+destroy_moving_sound(mid);
+int ind=get_player_index_from(owner.name);
+if(ind>-1) players[ind].rid="";
+robots.remove_at(i);
+return;
+}
+if(health<=0)
+{
+send_reliable(0,"kills "+name2nickname(owner.name)+"'s robot was terminated by "+name2nickname(hitby),0);
+send_packet(6,"play robotdestroy.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+int ind=get_player_index_from(owner.name);
+if(ind>-1) {send_reliable(players[ind],"robot I died",0);players[ind].rid="";}
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int index=get_player_index_from(hb);
+if(index>-1)
+{
+givexp(players[index],random(100, 300)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+dead=true;
+return;
+}
+if(starting==true&&soundtimer.elapsed>=sound_start)
+{
+this.mid=spawn_moving_sound("robot_loop.ogg",x,y,z,map.name);
+starting=false;started=true;
+activated=true;
+}
+if(started)
+{
+if(acting==true) actloop();
+if(movetimer.elapsed>=500&&activated)
+{
+movetimer.restart();
+int ind=get_player_index_from(destplayer);
+if(ind<0) destplayer="";
+else if(players[ind].insz) destplayer="";
+else
+{
+string tile=get_tile_at(x,y,z,maps[get_map_index(map.name)]);
+if(string_contains(tile, "wall", 1)<0 and players[ind].x!=x||players[ind].y!=y)
+{
+if(x>players[ind].x) {x--;facing=Left;}
+if(x<players[ind].x) {x++;facing=Right;}
+if(y>players[ind].y) {y--;facing=Backward;}
+if(y<players[ind].y) {y++;facing=Forward;}
+update_moving_sound(mid,x,y,z);
+send_packet(6,"play robotstep.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+}
+}
+}
+if(destplayer==""||get_player_index_from(destplayer)<0) select_player();
+if(acting==false&&actsoundplaying==false&&acttimer.elapsed>=acttime&&activated) act();
+if(actsoundplaying==true&&actiontimer.elapsed>=actiontime)
+{
+acting=true;actsoundplaying=false;
+actloop();
+}
+}
+}
+void select_player(string force="")
+{
+if(destf!="") force=destf;
+if(force!=""&&force!="__random__")
+{
+destplayer=force;
+int ind=get_player_index_from(owner.name);
+if(ind>-1) send_reliable(players[ind],"robot I'm going after "+name2nickname(destplayer),0);
+send_packet(6,"play robot_tracking.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+if(activated==false)
+{
+activated=true;
+send_packet(6,"play robot_looking_finished.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+destroy_moving_sound(mid);
+mid=spawn_moving_sound("robot_loop.ogg",x,y,z,map.name);
+enterable=false;
+}
+return;
+}
+player@[] temp;
+for(uint i=0; i<players.length(); i++)
+{
+if(players[i].map!=owner.map or players[i].z!=owner.z or are_teamed(owner.name,players[i].name) or in_vehicle(players[i])>-1 or in_motor(players[i])>-1 or players[i].is_dead or is_safe(players[i].x,players[i].y,players[i].z,maps[get_map_index(players[i].map)]) or players[i].safe or players[i].pvp==0 or players[i].away or players[i].afk or players[i].newb==1 or players[i].looking!="") continue;
+temp.insert_last(players[i]);
+}
+if(temp.is_empty()&&activated)
+{
+int ind=get_player_index_from(owner.name);
+if(ind==-1) {act("explode");return;}
+send_reliable(players[ind],"robot I can't find anybody to fight",0);
+robomove(players[ind].x,players[ind].y,players[ind].z,maps[get_map_index(players[ind].map)]);
+activated=false;
+send_packet(6,"play robot_looking_start.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+destroy_moving_sound(mid);
+mid=spawn_moving_sound("robot_looking.ogg",x,y,z,map.name);
+enterable=true;
+return;
+}
+if(!temp.is_empty())
+{
+destplayer=temp[random(0,(temp.length()-1))].name;
+int ind=get_player_index_from(owner.name);
+if(ind>-1) send_reliable(players[ind],"robot I'm going after "+name2nickname(destplayer),0);
+send_packet(6,"play robot_tracking.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+if(activated==false)
+{
+activated=true;
+send_packet(6,"play robot_looking_finished.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+destroy_moving_sound(mid);
+mid=spawn_moving_sound("robot_loop.ogg",x,y,z,map.name);
+enterable=false;
+}
+}
+}
+void robomove(int x, int y, int z, mapdata@map)
+{
+send_packet(6,"play robot_warp.ogg "+this.x+" "+this.y+" "+this.z, this.x,this.y,this.z,maps[get_map_index(this.map.name)]);
+this.x=x;
+this.y=y;
+this.z=z;
+bool respawnsound=this.map.name!=map.name;
+this.map.name=map.name;
+if(respawnsound)
+{
+destroy_moving_sound(mid);
+mid=spawn_moving_sound("robot_loop.ogg",x,y,z,map.name);
+}
+else
+{
+update_moving_sound(mid,x,y,z);
+}
+send_packet(6,"play robot_warp.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+}
+void actloop()
+{
+if(fact) fact=false;
+if(action=="explode")
+{
+send_packet(6,"play robot_explode.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+this.dead=true;
+return;
+}
+if(action=="laser")
+{
+if(actstage>=5) {actstage=0;acting=false;acttimer.restart();acttime=random(500,5000);return;}
+if(firetimer.elapsed>=1000)
+{
+firetimer.restart();
+send_packet(6,"play robot_laser.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+spawn_weapon(x, y, z, facing, 0, "laser", owner, maps[get_map_index(map.name)]);
+actstage++;
+}
+}
+if(action=="macgun")
+{
+if(actstage>=10) {actstage=0;acting=false;acttimer.restart();acttime=random(500,5000);return;}
+if(firetimer.elapsed>=100)
+{
+firetimer.restart();
+send_packet(6,"play robot_macgunfire.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+spawn_weapon(x, y, z, facing, 0, "macgun", owner, maps[get_map_index(map.name)]);
+actstage++;
+}
+}
+if(action=="macgun2")
+{
+if(actstage>=5) {actstage=0;acting=false;acttimer.restart();acttime=random(500,5000);return;}
+if(firetimer.elapsed>=382)
+{
+firetimer.restart();
+send_packet(6,"play robot_shoot.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+spawn_weapon(x, y, z, facing, 0, "macgun2", owner, maps[get_map_index(map.name)]);
+actstage++;
+}
+}
+if(action=="cannon")
+{
+if(actstage>=2) {actstage=0;acting=false;acttimer.restart();acttime=random(500,5000);return;}
+if(firetimer.elapsed>=2000)
+{
+firetimer.restart();
+send_packet(6,"play robot_cannonfire.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+spawn_weapon(x, y, z, facing, 0, "cannon", owner, maps[get_map_index(map.name)]);
+actstage++;
+}
+}
+}
+}
+void spawn_robot(int pind)
+{
+robot r1(players[pind].x,players[pind].y,players[pind].z,maps[get_map_index(players[pind].map)],players[pind]);
+robots.insert_last(r1);
+}
+void destroy_all_robots()
+{
+for(uint i=0; i<robots.length(); i++)
+{
+robots[i].dead=true;
+}
+}
+void robotplayerselect(string id,string dest)
+{
+for(uint i=0; i<robots.length(); i++)
+{
+if(robots[i].id==id)
+{
+robots[i].select_player(dest);
+}
+}
+}
+void robotaction(string id,string dest)
+{
+for(uint i=0; i<robots.length(); i++)
+{
+if(robots[i].id==id)
+{
+robots[i].act(dest);
+}
+}
+}
+string robotstats(string id)
+{
+for(uint i=0; i<robots.length(); i++)
+{
+if(robots[i].id==id)
+{
+return "I am located on "+get_zone_at(robots[i].x,robots[i].y,robots[i].z,maps[get_map_index(robots[i].map.name)])+", at "+robots[i].x+", "+robots[i].y+", "+robots[i].z+". I am currently "+(robots[i].activated ? "activated and after "+name2nickname(robots[i].destplayer)+"." : "not activated and am awaiting orders.");
+}
+}
+return "this robot is dead";
+}
+void robotstart(string id)
+{
+for(uint i=0; i<robots.length(); i++)
+{
+if(robots[i].id==id) robots[i].start();
+}
+}
+void robotmove(string id,int x, int y,int z,mapdata@map)
+{
+for(uint i=0; i<robots.length(); i++)
+{
+if(robots[i].id==id) robots[i].robomove(x,y,z,maps[get_map_index(map.name)]);
+}
+}
+int has_robot(string who)
+{
+for(uint i=0; i<robots.length(); i++)
+{
+if(robots[i].owner.name==who)
+{
+return i;
+}
+}
+return -1;
+}

@@ -1,0 +1,91 @@
+turret@[] turrets(0);
+class turret
+{
+int x, y, z, health=5000, id=random(111, 999), clipsize=50, chargelevel=100;
+string hitby;
+mapdata@map;
+player@owner;
+timer looptimer, firetimer, chargetimer;
+turret(int tx, int ty, int tz, mapdata@m, player@p)
+{
+x=tx;
+y=ty;
+z=tz;
+@map=m;
+@owner=p;
+}
+void loop(int i)
+{
+if(@map==null or @owner==null)
+{
+turrets.remove_at(i);
+return;
+}
+int oindex=get_player_index_from(owner.name);
+if(looptimer.elapsed>=2019 and chargelevel<=0==false)
+{
+send_packet(6,"play turretloop.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+looptimer.restart();
+}
+if(chargetimer.elapsed>=10000 and chargelevel<=0==false)
+{
+chargelevel-=1;
+chargetimer.restart();
+}
+if(health<=0)
+{
+send_packet(6,"play turretdie.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map.name)]);
+send_reliable(0, "kills "+killmsg3(owner.name+"'s turret "+id, hitby, get_zone_at(x,y,z,maps[get_map_index(map.name)])), 0);
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int index=get_player_index_from(hb);
+if(index>-1)
+{
+givexp(players[index],random(100, 300)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(1,100);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+turrets.remove_at(i);
+return;
+}
+int index=get_nearest_player(x, y, z, map.name, oindex);
+if(index>-1)
+{
+if(are_teamed(owner.name,players[index].name)==false and in_vehicle(players[index])<0 and in_motor(players[index])<0 and players[index].is_dead==false and is_safe(players[index].x,players[index].y,players[index].z,maps[get_map_index(players[index].map)]) and players[index].safe==false and players[index].pvp==1 and players[index].away==false and players[index].afk==false and players[index].newb==0 and players[index].looking=="")
+{
+int miss=random(1, 100);
+int dist=get_3d_distance(x, y, z, players[index].x, players[index].y, players[index].z);
+if(dist<20 and firetimer.elapsed>140 and clipsize<=0==false and chargelevel<=0==false)
+{
+firetimer.restart();
+send_packet(6,"play turret.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+send_dpacket(6,"distsound turretdist"+x+" "+y+" "+z+" "+map.name,maps[get_map_index(map.name)]);
+clipsize--;
+if(miss<100)
+{
+send_packet(6,"play h"+random(1,5)+".ogg "+players[index].x+" "+players[index].y+" "+players[index].z,players[index].x, players[index].y, players[index].z, maps[get_map_index(players[index].map)]);
+players[index].hit(30, 60);
+players[index].hitby=owner.name+"'s turret "+id;
+}
+}
+}
+}
+}
+}
+void spawn_turret(int x, int y, int z, mapdata@m, player@p)
+{
+turret t(x, y, z, m, p);
+if(@t.map==null or @t.owner==null) return;
+else turrets.insert_last(t);
+}

@@ -1,0 +1,247 @@
+obj@[] objs(0);
+class obj
+{
+int x;
+int y;
+int z;
+string name;
+mapdata@map;
+timer beeptimer, timeouttimer;
+double amount;
+int id=-1;
+bool dropped=false;
+obj(int ox, int oy, int oz, mapdata@m, string oname, int oa=1, bool dropped=true,int oid=-1)
+{
+@map=m;
+x=ox;
+y=oy;
+z=oz;
+name=oname;
+amount=oa;
+id=oid;
+this.dropped=dropped;
+}
+}
+void spawn_obj(int x, int y, int z, mapdata@m, string name, double amount=1,bool dropped=false,int id=random(0,9999))
+{
+obj i1(x,y,z,m,name,amount,dropped,id);
+send_reliable(0,"newitem "+i1.x+" "+i1.y+" "+i1.z+" "+i1.map.name+" "+i1.id,0);
+objspawns++;
+if(@i1.map==null) return;
+else objs.insert_last(i1);
+}
+void spawn_rand_obj(int minx, int maxx, int miny, int maxy, int minz, int maxz, mapdata@m, string[] choices)
+{
+int x,y,z;
+string tile;
+do
+{
+x=random(minx,maxx);
+y=random(miny,maxy);
+z=random(minz,maxz);
+tile=get_tile_at(x,y,z,maps[get_map_index(m.name)]);
+}
+while(tile==""||string_left(tile,4)=="wall");
+spawn_obj(x,y,z,maps[get_map_index(m.name)],choices[random(0,(choices.length()-1))]);
+}
+void move_all_objs_to(int x, int y, int z, mapdata@m)
+{
+for(uint i=0; i<objs.length(); i++)
+{
+objs[i].x=x;
+objs[i].y=y;
+objs[i].z=z;
+objs[i].map.name=m.name;
+}
+}
+int get_nearest_item_at(int x, int y, int z, mapdata@m, string type)
+{
+int current_distance=-1;
+int final_index=-1;
+for(uint i=0; i<objs.length(); i++)
+{
+if(objs[i].map.name!=m.name and objs[i].name!=type) continue;
+int dist=get_3d_distance(x, y, z, objs[i].x, objs[i].y, objs[i].z);
+if(current_distance==-1)
+{
+current_distance=dist;
+final_index=i;
+}
+else
+{
+if(dist<current_distance)
+{
+current_distance=dist;
+final_index=i;
+}
+}
+}
+return final_index;
+}
+void remove_obj(int it)
+{
+send_reliable(0,"remitem "+objs[it].id,0);
+@objs[it]=null;
+objs.remove_at(it);
+}
+void move_objs_to(int x, int y, int z, mapdata@m, int itemcount)
+{
+int objgrabs=0;
+for(uint i=0;i<objs.length();i++)
+{
+if(objs[i].map.name==m.name and objs[i].name!="item_grabber")
+{
+objs[i].x=x;
+objs[i].y=y;
+objs[i].z=z;
+objgrabs++;
+}
+if(objgrabs>itemcount) break;
+}
+}
+void mmove_objs_to(int x, int y, int z, mapdata@m, int itemcount)
+{
+int objgrabs=0;
+for(uint i=0;i<objs.length();i++)
+{
+if(objs[i].map.name==m.name and objs[i].name!="item_grabber" and objs[i].z==z)
+{
+objs[i].x=x;
+objs[i].y=y;
+objs[i].z=z;
+objgrabs++;
+}
+if(objgrabs>itemcount) break;
+}
+}
+bool item_exists(string name)
+{
+for (uint ie2=0; ie2<objs.length(); ie2++)
+{
+if (objs[ie2].name==name)
+return true;
+}
+return false;
+}
+silenceobj@[] silenceobjs(0);
+class silenceobj
+{
+int x;
+int y;
+int z;
+string name;
+mapdata@map;
+timer beeptimer, timeouttimer;
+double amount;
+int id=-1;
+bool dropped=false;
+silenceobj(int ox, int oy, int oz, mapdata@m, string oname, int oa=1, bool dropped=true,int oid=-1)
+{
+@map=m;
+x=ox;
+y=oy;
+z=oz;
+name=oname;
+amount=oa;
+id=oid;
+this.dropped=dropped;
+}
+}
+void spawn_silenceobj(int x, int y, int z, mapdata@m, string name, double amount=1,bool dropped=false,int id=random(0,9999))
+{
+silenceobj i1(x,y,z,m,name,amount,dropped,id);
+if(@i1.map==null) return;
+else silenceobjs.insert_last(i1);
+}
+void spawn_rand_silenceobj(int minx, int maxx, int miny, int maxy, int minz, int maxz, mapdata@m, string[] choices)
+{
+int x,y,z;
+string tile;
+do
+{
+x=random(minx,maxx);
+y=random(miny,maxy);
+z=random(minz,maxz);
+tile=get_tile_at(x,y,z,maps[get_map_index(m.name)]);
+}
+while(tile==""||string_left(tile,4)=="wall");
+spawn_silenceobj(x,y,z,maps[get_map_index(m.name)],choices[random(0,(choices.length()-1))]);
+}
+void move_all_silenceobjs_to(int x, int y, int z, mapdata@m)
+{
+for(uint i=0; i<silenceobjs.length(); i++)
+{
+silenceobjs[i].x=x;
+silenceobjs[i].y=y;
+silenceobjs[i].z=z;
+silenceobjs[i].map.name=m.name;
+}
+}
+int get_nearest_silenceitem_at(int x, int y, int z, mapdata@m, string type)
+{
+int current_distance=-1;
+int final_index=-1;
+for(uint i=0; i<silenceobjs.length(); i++)
+{
+if(silenceobjs[i].map.name!=m.name and silenceobjs[i].name!=type) continue;
+int dist=get_3d_distance(x, y, z, silenceobjs[i].x, silenceobjs[i].y, silenceobjs[i].z);
+if(current_distance==-1)
+{
+current_distance=dist;
+final_index=i;
+}
+else
+{
+if(dist<current_distance)
+{
+current_distance=dist;
+final_index=i;
+}
+}
+}
+return final_index;
+}
+void remove_silenceobj(int it)
+{
+@silenceobjs[it]=null;
+silenceobjs.remove_at(it);
+}
+void move_silenceobjs_to(int x, int y, int z, mapdata@m, int itemcount)
+{
+int silenceobjgrabs=0;
+for(uint i=0;i<silenceobjs.length();i++)
+{
+if(silenceobjs[i].map.name==m.name and silenceobjs[i].name!="item_grabber")
+{
+silenceobjs[i].x=x;
+silenceobjs[i].y=y;
+silenceobjs[i].z=z;
+silenceobjgrabs++;
+}
+if(silenceobjgrabs>itemcount) break;
+}
+}
+void mmove_silenceobjs_to(int x, int y, int z, mapdata@m, int itemcount)
+{
+int silenceobjgrabs=0;
+for(uint i=0;i<silenceobjs.length();i++)
+{
+if(silenceobjs[i].map.name==m.name and silenceobjs[i].name!="item_grabber" and silenceobjs[i].z==z)
+{
+silenceobjs[i].x=x;
+silenceobjs[i].y=y;
+silenceobjs[i].z=z;
+silenceobjgrabs++;
+}
+if(silenceobjgrabs>itemcount) break;
+}
+}
+bool silenceitem_exists(string name)
+{
+for (uint ie2=0; ie2<silenceobjs.length(); ie2++)
+{
+if (silenceobjs[ie2].name==name)
+return true;
+}
+return false;
+}

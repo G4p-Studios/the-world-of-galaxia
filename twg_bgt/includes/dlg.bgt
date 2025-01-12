@@ -1,0 +1,59 @@
+void dlg(string message, bool in_game=false,string dlgalert="",string dlgdismiss="")
+{
+if(dlgalert!="") p.play_stationary(dlgalert,false,0,0,0,100);
+speak(message);
+while(true)
+{
+wait(5);
+if(in_game) mainloop();
+if (key_pressed(KEY_LEFT) or key_pressed(KEY_RIGHT) or key_pressed(KEY_UP) or key_pressed(KEY_DOWN))
+{
+speak(message);
+}
+if (key_pressed(KEY_RETURN) or key_pressed(KEY_ESCAPE))
+{
+break;
+}
+wait(5);
+}
+if(dlgdismiss!="") p.play_stationary(dlgdismiss,false,0,0,0,100);
+}
+void dlg_send(string message, string return_packet="dlg_reply",bool in_game=false)
+{
+speak(message);
+while(true)
+{
+wait(5);
+if(in_game) netloop();
+if (key_pressed(KEY_LEFT) or key_pressed(KEY_RIGHT) or key_pressed(KEY_UP) or key_pressed(KEY_DOWN))
+{
+speak(message);
+}
+if (key_pressed(KEY_RETURN) or key_pressed(KEY_ESCAPE))
+{
+send_reliable(peer_id,return_packet+" "+keys_pressed()[0],0);
+break;
+}
+wait(5);
+}
+}
+
+void dlg_wait(string message, int waittime)
+{
+speak(message);
+timer d;
+while(true)
+{
+e=n.request();
+wait(5);
+if (key_pressed(KEY_LEFT) or key_pressed(KEY_RIGHT) or key_pressed(KEY_UP) or key_pressed(KEY_DOWN))
+{
+speak(message);
+}
+if(d.elapsed>=waittime)
+{
+break;
+}
+wait(5);
+}
+}

@@ -1,0 +1,20 @@
+void download(string url)
+{
+file_copy("lib/aria2c.exe","aria2c.exe",true);
+sound_beep();
+run("aria2c.exe","--allow-overwrite=true "+url,true,true);
+file_delete("aria2c.exe");
+}
+tone_synth download_synth;
+sound@ download_beep;
+void sound_beep()
+{
+download_synth.waveform_type=3;
+download_synth.set_edge_fades(1,25);
+download_synth.freq_ms(500,50);
+download_synth.rest_ms(2000);
+@download_beep=download_synth.write_wave_sound();
+download_synth.reset();
+download_beep.volume=-5;
+download_beep.play_looped();
+}

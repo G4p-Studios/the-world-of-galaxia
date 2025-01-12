@@ -1,0 +1,15 @@
+/*
+Miscellaneous financial-related functions
+*/
+
+/*Convert a positive integer cents to a string of dollars and cents*/
+
+string convert_to_currency(double number, string currency_symbol)
+{
+if (number < 0) return "";
+uint dollars = number / 100;
+uint cents = number % 100;
+string cents_str = "" + cents;
+	if (string_len (cents_str) == 1) cents_str = "0" + cents_str;
+return currency_symbol + dollars + "." + cents_str;
+}

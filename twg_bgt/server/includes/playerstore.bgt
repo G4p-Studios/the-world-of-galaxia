@@ -1,0 +1,355 @@
+playerstore@[] playerstores(0);
+class playerstore
+{
+int x, y, z, health;
+string map, playerstoremap, owner, hitby="nothing", name;
+savedata tempsd("");
+playerstore(int psx, int psy, int psz, string psmap, string psowner, string psname, int pshealth, string psplayerstoremap)
+{
+x=psx;
+y=psy;
+z=psz;
+map=psmap;
+owner=psowner;
+name=psname;
+health=pshealth;
+playerstoremap=psplayerstoremap;
+tempsd.fn="playerstores/"+playerstoremap+".playerstore";
+tempsd.key="dl_playerstore";
+}
+void playerstore_save()
+{
+if(directory_exists("playerstores")==false)
+directory_create("playerstores");
+tempsd.add("x",x);
+tempsd.add("y",y);
+tempsd.add("z",z);
+tempsd.add("map",map);
+tempsd.add("owner",owner);
+tempsd.add("name",name);
+tempsd.add("health",health);
+tempsd.add("playerstoremap",playerstoremap);
+tempsd.save();
+}
+void loop(int i)
+{
+if(health<=0)
+{
+send_packet(6,"play base_dest.ogg "+x+" "+y+" "+z, x,y,z,maps[get_map_index(map)]);
+send_dpacket(6,"distsound base_destdist "+x+" "+y+" "+z+" "+map,maps[get_map_index(map)]);
+for(uint i2=0; i2<players.length(); i2++)
+{
+if(players[i2].map==playerstoremap)
+{
+move_player(players[i2],map,x,y,z);
+send_reliable(players[i2],"exitplace",0);
+players[i2].health-=50000;
+}
+}
+for(uint i2=0; i2<msounds.length(); i2++)
+{
+if(msounds[i2].map==playerstoremap)
+{
+msounds.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<ais.length(); i2++)
+{
+if(ais[i2].map.name==playerstoremap)
+{
+ais.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<lockers.length(); i2++)
+{
+if(lockers[i2].map==playerstoremap)
+{
+file_delete("lockers/"+lockers[i2].id+".locker");
+lockers.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<microwaves.length(); i2++)
+{
+if(microwaves[i2].map==playerstoremap)
+{
+destroy_moving_sound(microwaves[i2].midsound);
+file_delete("microwaves/"+microwaves[i2].id+".microwave");
+microwaves.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<air_conditioners.length(); i2++)
+{
+if(air_conditioners[i2].map==playerstoremap)
+{
+destroy_moving_sound(air_conditioners[i2].mid);
+file_delete("air_conditioners/"+air_conditioners[i2].id+".air_conditioner");
+air_conditioners.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<steams.length(); i2++)
+{
+if(steams[i2].map==playerstoremap)
+{
+destroy_moving_sound(steams[i2].mid);
+file_delete("steams/"+steams[i2].id+".steam");
+steams.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<fans.length(); i2++)
+{
+if(fans[i2].map==playerstoremap)
+{
+destroy_moving_sound(fans[i2].mid);
+file_delete("fans/"+fans[i2].id+".fan");
+fans.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<fridges.length(); i2++)
+{
+if(fridges[i2].map==playerstoremap)
+{
+destroy_moving_sound(fridges[i2].mid);
+file_delete("fridges/"+fridges[i2].id+".fridge");
+fridges.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<timeitems.length(); i2++)
+{
+if(timeitems[i2].map==playerstoremap)
+{
+timeitems.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<objs.length(); i2++)
+{
+if(objs[i2].map.name==playerstoremap)
+{
+objs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<silenceobjs.length(); i2++)
+{
+if(silenceobjs[i2].map.name==playerstoremap)
+{
+silenceobjs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<bodyfalls.length(); i2++)
+{
+if(bodyfalls[i2].map==playerstoremap)
+{
+bodyfalls.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<weapons.length(); i2++)
+{
+if(weapons[i2].map.name==playerstoremap)
+{
+weapons.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<censor_bombs.length(); i2++)
+{
+if(censor_bombs[i2].map.name==playerstoremap)
+{
+censor_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<nuclear_bombs.length(); i2++)
+{
+if(nuclear_bombs[i2].map.name==playerstoremap)
+{
+nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<small_nuclear_bombs.length(); i2++)
+{
+if(small_nuclear_bombs[i2].map.name==playerstoremap)
+{
+small_nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<large_nuclear_bombs.length(); i2++)
+{
+if(large_nuclear_bombs[i2].map.name==playerstoremap)
+{
+large_nuclear_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<time_bombs.length(); i2++)
+{
+if(time_bombs[i2].map.name==playerstoremap)
+{
+time_bombs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<grenades.length(); i2++)
+{
+if(grenades[i2].map.name==playerstoremap)
+{
+grenades.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<canisters.length(); i2++)
+{
+if(canisters[i2].map.name==playerstoremap)
+{
+canisters.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<snares.length(); i2++)
+{
+if(snares[i2].map.name==playerstoremap)
+{
+snares.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<rockets.length(); i2++)
+{
+if(rockets[i2].map.name==playerstoremap)
+{
+rockets.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<rpgs.length(); i2++)
+{
+if(rpgs[i2].map.name==playerstoremap)
+{
+rpgs.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<turrets.length(); i2++)
+{
+if(turrets[i2].map.name==playerstoremap)
+{
+turrets.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<mines.length(); i2++)
+{
+if(mines[i2].map.name==playerstoremap)
+{
+mines.remove_at(i2);
+continue;
+}
+}
+for(uint i2=0; i2<robots.length(); i2++)
+{
+if(robots[i2].map.name==playerstoremap)
+{
+destroy_moving_sound(robots[i2].mid);
+robots.remove_at(i2);
+continue;
+}
+}
+file_delete("playerstores/"+playerstoremap+".playerstore");
+remove_map(playerstoremap);
+string s=""+owner+"'s "+name+"";
+send_reliable(0, "kills "+killmsg3(s, hitby, get_zone_at(x,y,z,maps[get_map_index(map)])), 0);
+string hb;
+if(string_contains(hitby,"'",1)>-1)
+{
+string[] parsed_data=string_split(hitby,"'",false);
+hb=parsed_data[0];
+}
+else
+hb=hitby;
+int index=get_player_index_from(hb);
+if(index>-1)
+{
+givexp(players[index],random(100, 500)*players[index].reinforcement);
+int t=is_in_team(players[index].name);
+if(t>-1)
+{
+int l=random(100,200);
+teams[t].points+=l;
+teams[t].transmit("This team just got "+l+" points!");
+}
+}
+playerstores.remove_at(i);
+return;
+}
+}
+}
+void spawn_playerstore(int x, int y, int z, string map, string owner, string name, int health, string playerstoremap)
+{
+playerstore ps(x, y, z, map, owner, name, health, playerstoremap);
+playerstores.insert_last(ps);
+}
+void load_playerstore(string t)
+{
+int x, y, z, health;
+string map, playerstoremap, owner, name;
+savedata tsd("playerstores/"+t+".playerstore","dl_playerstore");
+tsd.load();
+if(tsd.d.exists("x"))
+x=tsd.readn("x");
+if(tsd.d.exists("y"))
+y=tsd.readn("y");
+if(tsd.d.exists("z"))
+z=tsd.readn("z");
+if(tsd.d.exists("map"))
+map=tsd.read("map");
+if(tsd.d.exists("owner"))
+owner=tsd.read("owner");
+if(tsd.d.exists("name"))
+name=tsd.read("name");
+if(tsd.d.exists("health"))
+health=tsd.readn("health");
+if(tsd.d.exists("playerstoremap"))
+playerstoremap=tsd.read("playerstoremap");
+spawn_playerstore(x, y, z, map, owner, name, health, playerstoremap);
+}
+void load_all_playerstores()
+{
+string[] playerstorefiles=find_files("playerstores/*.playerstore");
+for(uint i=0; i<playerstorefiles.length(); i++)
+{
+load_playerstore(string_trim_right(playerstorefiles[i],12));
+}
+}
+int get_playerstore_index(int x, int y, int z, mapdata@m)
+{
+for(uint i=0; i<playerstores.length(); i++)
+{
+if(playerstores[i].map==m.name and playerstores[i].x==x and playerstores[i].y==y and playerstores[i].z==z)
+{
+return i;
+}
+}
+return -1;
+}
+int in_playerstore(player@p)
+{
+int index=get_player_index_from(p.name);
+if(index<0) return -1;
+for(uint x=0; x<playerstores.length(); x++)
+{
+if(players[index].map==playerstores[x].playerstoremap) return x;
+}
+return -1;
+}

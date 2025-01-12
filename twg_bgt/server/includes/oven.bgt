@@ -1,0 +1,43 @@
+oven@[] ovens(0);
+class oven
+{
+int minx, maxx, miny, maxy, minz, maxz, descarga=0;
+string map;
+oven(int tminx, int tmaxx, int tminy, int tmaxy, int tminz, int tmaxz, string tmap)
+{
+minx=tminx;
+maxx=tmaxx;
+miny=tminy;
+maxy=tmaxy;
+minz=tminz;
+maxz=tmaxz;
+map=tmap;
+}
+}
+void spawn_oven(int minx, int maxx, int miny, int maxy, int minz, int maxz, string map)
+{
+oven t(minx, maxx, miny, maxy, minz, maxz, map);
+ovens.insert_last(t);
+}
+void remove_oven(int index)
+{
+if(index>-1)
+{
+@ovens[index]=null;
+ovens.remove_at(index);
+}
+}
+void remove_all_ovens()
+{
+for(uint i=0; i<ovens.length(); i++)
+{
+remove_oven(i);
+}
+}
+void clear_ovens_on_map(string map)
+{
+for(uint i=0; i<ovens.length(); i+=1)
+{
+if(ovens[i].map==map) remove_oven(i);
+}
+}

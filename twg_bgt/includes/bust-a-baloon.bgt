@@ -1,0 +1,244 @@
+tts_voice balloonvoice;
+timer main_timer;
+timer penalty_timer;
+bool penalty=false;
+bool sonar1=false;
+double bcoins=0;
+uint32 baloon_position=0;
+uint32 bposition=5;
+int baloons_shot=0;
+sound penalty_start, penalty_end;
+sound sonar1_sound;
+sound key_sound;
+sound baloon_flying;
+sound baloon_shot;
+sound baloon_start;
+sound game_finish;
+sound intro;
+sound music_main;
+sound shoot;
+void bustabaloonmain() 
+{
+bcoins=0;
+penalty_start.load("penalty_start.ogg");
+penalty_end.load("penalty_end.ogg");
+sonar1_sound.load("sonar1.ogg");
+key_sound.load("menu_move.ogg");
+baloon_flying.load("baloon_flying.ogg");
+baloon_shot.load("baloon_shot.ogg");
+baloon_start.load("baloon_start.ogg");
+game_finish.load("game_finish.ogg");
+music_main.load("menumus60.ogg");
+if(question("press yes to play, or no to get some help")==1)
+startgame();
+else
+balloonhelp();
+}
+void position_baloon() {
+baloon_position=random(0,10);
+position_sound_1d(baloon_start, position, baloon_position, 2, 2, 0.0, 0.0);
+baloon_start.play_wait();
+baloon_flying.play_looped();
+}
+void startgame() {
+baloons_shot=0;
+music_main.pitch=100;
+position_baloon();
+music_main.play_looped();
+music_main.volume=-10;
+main_timer.restart();
+while(true)
+{
+wait(5);
+if (keyc.key_down(keyc.getKey("clipcopy")))
+{
+beep(1025);
+clipboard_copy_text(m.get_item_name(m.menu_position));
+}
+if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT))
+{
+if (key_pressed(KEY_COMMA)==false and kcomma.pressing())
+{
+prevbufferitem();
+}
+if (key_pressed(KEY_PERIOD)==false and kperiod.pressing())
+{
+nextbufferitem();
+}
+if (key_pressed(KEY_LBRACKET)==false and klbracket.pressing())
+{
+bufferleft();
+}
+if (key_pressed(KEY_RBRACKET)==false and krbracket.pressing())
+{
+bufferright();
+}
+}
+if (shift_is_down())
+{
+if (key_pressed(KEY_COMMA))
+{
+topbufferitem();
+}
+if (key_pressed(KEY_PERIOD))
+{
+bottombufferitem();
+}
+if (key_pressed(KEY_LBRACKET))
+{
+firstbuffer();
+}
+if (key_pressed(KEY_RBRACKET))
+{
+lastbuffer();
+}
+}
+if(key_pressed(KEY_SLASH))
+{
+string chat=v.input("type your message here");
+if (chat!="" and !is_eloquence_crash_word(chat) and get_sequence(chat, true)<=3)
+{
+string[] chats=string_split(chat,"::",true);
+if(chat!="")
+{
+string sendmsg=chat;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id,sendmsg,1);
+}
+}
+}
+if (key_pressed(KEY_BACKSLASH) and dlocalchat==0)
+{
+string s=v.input("type your message here");
+if (s!="" and !is_eloquence_crash_word(s) and get_sequence(s, true)<=3)
+{
+string sendmsg=s;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "localchat "+sendmsg, 0);
+}
+}
+if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS))
+{
+string colocar=v.input("enter the command. Note: / will be put before it automaticly");
+if(colocar!="" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true)<=3)
+{
+string sendmsg=colocar;
+for(uint a=0; a<aliases.length(); a+=1)
+{
+string[] a2=string_split(aliases[a],":",false);
+if(a2.length()==2)
+sendmsg=string_replace(sendmsg,a2[0],a2[1],true);
+}
+send_reliable(peer_id, "/"+sendmsg, 1);
+}
+}
+if(key_pressed(KEY_W)) {
+if(sonar1==false)
+{
+sonar1=true;
+key_sound.play();
+}
+else
+{
+sonar1=false;
+sonar1_sound.stop();
+key_sound.play();
+}
+}
+if(key_pressed(KEY_ESCAPE)) {
+sonar1_sound.stop();
+music_main.stop();
+game_finish.stop();
+baloon_flying.stop();
+send_reliable(peer_id, "acoins "+bcoins, 0);
+add_buffer_item("entertainment_center", "you earned a total of "+bcoins+" coins in this game!");
+entertainment_centermenu();
+break;
+}
+if(main_timer.elapsed>30000) {
+music_main.pitch=music_main.pitch+2;
+}
+if(main_timer.elapsed>60000) {
+break;
+}
+check_position();
+position_sound_1d(baloon_flying, position, baloon_position, 2, 2, 0.0, 0.0);
+if(key_pressed(KEY_LEFT) && penalty==false) 
+{
+position--;
+}
+if(key_pressed(KEY_RIGHT) && penalty==false) 
+{
+position++;
+}
+if(key_pressed(KEY_SPACE) && penalty==false) {
+shoot.stop();
+shoot.play();
+if(position==baloon_position) {
+baloon_shot.stop();
+baloon_shot.play();
+baloons_shot++;
+bcoins+=random(1,3);
+baloon_flying.stop();
+position_baloon();
+}
+else
+{
+penalty_timer.restart();
+penalty=true;
+music_main.pitch=music_main.pitch-50;
+penalty_start.play();
+}
+}
+if(penalty==true && penalty_timer.elapsed>5000) {
+penalty=false;
+penalty_timer.pause();
+music_main.pitch=music_main.pitch+50;
+penalty_end.play();
+}
+}
+baloon_flying.stop();
+music_main.stop();
+sonar1_sound.stop();
+game_finish.play_wait();
+send_reliable(peer_id, "acoins "+bcoins, 0);
+add_buffer_item("Game over","Your score is "+baloons_shot+" baloons. You earned a total of "+bcoins+" coins in this game");
+entertainment_centermenu();
+}
+void balloonhelp() 
+{
+balloonvoice.speak_wait ("Welcome to Bust-A-Baloon, an open sourced game by DragonApps.");
+balloonvoice.speak_wait ("Your goal is to shoot as many baloons that fly across the screen at once. You will first hear the baloon starting,");
+baloon_start.play_wait();
+balloonvoice.speak_wait ("After which it's noise can be heard permenently.");
+baloon_flying.play_wait();
+balloonvoice.speak_wait ("This sound will come either a little from the left or right. Use your Arrow keys to bring it into the Center. Then, press the space bar to shoot.");
+shoot.play_wait();
+balloonvoice.speak_wait ("If you hit the baloon, you will get a sound");
+baloon_shot.play_wait();
+balloonvoice.speak_wait ("And it will be added to your counter. Another one will appear. Keep shooting them down until you reached 60 seconds, and listen to what your score is,  how many baloons you shot down.");
+balloonvoice.speak_wait("But be aware, if you miss a shot, you are rewarded by a penalty time of 5 second, in which you cannot do a thing. So, you better watch out. To help prevent missing so much, a sonar1 can be activated by pressing w.");
+balloonvoice.speak_wait ("That's all. Let's go back");
+entertainment_centermenu();
+}
+void check_position() {
+if(sonar1==true) {
+if(position==baloon_position) {
+sonar1_sound.play_looped();
+}
+else
+{
+sonar1_sound.stop();
+}
+}
+}

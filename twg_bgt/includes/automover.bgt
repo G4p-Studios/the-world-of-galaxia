@@ -1,0 +1,720 @@
+bool amoving;
+automover@[] automovers(0);
+class automover
+{
+string ds, ds2, ds3, ds4;
+int automoversound, automoversound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+automover(int minautomoverx, int maxautomoverx, int minautomovery, int maxautomovery, int minautomoverz, int maxautomoverz,int automoverfinishx, int automoverfinishy, int automoverfinishz, string automovertext, int speed, string automoversnd, string automoversnd2, string automoversnd3, string automoversnd4)
+{
+ds=automoversnd;
+ds2=automoversnd2;
+ds3=automoversnd3;
+ds4=automoversnd4;
+mindx=minautomoverx;
+maxdx=maxautomoverx;
+mindy=minautomovery;
+maxdy=maxautomovery;
+mindz=minautomoverz;
+maxdz=maxautomoverz;
+finishx=automoverfinishx;
+finishy=automoverfinishy;
+finishz=automoverfinishz;
+text=automovertext;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) automoversound=p.play_3d(ds, me.x, me.y, me.z, minautomoverx, minautomovery, minautomoverz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(automoversound, minautomoverx, minautomovery, minautomoverz);
+p.update_sound_range_3d(automoversound, 0, maxautomoverx-minautomoverx, 0, maxautomovery-minautomovery, 0, maxautomoverz-minautomoverz);
+}
+void loop()
+{
+p.update_sound_3d(automoversound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(automoversound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+amoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+}
+}
+void automovercheckloop()
+{
+for (uint i=0; i<automovers.length(); i++)
+{
+automovers[i].loop();
+}
+}
+void destroy_automover(int d)
+{
+if(automovers[d].moving==true)
+{
+me.x=random(automovers[d].mindx,automovers[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(automovers[d].automoversound2);
+can_move=true;
+amoving=false;
+automovers[d].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(automovers[d].automoversound);
+automovers.remove_at(d);
+}
+void destroy_all_automovers()
+{
+for(uint i=0; i<automovers.length(); i++)
+{
+if(automovers[i].moving==true)
+{
+me.x=random(automovers[i].mindx,automovers[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(automovers[i].automoversound2);
+can_move=true;
+amoving=false;
+automovers[i].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(automovers[i].automoversound);
+}
+automovers.resize(0);
+}
+void spawn_automover(int minautomoverx, int maxautomoverx, int minautomovery, int maxautomovery, int minautomoverz, int maxautomoverz,int finishx, int finishy, int finishz, string automovertext, int speed, string automoversnd, string automoversnd2, string automoversnd3, string automoversnd4)
+{
+automover automover1(minautomoverx, maxautomoverx, minautomovery, maxautomovery, minautomoverz, maxautomoverz,finishx, finishy, finishz, automovertext, speed, automoversnd, automoversnd2, automoversnd3, automoversnd4);
+automovers.insert_last(automover1);
+}
+pautomover@[] pautomovers(0);
+class pautomover
+{
+string ds, ds2, ds3, ds4;
+int pautomoversound, pautomoversound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+string password;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+pautomover(int minpautomoverx, int maxpautomoverx, int minpautomovery, int maxpautomovery, int minpautomoverz, int maxpautomoverz,int pautomoverfinishx, int pautomoverfinishy, int pautomoverfinishz, string pautomovertext, string pautomoverpassword, int speed, string pautomoversnd, string pautomoversnd2, string pautomoversnd3, string pautomoversnd4)
+{
+ds=pautomoversnd;
+ds2=pautomoversnd2;
+ds3=pautomoversnd3;
+ds4=pautomoversnd4;
+mindx=minpautomoverx;
+maxdx=maxpautomoverx;
+mindy=minpautomovery;
+maxdy=maxpautomovery;
+mindz=minpautomoverz;
+maxdz=maxpautomoverz;
+finishx=pautomoverfinishx;
+finishy=pautomoverfinishy;
+finishz=pautomoverfinishz;
+text=pautomovertext;
+password=pautomoverpassword;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) pautomoversound=p.play_3d(ds, me.x, me.y, me.z, minpautomoverx, minpautomovery, minpautomoverz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(pautomoversound, minpautomoverx, minpautomovery, minpautomoverz);
+p.update_sound_range_3d(pautomoversound, 0, maxpautomoverx-minpautomoverx, 0, maxpautomovery-minpautomovery, 0, maxpautomoverz-minpautomoverz);
+}
+void loop()
+{
+p.update_sound_3d(pautomoversound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(pautomoversound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+amoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+}
+}
+void pautomovercheckloop()
+{
+for (uint i=0; i<pautomovers.length(); i++)
+{
+pautomovers[i].loop();
+}
+}
+void destroy_pautomover(int d)
+{
+if(pautomovers[d].moving==true)
+{
+me.x=random(pautomovers[d].mindx,pautomovers[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(pautomovers[d].pautomoversound2);
+can_move=true;
+amoving=false;
+pautomovers[d].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(pautomovers[d].pautomoversound);
+pautomovers.remove_at(d);
+}
+void destroy_all_pautomovers()
+{
+for(uint i=0; i<pautomovers.length(); i++)
+{
+if(pautomovers[i].moving==true)
+{
+me.x=random(pautomovers[i].mindx,pautomovers[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(pautomovers[i].pautomoversound2);
+can_move=true;
+amoving=false;
+pautomovers[i].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(pautomovers[i].pautomoversound);
+}
+pautomovers.resize(0);
+}
+void spawn_pautomover(int minpautomoverx, int maxpautomoverx, int minpautomovery, int maxpautomovery, int minpautomoverz, int maxpautomoverz,int finishx, int finishy, int finishz, string pautomovertext, string pautomoverpassword, int speed, string pautomoversnd, string pautomoversnd2, string pautomoversnd3, string pautomoversnd4)
+{
+pautomover pautomover1(minpautomoverx, maxpautomoverx, minpautomovery, maxpautomovery, minpautomoverz, maxpautomoverz,finishx, finishy, finishz, pautomovertext, pautomoverpassword, speed, pautomoversnd, pautomoversnd2, pautomoversnd3, pautomoversnd4);
+pautomovers.insert_last(pautomover1);
+}
+icautomover@[] icautomovers(0);
+class icautomover
+{
+string ds, ds2, ds3, ds4;
+int icautomoversound, icautomoversound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+string item;
+double amount;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+icautomover(int minicautomoverx, int maxicautomoverx, int minicautomovery, int maxicautomovery, int minicautomoverz, int maxicautomoverz,int icautomoverfinishx, int icautomoverfinishy, int icautomoverfinishz, string icautomovertext, string icautomoveritem, int icautomoveramount, int speed, string icautomoversnd, string icautomoversnd2, string icautomoversnd3, string icautomoversnd4)
+{
+ds=icautomoversnd;
+ds2=icautomoversnd2;
+ds3=icautomoversnd3;
+ds4=icautomoversnd4;
+mindx=minicautomoverx;
+maxdx=maxicautomoverx;
+mindy=minicautomovery;
+maxdy=maxicautomovery;
+mindz=minicautomoverz;
+maxdz=maxicautomoverz;
+finishx=icautomoverfinishx;
+finishy=icautomoverfinishy;
+finishz=icautomoverfinishz;
+text=icautomovertext;
+item=icautomoveritem;
+amount=icautomoveramount;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) icautomoversound=p.play_3d(ds, me.x, me.y, me.z, minicautomoverx, minicautomovery, minicautomoverz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(icautomoversound, minicautomoverx, minicautomovery, minicautomoverz);
+p.update_sound_range_3d(icautomoversound, 0, maxicautomoverx-minicautomoverx, 0, maxicautomovery-minicautomovery, 0, maxicautomoverz-minicautomoverz);
+}
+void loop()
+{
+p.update_sound_3d(icautomoversound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(icautomoversound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+amoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+}
+}
+void icautomovercheckloop()
+{
+for (uint i=0; i<icautomovers.length(); i++)
+{
+icautomovers[i].loop();
+}
+}
+void destroy_icautomover(int d)
+{
+if(icautomovers[d].moving==true)
+{
+me.x=random(icautomovers[d].mindx,icautomovers[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(icautomovers[d].icautomoversound2);
+can_move=true;
+amoving=false;
+icautomovers[d].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(icautomovers[d].icautomoversound);
+icautomovers.remove_at(d);
+}
+void destroy_all_icautomovers()
+{
+for(uint i=0; i<icautomovers.length(); i++)
+{
+if(icautomovers[i].moving==true)
+{
+me.x=random(icautomovers[i].mindx,icautomovers[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(icautomovers[i].icautomoversound2);
+can_move=true;
+amoving=false;
+icautomovers[i].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(icautomovers[i].icautomoversound);
+}
+icautomovers.resize(0);
+}
+void spawn_icautomover(int minicautomoverx, int maxicautomoverx, int minicautomovery, int maxicautomovery, int minicautomoverz, int maxicautomoverz,int finishx, int finishy, int finishz, string icautomovertext, string icautomoveritem, int icautomoveramount, int speed, string icautomoversnd, string icautomoversnd2, string icautomoversnd3, string icautomoversnd4)
+{
+icautomover icautomover1(minicautomoverx, maxicautomoverx, minicautomovery, maxicautomovery, minicautomoverz, maxicautomoverz,finishx, finishy, finishz, icautomovertext, icautomoveritem, icautomoveramount, speed, icautomoversnd, icautomoversnd2, icautomoversnd3, icautomoversnd4);
+icautomovers.insert_last(icautomover1);
+}
+itautomover@[] itautomovers(0);
+class itautomover
+{
+string ds, ds2, ds3, ds4;
+int itautomoversound, itautomoversound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+string item;
+double amount;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+itautomover(int minitautomoverx, int maxitautomoverx, int minitautomovery, int maxitautomovery, int minitautomoverz, int maxitautomoverz,int itautomoverfinishx, int itautomoverfinishy, int itautomoverfinishz, string itautomovertext, string itautomoveritem, int itautomoveramount, int speed, string itautomoversnd, string itautomoversnd2, string itautomoversnd3, string itautomoversnd4)
+{
+ds=itautomoversnd;
+ds2=itautomoversnd2;
+ds3=itautomoversnd3;
+ds4=itautomoversnd4;
+mindx=minitautomoverx;
+maxdx=maxitautomoverx;
+mindy=minitautomovery;
+maxdy=maxitautomovery;
+mindz=minitautomoverz;
+maxdz=maxitautomoverz;
+finishx=itautomoverfinishx;
+finishy=itautomoverfinishy;
+finishz=itautomoverfinishz;
+text=itautomovertext;
+item=itautomoveritem;
+amount=itautomoveramount;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) itautomoversound=p.play_3d(ds, me.x, me.y, me.z, minitautomoverx, minitautomovery, minitautomoverz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(itautomoversound, minitautomoverx, minitautomovery, minitautomoverz);
+p.update_sound_range_3d(itautomoversound, 0, maxitautomoverx-minitautomoverx, 0, maxitautomovery-minitautomovery, 0, maxitautomoverz-minitautomoverz);
+}
+void loop()
+{
+p.update_sound_3d(itautomoversound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(itautomoversound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+amoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+}
+}
+void itautomovercheckloop()
+{
+for (uint i=0; i<itautomovers.length(); i++)
+{
+itautomovers[i].loop();
+}
+}
+void destroy_itautomover(int d)
+{
+if(itautomovers[d].moving==true)
+{
+me.x=random(itautomovers[d].mindx,itautomovers[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(itautomovers[d].itautomoversound2);
+can_move=true;
+amoving=false;
+itautomovers[d].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(itautomovers[d].itautomoversound);
+itautomovers.remove_at(d);
+}
+void destroy_all_itautomovers()
+{
+for(uint i=0; i<itautomovers.length(); i++)
+{
+if(itautomovers[i].moving==true)
+{
+me.x=random(itautomovers[i].mindx,itautomovers[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(itautomovers[i].itautomoversound2);
+can_move=true;
+amoving=false;
+itautomovers[i].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(itautomovers[i].itautomoversound);
+}
+itautomovers.resize(0);
+}
+void spawn_itautomover(int minitautomoverx, int maxitautomoverx, int minitautomovery, int maxitautomovery, int minitautomoverz, int maxitautomoverz,int finishx, int finishy, int finishz, string itautomovertext, string itautomoveritem, int itautomoveramount, int speed, string itautomoversnd, string itautomoversnd2, string itautomoversnd3, string itautomoversnd4)
+{
+itautomover itautomover1(minitautomoverx, maxitautomoverx, minitautomovery, maxitautomovery, minitautomoverz, maxitautomoverz,finishx, finishy, finishz, itautomovertext, itautomoveritem, itautomoveramount, speed, itautomoversnd, itautomoversnd2, itautomoversnd3, itautomoversnd4);
+itautomovers.insert_last(itautomover1);
+}
+igautomover@[] igautomovers(0);
+class igautomover
+{
+string ds, ds2, ds3, ds4;
+int igautomoversound, igautomoversound2;
+int mindx;
+int maxdx;
+int mindy;
+int maxdy;
+int mindz;
+int maxdz;
+int finishx;
+int finishy;
+int finishz;
+string text;
+string item;
+double amount;
+int movetime=150;
+bool moving;
+bool aimoving;
+timer movetimer;
+igautomover(int minigautomoverx, int maxigautomoverx, int minigautomovery, int maxigautomovery, int minigautomoverz, int maxigautomoverz,int igautomoverfinishx, int igautomoverfinishy, int igautomoverfinishz, string igautomovertext, string igautomoveritem, int igautomoveramount, int speed, string igautomoversnd, string igautomoversnd2, string igautomoversnd3, string igautomoversnd4)
+{
+ds=igautomoversnd;
+ds2=igautomoversnd2;
+ds3=igautomoversnd3;
+ds4=igautomoversnd4;
+mindx=minigautomoverx;
+maxdx=maxigautomoverx;
+mindy=minigautomovery;
+maxdy=maxigautomovery;
+mindz=minigautomoverz;
+maxdz=maxigautomoverz;
+finishx=igautomoverfinishx;
+finishy=igautomoverfinishy;
+finishz=igautomoverfinishz;
+text=igautomovertext;
+item=igautomoveritem;
+amount=igautomoveramount;
+movetime=speed;
+if(ds!="silence" and sleepmode!=0) igautomoversound=p.play_3d(ds, me.x, me.y, me.z, minigautomoverx, minigautomovery, minigautomoverz, facing,0,0,0,0,0,0,true,0,0,0,100);
+p.update_sound_3d(igautomoversound, minigautomoverx, minigautomovery, minigautomoverz);
+p.update_sound_range_3d(igautomoversound, 0, maxigautomoverx-minigautomoverx, 0, maxigautomovery-minigautomovery, 0, maxigautomoverz-minigautomoverz);
+}
+void loop()
+{
+p.update_sound_3d(igautomoversound, mindx, mindy,mindz);
+if (moving==true and movetime==-1)
+{
+me.x=finishx;
+me.y=finishy;
+me.z=finishz;
+}
+else
+{
+if (moving==true and movetimer.elapsed>=movetime)
+{
+movetimer.restart();
+if (me.x>finishx)
+{
+me.x-=1;
+}
+else if (me.x<finishx)
+{
+me.x+=1;
+}
+if (me.y>finishy)
+{
+me.y-=1;
+}
+else if (me.y<finishy)
+{
+me.y+=1;
+}
+if (me.z>finishz)
+{
+me.z-=1;
+}
+else if (me.z<finishz)
+{
+me.z+=1;
+}
+}
+}
+if (finishx==me.x and finishy==me.y and finishz==me.z and moving==true)
+{
+if (ds2!="silence" and sleepmode!=0)
+{
+p.destroy_sound(igautomoversound2);
+}
+if(ds4!="silence" and sleepmode!=0) send_reliable(peer_id,"draw "+ds4,7);
+if(ds4!="silence") p.play_stationary(ds4,false,0,0,0,100);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+can_move=true;
+amoving=false;
+moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+}
+}
+void igautomovercheckloop()
+{
+for (uint i=0; i<igautomovers.length(); i++)
+{
+igautomovers[i].loop();
+}
+}
+void destroy_igautomover(int d)
+{
+if(igautomovers[d].moving==true)
+{
+me.x=random(igautomovers[d].mindx,igautomovers[d].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(igautomovers[d].igautomoversound2);
+can_move=true;
+amoving=false;
+igautomovers[d].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(igautomovers[d].igautomoversound);
+igautomovers.remove_at(d);
+}
+void destroy_all_igautomovers()
+{
+for(uint i=0; i<igautomovers.length(); i++)
+{
+if(igautomovers[i].moving==true)
+{
+me.x=random(igautomovers[i].mindx,igautomovers[i].maxdx);
+send_reliable(peer_id,"move "+me.x+" "+me.y+" "+me.z,8);
+p.destroy_sound(igautomovers[i].igautomoversound2);
+can_move=true;
+amoving=false;
+igautomovers[i].moving=false;
+send_reliable(peer_id,"iamnotamoving",0);
+}
+p.destroy_sound(igautomovers[i].igautomoversound);
+}
+igautomovers.resize(0);
+}
+void spawn_igautomover(int minigautomoverx, int maxigautomoverx, int minigautomovery, int maxigautomovery, int minigautomoverz, int maxigautomoverz,int finishx, int finishy, int finishz, string igautomovertext, string igautomoveritem, int igautomoveramount, int speed, string igautomoversnd, string igautomoversnd2, string igautomoversnd3, string igautomoversnd4)
+{
+igautomover igautomover1(minigautomoverx, maxigautomoverx, minigautomovery, maxigautomovery, minigautomoverz, maxigautomoverz,finishx, finishy, finishz, igautomovertext, igautomoveritem, igautomoveramount, speed, igautomoversnd, igautomoversnd2, igautomoversnd3, igautomoversnd4);
+igautomovers.insert_last(igautomover1);
+}

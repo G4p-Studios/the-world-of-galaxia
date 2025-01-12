@@ -1,0 +1,45 @@
+#include"downloader.bgt"
+downloader sounddl;
+string sounddl_file(string url, string disk_file,bool quiet=false,string msg="Downloading. Press Space for percentage and 1 2 and 3 keys for detailed progress")
+{
+sounddl.initiate_download(url, disk_file);
+if(!quiet) speak(msg);
+string status;
+double dlpercent=-1;
+while(sounddl.is_active())
+{
+sounddl.monitor();
+if (key_pressed(KEY_1))
+{
+string size=round(sounddl.get_total_size()/1024/1024, 2)+" MB ("+round(sounddl.get_total_size()/1024, 2)+" KB)";
+speak("File size: "+size);
+}
+if (key_pressed(KEY_2))
+{
+string size=round(sounddl.get_downloaded_size()/1024/1024, 2)+" MB ("+round(sounddl.get_downloaded_size()/1024, 2)+" KB)";
+speak("Total downloaded: "+size);
+}
+if (key_pressed(KEY_3))
+{
+string size=round(sounddl.get_remaining_size()/1024/1024, 2)+" MB ("+round(sounddl.get_remaining_size()/1024, 2)+" KB)";
+speak("Total remaining: "+size);
+}
+if(round(sounddl.get_percentage(),0)!=dlpercent)
+{
+dlpercent=round(sounddl.get_percentage(),0);
+beep_percentage(dlpercent);
+}
+if (key_pressed(KEY_SPACE))
+{
+speak(sounddl.get_percentage()+" percent");
+}
+}
+if (status!="canceled")
+{
+status="finished";
+speak(status);
+wait(600);
+return status;
+}
+return "";
+}

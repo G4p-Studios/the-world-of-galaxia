@@ -1,0 +1,117 @@
+mapname:media_station
+minx:0
+maxx:20
+miny:0
+maxy:1
+minz:0
+maxz:10
+tile:0:20:0:1:0:0:0:100:carpet2
+litem:1
+starting_point:0:20:0:1:0:0
+deathpoint:0:20:0:1:0:0
+zone:0:20:0:1:0:10:media station
+disable:coordinates
+disable:camera
+disable:camerawall
+disable:mfwc
+disable:cameraplayer
+disable:cameraitem
+disable:cameradoor
+disable:camerapdoor
+disable:cameraicdoor
+disable:cameraitdoor
+disable:cameraigdoor
+disable:cameraautomover
+disable:camerapautomover
+disable:cameraicautomover
+disable:cameraitautomover
+disable:cameraigautomover
+disable:cameraautomatic_travelpoint
+disable:camerapautomatic_travelpoint
+disable:cameraicautomatic_travelpoint
+disable:cameraitautomatic_travelpoint
+disable:cameraigautomatic_travelpoint
+disable:cameratravelpoint
+disable:cameraptravelpoint
+disable:cameraictravelpoint
+disable:cameraittravelpoint
+disable:cameraigtravelpoint
+disable:cameravp
+disable:cameraff
+disable:camerah
+disable:cameratp
+disable:camerasign
+disable:cameratxt
+disable:motor
+disable:car
+disable:wand
+disable:jump
+disable:itemgrabber
+disable:spy
+disable:spyplayer
+disable:spyitem
+disable:spydoor
+disable:spypdoor
+disable:spyicdoor
+disable:spyitdoor
+disable:spyigdoor
+disable:spyautomover
+disable:spypautomover
+disable:spyicautomover
+disable:spyitautomover
+disable:spyigautomover
+disable:spyautomatic_travelpoint
+disable:spypautomatic_travelpoint
+disable:spyicautomatic_travelpoint
+disable:spyitautomatic_travelpoint
+disable:spyigautomatic_travelpoint
+disable:spytravelpoint
+disable:spyptravelpoint
+disable:spyictravelpoint
+disable:spyittravelpoint
+disable:spyigtravelpoint
+disable:spyvp
+disable:spyff
+disable:spyh
+disable:spytp
+disable:spysign
+disable:spytxt
+disable:localchat
+disable:voicechat
+disable:ttschat
+disable:boat
+disable:tracking
+disable:tlp
+disable:house
+disable:beehive
+disable:store
+disable:locker
+disable:microwave
+disable:fridge
+rain:none.ogg
+wind:none.ogg
+night:none.ogg
+travelpoint:0:0:0:0:0:0:safezone:5:5:0:welcome:silence.ogg:dooropen58.ogg:doorclose61.ogg
+zone:0:0:0:0:0:0:exit path:trackme
+safezone:0:20:0:1:0:10
+travelpoint:1:1:0:0:0:0:radio_gooshkon:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+zone:1:1:0:0:0:0:radio gooshkon:trackme
+travelpoint:1:1:1:1:0:0:show_tv:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+zone:1:1:1:1:0:0:Show TV:trackme
+travelpoint:2:2:1:1:0:0:show_Türk:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+zone:2:2:1:1:0:0:Show Türk:trackme
+travelpoint:3:3:1:1:0:0:Show_MAX:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+zone:3:3:1:1:0:0:Show MAX:trackme
+travelpoint:2:2:0:0:0:0:europa_plus:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+zone:2:2:0:0:0:0:europa plus:trackme
+travelpoint:3:3:0:0:0:0:new_radio:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+zone:3:3:0:0:0:0:new radio:trackme
+zone:0:0:1:1:0:0:download_box:trackme
+tile:1:20:1:1:0:10:0:100:wallwood16
+
+
+zone:4:4:0:0:0:0:mad-gamer's Icecast:trackme
+travelpoint:4:4:0:0:0:0:mad-gamers_icecast:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+zone:5:5:0:0:0:0:Kiss 95.1:trackme
+travelpoint:5:5:0:0:0:0:kiss951:0:0:0: :silence.ogg:silence.ogg:silence.ogg
+owner:mad-gamer

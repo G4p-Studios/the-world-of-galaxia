@@ -1,0 +1,32 @@
+string maptrash()
+{
+int del=0;
+string names;
+string ret;
+string[] maps=find_files("maps/*");
+for (uint i=0; i<maps.length(); i++)
+{
+if (maps[i].length()<=1)
+{
+file_delete("maps/"+maps[i]+"/map");
+names+="\r\n"+maps[i]+", reason: less than 2 characters.";
+del+=1;
+}
+file f;
+f.open("maps/"+maps[i]+".map","rb");
+string[] lines=string_split(f.read(),"\r\n",false);
+f.close();
+if(lines.length()<=11)
+{
+file_delete("maps/"+maps[i]+".map");
+names+="\r\n"+maps[i]+", reason: less than 11 lines.";
+del+=1;
+}
+}
+ret="Out of "+maps.length()+", there were a total of "+del+"("+round(percent(del,maps.length()),0)+"percent)  mapacters that were considered spam. They were "+names+"";
+file c;
+c.open("map_spam.svr","wb");
+c.write(names);
+c.close();
+return ret;
+}

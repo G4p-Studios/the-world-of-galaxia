@@ -1,0 +1,74 @@
+temporary_ban@[]temporary_bans(0);
+class temporary_ban
+{
+int time;
+timer temporary_bantimer;
+string username;
+temporary_ban(string user,int ttime)
+{
+username=user;
+time=ttime;
+}
+void loop(int i)
+{
+if(temporary_bantimer.elapsed>time)
+{
+temporary_bans.remove_at(i);
+return;
+}
+}
+}
+void create_temp_ban(string user, int time, double elapsed=0)
+{
+temporary_ban tb1(user,time);
+tb1.temporary_bantimer.force(elapsed);
+temporary_bans.insert_last(tb1);
+}
+bool temporary_bancheck(string u)
+{
+for(uint i=0; i<temporary_bans.length(); i++)
+{
+if(temporary_bans[i].username==u)
+{
+return true;
+}
+}
+return false;
+}
+int get_temporary_ban_index(string user)
+{
+for(uint i=0; i<temporary_bans.length(); i++)
+{
+if(temporary_bans[i].username==user)
+{
+return i;
+}
+}
+return -1;
+}
+void save_temporary_bans()
+{
+string final;
+for(uint i=0; i<temporary_bans.length(); i++)
+{
+final+=temporary_bans[i].username+"="+temporary_bans[i].time+"="+temporary_bans[i].temporary_bantimer.elapsed+"\r\n";
+}
+file_put_contents("temporary_bans.svr",final,250);
+}
+void load_all_temporary_bans()
+{
+file tb;
+if(!file_exists("temporary_bans.svr") or !tb.open("temporary_bans.svr", "rb")) return;
+string tbdata=tb.read();
+tb.close();
+if(tbdata=="") return;
+string[] tbans=string_split(tbdata, "\r\n", false);
+for(uint i=0; i<tbans.length(); i++)
+{
+if(tbans[i].is_empty()) continue;
+if(tbans.length()<1) continue;
+string[] parsed=string_split(tbans[i], "=", false);
+if(parsed.length()<2) continue;
+create_temp_ban(parsed[0], string_to_number(parsed[1]),string_to_number(parsed[2]));
+}
+}

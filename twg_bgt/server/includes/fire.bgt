@@ -1,0 +1,148 @@
+fire@[]fires(0);
+class fire
+{
+int x;
+int y;
+int z;
+int spread=5;
+mapdata@map;
+string smid;
+int id=random(0,99999);
+timer hurttimer, lifetimer;
+int hurttime=random(1000,3000);
+int lifetime=random(30000,180000);
+int dam=random(1,5);
+fire(int fx, int fy, int fz, mapdata@m, int fdam)
+{
+x=fx;
+y=fy;
+z=fz;
+@map=m;
+dam=fdam;
+smid=spawn_moving_sound("fire.ogg",x,y,z,map.name);
+}
+void loop(int i)
+{
+if(@map==null)
+{
+destroy_moving_sound(smid);
+fires.remove_at(i);
+return;
+}
+if(hurttimer.elapsed>=hurttime)
+{
+hurttimer.restart();
+for(uint p=0;p<players.length();p++)
+{
+if(in_vehicle(players[p])>-1 or in_motor(players[p])>-1 or players[p].is_dead or is_safe(players[p].x,players[p].y,players[p].z,maps[get_map_index(players[p].map)]) or players[p].safe or players[p].pvp==0 or players[p].away or players[p].afk or players[p].newb==1 or players[p].looking!="" or players[p].looker!="") continue;
+if(players[p].map==map.name and get_3d_distance(players[p].x,players[p].y,players[p].z, x,y,z)<=spread)
+{
+players[p].health-=dam;
+send_packet(6,"play v"+string_to_number(players[p].voice)+"hit"+random(1,5)+".ogg "+players[p].x+" "+players[p].y+" "+players[p].z,players[p].x,players[p].y,players[p].z,maps[get_map_index(players[p].map)]);
+players[p].hitby="a fire";
+}
+}
+for (uint i2=0; i2<ais.length(); i2++)
+{
+if (ais[i2].map.name==map.name and get_3d_distance(x,y,z,ais[i2].x,ais[i2].y,ais[i2].z)<=20)
+{
+ais[i2].health-=dam;
+ais[i2].hitby="a fire";
+send_packet(6,"play h"+random(1, 5)+".ogg "+ais[i2].x+" "+ais[i2].y+" "+ais[i2].z,ais[i2].x,ais[i2].y,ais[i2].z,maps[get_map_index(ais[i2].map.name)]);
+}
+}
+for(uint v=0; v<vs.length(); v++)
+{
+if(vs[v].map==map.name and get_3d_distance(x,y,z,vs[v].x,vs[v].y,vs[v].z)<=20)
+vs[v].hit(dam,"a fire");
+}
+for(uint m=0; m<mos.length(); m++)
+{
+if(mos[m].map==map.name and get_3d_distance(x,y,z,mos[m].x,mos[m].y,mos[m].z)<=20)
+mos[m].hit(dam,"a fire");
+}
+for(uint v=0; v<vvehicles.length(); v++)
+{
+if(vvehicles[v].map==map.name and get_3d_distance(x,y,z,vvehicles[v].x,vvehicles[v].y,vvehicles[v].z)<=20)
+vvehicles[v].hit(dam,"a fire");
+}
+for(uint m=0; m<mmotors.length(); m++)
+{
+if(mmotors[m].map==map.name and get_3d_distance(x,y,z,mmotors[m].x,mmotors[m].y,mmotors[m].z)<=20)
+mmotors[m].hit(dam,"a fire");
+}
+for (uint i2=0; i2<houses.length(); i2++)
+{
+if (houses[i2].map==map.name and get_3d_distance(x,y,z,houses[i2].x,houses[i2].y,houses[i2].z)<=20)
+{
+send_packet(6,"play base_impact_ext.ogg "+houses[i2].x+" "+houses[i2].y+" "+houses[i2].z,houses[i2].x,houses[i2].y,houses[i2].z,maps[get_map_index(houses[i2].map)]);
+houses[i2].health-=dam;
+houses[i2].hitby="a fire";
+}
+}
+for (uint i2=0; i2<lockers.length(); i2++)
+{
+if (lockers[i2].map==map.name and get_3d_distance(x,y,z,lockers[i2].x,lockers[i2].y,lockers[i2].z)<=20)
+{
+send_packet(6,"play locker_hit"+random(1,6)+".ogg "+lockers[i2].x+" "+lockers[i2].y+" "+lockers[i2].z,lockers[i2].x,lockers[i2].y,lockers[i2].z,maps[get_map_index(lockers[i2].map)]);
+lockers[i2].health-=dam;
+lockers[i2].hitby="a fire";
+}
+}
+for (uint i2=0; i2<fridges.length(); i2++)
+{
+if (fridges[i2].map==map.name and get_3d_distance(x,y,z,fridges[i2].x,fridges[i2].y,fridges[i2].z)<=20)
+{
+send_packet(6,"play base_fridge_impact"+random(1, 3)+".ogg "+fridges[i2].x+" "+fridges[i2].y+" "+fridges[i2].z,fridges[i2].x,fridges[i2].y,fridges[i2].z,maps[get_map_index(fridges[i2].map)]);
+fridges[i2].health-=dam;
+fridges[i2].hitby="a fire";
+}
+}
+for (uint i2=0; i2<microwaves.length(); i2++)
+{
+if (microwaves[i2].map==map.name and get_3d_distance(x,y,z,microwaves[i2].x,microwaves[i2].y,microwaves[i2].z)<=20)
+{
+send_packet(6,"play locker_hit"+random(1,6)+".ogg "+microwaves[i2].x+" "+microwaves[i2].y+" "+microwaves[i2].z,microwaves[i2].x,microwaves[i2].y,microwaves[i2].z,maps[get_map_index(microwaves[i2].map)]);
+microwaves[i2].health-=dam;
+microwaves[i2].hitby="a fire";
+}
+}
+for (uint i2=0; i2<playerstores.length(); i2++)
+{
+if (playerstores[i2].map==map.name and get_3d_distance(x,y,z,playerstores[i2].x,playerstores[i2].y,playerstores[i2].z)<=20)
+{
+send_packet(6,"play base_impact_ext.ogg "+playerstores[i2].x+" "+playerstores[i2].y+" "+playerstores[i2].z,playerstores[i2].x,playerstores[i2].y,playerstores[i2].z,maps[get_map_index(playerstores[i2].map)]);
+playerstores[i2].health-=dam;
+playerstores[i2].hitby="a fire";
+}
+}
+for (uint i2=0; i2<beehives.length(); i2++)
+{
+if (beehives[i2].map==map.name and get_3d_distance(x,y,z,beehives[i2].x,beehives[i2].y,beehives[i2].z)<=20)
+{
+send_packet(6,"play base_impact_ext.ogg "+beehives[i2].x+" "+beehives[i2].y+" "+beehives[i2].z,beehives[i2].x,beehives[i2].y,beehives[i2].z,maps[get_map_index(beehives[i2].map)]);
+beehives[i2].health-=dam;
+beehives[i2].hitby="a fire";
+}
+}
+if(lifetimer.elapsed>=lifetime)
+{
+destroy_moving_sound(smid);
+send_packet(6,"play fireout.ogg "+x+" "+y+" "+z,x,y,z,maps[get_map_index(map.name)]);
+fires.remove_at(i);
+return;
+}
+}
+}
+}
+void spawn_fire(int x, int y, int z, mapdata@m, int dam)
+{
+if(string_contains(get_tile_at(x,y,z,maps[get_map_index(m.name)]),"water",1)>-1) return;
+fire f1(x, y, z, m, dam);
+if(@f1.map==null) return;
+else fires.insert_last(f1);
+}
+void destroy_all_fires()
+{
+fires.resize(0);
+}

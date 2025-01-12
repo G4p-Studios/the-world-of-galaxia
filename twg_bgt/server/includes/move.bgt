@@ -1,0 +1,184 @@
+void move(player@p, string message)
+{
+string[] parsed=string_split(message, " ",true);
+if(parsed[0]=="bmove_to" and parsed.length() > 3)
+{
+if(p.stunned or in_vehicle(p)>-1 or in_motor(p)>-1 or (p.is_dead and p.hidden==0)) return;
+p.x=string_to_number(parsed[1]);
+p.y=string_to_number(parsed[2]);
+p.z=string_to_number(parsed[3]);
+p.energy-=0.5;
+if(p.energy<=100) send_reliable(e.peer_id,"w+",0);
+if(p.energy<=100)
+{
+int n=random(1,100);
+if(n<50)
+{
+p.sitting=1;
+send_reliable(p, "playfallsound "+p.x+" "+p.y+" "+p.z+" "+p.map, 0);
+send_reliable(p,"sitstart",0);
+send_reliable(e.peer_id,"w+",0);
+}
+}
+if(p.bone_break==true)
+{
+int n=random(1,100);
+if(n<50)
+{
+send_reliable(p,"ouch! your "+p.bonebreak,2);
+send_packet(6,"play bonepain"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.health-=random(50,1000);
+p.bone_level+=random(1,10);
+p.stun(p.bone_level*2);
+}
+}
+}
+else if(parsed[0]=="wmove_to" and parsed.length() > 1)
+{
+if(p.stunned or in_vehicle(p)>-1 or in_motor(p)>-1 or (p.is_dead and p.hidden==0)) return;
+p.z=string_to_number(parsed[1]);
+if(p.energy<=100)
+{
+int n=random(1,100);
+if(n<50)
+{
+p.sitting=1;
+send_reliable(p, "playfallsound "+p.x+" "+p.y+" "+p.z+" "+p.map, 0);
+send_reliable(p,"sitstart",0);
+send_reliable(e.peer_id,"w+",0);
+}
+}
+if(p.bone_break==true)
+{
+int n=random(1,100);
+if(n<50)
+{
+send_reliable(p,"ouch! your "+p.bonebreak,2);
+send_packet(6,"play bonepain"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.health-=random(50,1000);
+p.bone_level+=random(1,10);
+p.stun(p.bone_level*2);
+}
+}
+}
+else if(parsed[0]=="tmove")
+{
+int mi=get_map_index(p.map);
+if((mi>-1))
+{
+move_player(p,p.map,random(maps[mi].spminx,maps[mi].spmaxx),random(maps[mi].spminy,maps[mi].spmaxy),random(maps[mi].spminz,maps[mi].spmaxz),true);
+}
+}
+else if(parsed[0]=="move" and parsed.length() > 3)
+{
+if(p.stunned or p.is_dead) return;
+int v=in_vehicle(p);
+if(v>-1)return;
+int m=in_motor(p);
+if(m>-1)return;
+p.x=string_to_number(parsed[1]);
+p.y=string_to_number(parsed[2]);
+p.z=string_to_number(parsed[3]);
+if(p.dmoving==false and p.amoving==false and p.falling==false)
+{
+p.energy-=0.5;
+if(p.hidden==0 and get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)])!="air" and get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)])!="")
+{
+send_packetn(6,p.name,"3dstep "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+if(p.energy<=100)
+{
+int n=random(1,100);
+if(n<50)
+{
+p.sitting=1;
+send_reliable(p, "playfallsound "+p.x+" "+p.y+" "+p.z+" "+p.map, 0);
+send_reliable(p,"sitstart",0);
+send_reliable(e.peer_id,"w+",0);
+}
+}
+if(p.bone_break==true)
+{
+int n=random(1,100);
+if(n<50)
+{
+send_reliable(p,"ouch! your "+p.bonebreak,2);
+send_packet(6,"play bonepain"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.health-=random(50,1000);
+p.bone_level+=random(1,10);
+p.stun(p.bone_level*2);
+}
+}
+}
+int isair=string_contains(get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)]),"underwater",1);
+if(isair>-1 and p.underwater==false) p.airwarntimer.restart();p.airlifetimer.restart(); p.underwater=true;
+if(isair<0 and p.underwater==true) p.underwater=false;
+}
+else if(parsed[0]=="move2" and parsed.length() > 3)
+{
+if(p.stunned or p.is_dead) return;
+int v=in_vehicle(p);
+if(v>-1)return;
+int m=in_motor(p);
+if(m>-1)return;
+p.x=string_to_number(parsed[1]);
+p.y=string_to_number(parsed[2]);
+p.z=string_to_number(parsed[3]);
+if(p.dmoving==false and p.amoving==false and p.falling==false)
+{
+p.energy-=0.5;
+if(p.hidden==0 and get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)])!="air" and get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)])!="")
+{
+send_packetn(6,p.name,"3dsteppavap "+p.x+" "+p.y+" "+p.z+" "+string_to_number(parsed[4])+" "+string_to_number(parsed[5]), p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+if(p.energy<=100)
+{
+int n=random(1,100);
+if(n<50)
+{
+p.sitting=1;
+send_reliable(p, "playfallsound "+p.x+" "+p.y+" "+p.z+" "+p.map, 0);
+send_reliable(p,"sitstart",0);
+send_reliable(e.peer_id,"w+",0);
+}
+}
+if(p.bone_break==true)
+{
+int n=random(1,100);
+if(n<50)
+{
+send_reliable(p,"ouch! your "+p.bonebreak,2);
+send_packet(6,"play bonepain"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.health-=random(50,1000);
+p.bone_level+=random(1,10);
+p.stun(p.bone_level*2);
+}
+}
+}
+int isair=string_contains(get_tile_at(p.x,p.y,p.z,maps[get_map_index(p.map)]),"underwater",1);
+if(isair>-1 and p.underwater==false) p.airwarntimer.restart();p.airlifetimer.restart(); p.underwater=true;
+if(isair<0 and p.underwater==true) p.underwater=false;
+}
+else if(parsed[0]=="hardland" and p.dmoving==false and p.amoving==false)
+{
+int falld=string_to_number(parsed[1]);
+if(p.supersafe==false)
+{
+p.health-=falld*100;
+if(falld>=25) p.bone_level+=falld*random(1,5);
+}
+send_packet(6,"play v"+string_to_number(p.voice)+"hit"+random(1,5)+".ogg "+p.x+" "+p.y+" "+p.z,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+p.hitby="the laws of gravity";
+p.sitting=1;
+send_reliable(p,"sitstart",0);
+if(p.supersafe==true and p.movedbyadmin) p.supersafe=false;
+}
+else if(parsed[0]=="fallstart" and p.dmoving==false and p.amoving==false)
+{
+p.falling=true;
+}
+else if(parsed[0]=="fallstop" and p.dmoving==false and p.amoving==false)
+{
+p.falling=false;
+}
+}

@@ -1,0 +1,44 @@
+clock@[] clocks(0);
+class clock
+{
+int minx, maxx, miny, maxy, minz, maxz;
+string map, text;
+clock(int tminx, int tmaxx, int tminy, int tmaxy, int tminz, int tmaxz, string tmap, string ttext)
+{
+minx=tminx;
+maxx=tmaxx;
+miny=tminy;
+maxy=tmaxy;
+minz=tminz;
+maxz=tmaxz;
+map=tmap;
+text=ttext;
+}
+}
+void spawn_clock(int minx, int maxx, int miny, int maxy, int minz, int maxz, string map, string text)
+{
+clock t(minx, maxx, miny, maxy, minz, maxz, map, text);
+clocks.insert_last(t);
+}
+void remove_clock(int index)
+{
+if(index>-1)
+{
+@clocks[index]=null;
+clocks.remove_at(index);
+}
+}
+void remove_all_clocks()
+{
+for(uint i=0; i<clocks.length(); i++)
+{
+remove_clock(i);
+}
+}
+void clear_clocks_on_map(string map)
+{
+for(uint i=0; i<clocks.length(); i+=1)
+{
+if(clocks[i].map==map) remove_clock(i);
+}
+}

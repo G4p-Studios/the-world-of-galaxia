@@ -1,0 +1,60 @@
+void play(player@p, string message)
+{
+string[] parsed=string_split(message, " ",true);
+if(parsed[0]=="draw" and parsed.length()>=2)
+{
+if(p.looking=="")
+{
+string msg="draw "+p.name+" "+parsed[1]+" "+p.x+" "+p.y+" "+p.z;
+send_packet(6,msg,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+}
+else if(parsed[0]=="typing" and parsed.length()>=2)
+{
+if(p.looking=="")
+{
+string msg="typing "+p.name+" "+parsed[1]+" "+p.x+" "+p.y+" "+p.z;
+send_packet(6,msg,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+}
+else if(parsed[0]=="stereotyping" and parsed.length()>=2)
+{
+if(p.looking=="")
+{
+string msg="stereotyping "+p.name+" "+parsed[1]+" "+p.x+" "+p.y+" "+p.z;
+send_packet(6,msg,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+}
+else if(parsed[0]=="pmsound1" and parsed.length()>=2)
+{
+if(p.looking=="")
+{
+string msg="pmsound1 "+p.name+" "+parsed[1]+" "+p.x+" "+p.y+" "+p.z;
+send_packet(6,msg,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+}
+else if(parsed[0]=="pmsound2" and parsed.length()>=2)
+{
+if(p.looking=="")
+{
+string msg="pmsound2 "+p.name+" "+parsed[1]+" "+p.x+" "+p.y+" "+p.z;
+send_packet(6,msg,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+}
+else if(parsed[0]=="phonetyping" and parsed.length()>=2)
+{
+if(p.looking=="")
+{
+string msg="phonetyping "+p.name+" "+parsed[1]+" "+p.x+" "+p.y+" "+p.z;
+send_packet(6,msg,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+}
+else if(parsed[0]=="phonestereotyping" and parsed.length()>=2)
+{
+if(p.looking=="")
+{
+string msg="phonestereotyping "+p.name+" "+parsed[1]+" "+p.x+" "+p.y+" "+p.z;
+send_packet(6,msg,p.x,p.y,p.z,maps[get_map_index(p.map)]);
+}
+}
+}

@@ -1,0 +1,11 @@
+int question(string quest)
+{
+int q;
+setupmenu();
+m.allow_escape=false;
+m.add_item_tts("yes");
+m.add_item_tts("no");
+m.set_callback(netclb,"");
+q=m.run(quest,true);
+return q;
+}

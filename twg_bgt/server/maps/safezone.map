@@ -6,6 +6,7 @@ maxy:15
 minz:0
 maxz:50
 tile:0:15:0:15:0:0:0:100:carpet11
+tile:0:15:0:15:30:30:0:100:marble3
 litem:1
 safe_card:0
 deathpoint:0:15:0:15:0:0

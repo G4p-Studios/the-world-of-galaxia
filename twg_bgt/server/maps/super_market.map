@@ -30,5 +30,5 @@ rain:raininterior.ogg
 item_usage_restriction:0:50:0:100:0:15:conex:partner_house:beehive:small_conex:locker:fridge:microwave:sky_racer:ford:sorento:dogan_slx:grayhound_bus:m60_tank:tank:truck:v4_by_4_jeep:dodge_charger:doom_buggy:ford_pickup_truck:mlk_mission_cruiser:muscle_car:generic_motorcycle:frog_motorcycle:ducati_street_fighter:onda_cbr_600:yamaha_r6:aprilia_v4:aprilia_rs660:ducati_diavel:yamaha_off_road:kawasaki_hipersport:kawasaki_adventure_tourer:ducati_scrumbler:bmw_off_road:motor_boat
 wind:none.ogg
 night:none.ogg
-
 owner:mad-gamer
+clock:50:50:25:25:0:0:empty

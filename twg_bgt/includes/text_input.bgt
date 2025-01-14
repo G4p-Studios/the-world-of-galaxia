@@ -1,11 +1,12 @@
 class text_input
 {
- bool space_pressed=false;
+bool space_pressed=false;
 string ltrims="6780,`3-4";
- string rtrims="12346780-;.,\'";
- string[] chars={ " ", "a", "1", "b", "\'", "k", "2", "l", "`", "c", "i", "f", "/", "m", "s", "p", "\"", "e", "3", "h", "9", "o", "6", "r", "~", "d", "j", "g", ">", "n", "t", "q", ",", "*", "5", "<", "-", "u", "8", "v", ".", "%", "{", "$", "+", "x", "!", "&", ";", ":", "4", "|", "0", "z", "7", "(", "_", "?", "w", "}", "#", "y", ")", "="};
- int mark;
- string clipboard;
+string rtrims="12346780-;.,\'";
+string[] chars={ " ", "a", "1", "b", "\'", "k", "2", "l", "`", "c", "i", "f", "/", "m", "s", "p", "\"", "e", "3", "h", "9", "o", "6", "r", "~", "d", "j", "g", ">", "n", "t", "q", ",", "*", "5", "<", "-", "u", "8", "v", ".", "%", "{", "$", "+", "x", "!", "&", ";", ":", "4", "|", "0", "z", "7", "(", "_", "?", "w", "}", "#", "y", ")", "="};
+int mark;
+int braille_mode=0;
+string clipboard;
 sound capital;
 string[]entry;
 string title;
@@ -18,7 +19,6 @@ int keyboardclicks=1;
 int keyboardtheme=3;
 int keyboardsoundforothers=1;
 int hearotherskeyboardsound=1;
-int braille_mode=0;
 string mask="";
 key_hold back(KEY_BACK,500,40);
 key_hold back2(KEY_DELETE,500,40);
@@ -58,8 +58,6 @@ else
 {
 if(string_is_upper_case(char))
 {
-if(currentkeyboardlangfile=="english")
-{
 if(caps==1)
 {
 speak("Capital "+char);
@@ -72,7 +70,6 @@ speak(char);
 else if(caps==3)
 {
 speak(char);
-}
 }
 else
 {
@@ -94,7 +91,6 @@ void input_character(string char)
 {
 if(entry.length()==textlength and textlength>0)
 {
-cursor=entry.length()-1;
 return;
 }
 else
@@ -120,8 +116,6 @@ else if(keyboardtheme==9) vplay("keyboard9type");
 else if(keyboardtheme==10) vplay("phonekeytype");
 else if(keyboardtheme==11) vplay("l"+random(1,15)+"");
 else if(keyboardtheme==12) vplay("keyboard10type"+random(1,10)+"");
-if(currentkeyboardlangfile=="english")
-{
 if(caps==1)
 {
 if(repeat==1) speak("Capital "+char);
@@ -134,7 +128,6 @@ if(repeat==1) speak(char);
 else if(caps==3)
 {
 if(repeat==1) speak(char);
-}
 }
 else
 {
@@ -353,7 +346,7 @@ speak_character_at(cursor);
 }
 if(key_pressed(KEY_END))
 {
-cursor=entry.length()-1;
+cursor=entry.length();
 speak_character_at(cursor);
 }
 if(key_pressed(KEY_F1))
@@ -493,13 +486,6 @@ send_reliable(peer_id,"draw keyboard1type"+random(1,10)+".ogg", 7);
 keyboardtheme=1;
 speak("theme"+keyboardtheme+"");
 }
-else if (keyboardtheme==1)
-{
-p.play_stationary("keyboard1type"+random(1,10)+".ogg", false,0,0,0,100);
-send_reliable(peer_id,"draw keyboard1type"+random(1,10)+".ogg", 7);
-keyboardtheme=1;
-speak("theme"+keyboardtheme+"");
-}
 }
 if (key_pressed(KEY_F5))
 {
@@ -533,141 +519,6 @@ p.play_stationary("toggleoff.ogg", false,0,0,0,100);
 send_reliable(peer_id,"draw toggleoff.ogg", 7);
 speak("you won't hear others typing sounds from now on");
 hearotherskeyboardsound=0;
-}
-}
-if (key_pressed(KEY_F7))
-{
-if (braille_mode==0)
-{
-p.play_stationary("toggleon.ogg", false,0,0,0,100);
-send_reliable(peer_id,"draw toggleon.ogg", 7);
-speak("english braille mode on");
-braille_mode=1;
-}
-else
-{
-p.play_stationary("toggleoff.ogg", false,0,0,0,100);
-send_reliable(peer_id,"draw toggleoff.ogg", 7);
-speak("english braille mode off");
-braille_mode=0;
-}
-}
-if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_F8))
-{
-if(!directory_exists("keyboard_languages"))
-{
-dlg("Could not find keyboard languages");
-break;
-}
-string[] lngfiles=find_files("keyboard_languages/*.lng");
-if(lngfiles.length<=0)
-{
-dlg("No keyboard languages found");
-break;
-}
-if (screen_reader_is_running(1))
-{
-form.set_output_mode(JAWS);
-}
-if (screen_reader_is_running(2))
-{
-form.set_output_mode(WINDOW_EYES);
-}
-if (screen_reader_is_running(3))
-{
-form.set_output_mode(SYSTEM_ACCESS);
-}
-if (screen_reader_is_running(4))
-{
-form.set_output_mode(NVDA);
-}
-form.create_window("Select a language to be added to the keyboard languages", false);
-int klng=form.create_list("&Keyboard languages", 0);
-for(uint i=0; i<lngfiles.length; i++)
-{
-form.add_list_item(klng, string_replace(lngfiles[i],".lng","",true), -1);
-}
-int ok=form.create_button("OK");
-int cancel=form.create_button("cancel");
-form.set_button_attributes(ok, true, false);
-form.set_button_attributes(cancel, false, true);
-while(true)
-{
-form.monitor();
-wait(5);
-mainloop();
-if(form.is_pressed(cancel))
-{
-form.reset();
-break;
-}
-else if(form.is_pressed(ok))
-{
-if(form.get_list_position(klng)==-1)
-{
-dlg("An error has occured. Please set your keyboard language");
-form.reset();
-}
-else
-{
-klang.insert_last(""+form.get_list_item(klng, form.get_list_position(klng))+".lng");
-form.reset();
-speak("done");
-break;
-}
-}
-}
-}
-if (shift_is_down() and key_pressed(KEY_F8))
-{
-if (screen_reader_is_running(1))
-{
-form.set_output_mode(JAWS);
-}
-if (screen_reader_is_running(2))
-{
-form.set_output_mode(WINDOW_EYES);
-}
-if (screen_reader_is_running(3))
-{
-form.set_output_mode(SYSTEM_ACCESS);
-}
-if (screen_reader_is_running(4))
-{
-form.set_output_mode(NVDA);
-}
-form.create_window("Select a language to be removed from keyboard languages", false);
-int klng2=form.create_list("&Keyboard languages", 0);
-for(uint i=0; i<klang.length; i++)
-{
-form.add_list_item(klng2, string_replace(klang[i],".lng","",true), -1);
-}
-int ok=form.create_button("OK");
-int cancel=form.create_button("cancel");
-form.set_button_attributes(ok, true, false);
-form.set_button_attributes(cancel, false, true);
-while(true)
-{
-form.monitor();
-wait(5);
-mainloop();
-if(form.is_pressed(cancel))
-{
-form.reset();
-break;
-}
-else if(form.is_pressed(ok))
-{
-		int something=klang.find(""+form.get_list_item(klng2, form.get_list_position(klng2))+".lng");
-		if(something>-1)
-			{
-klang.remove_at(something);
-}
-currentkeyboardlangfile="";
-form.reset();
-speak("done");
-break;
-}
 }
 }
 if(key_pressed(KEY_UP) or key_pressed(KEY_DOWN))

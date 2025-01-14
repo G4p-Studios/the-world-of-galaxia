@@ -2694,13 +2694,13 @@ else if(parsed[0]=="/backupmap" and p.is_admin())
 send_reliable(0,"backing up all maps. please wait",2);
 if(!directory_exists("map_backups"))
 directory_create("map_backups");
-string[] mapfiles=find_directories("maps/*");
+string[] mapfiles=find_files("maps/*.map");
 for(uint i=0; i<mapfiles.length(); i++)
 {
-f.open("chars/"+mapfiles[i],"rb");
+f.open("maps/"+mapfiles[i],"rb");
 string maptext=f.read();
 f.close();
-f.open("map_backups/"+mapfiles[i]+" "+DATE_WEEKDAY_NAME+", "+DATE_MONTH_NAME+"-"+DATE_DAY+"-"+DATE_YEAR+", "+TIME_HOUR+" "+TIME_MINUTE+" "+TIME_SECOND+".map","wb");
+f.open("map_backups/"+mapfiles[i]+" "+DATE_WEEKDAY_NAME+", "+DATE_MONTH_NAME+" "+DATE_DAY+", "+DATE_YEAR+", at "+TIME_HOUR+"-"+TIME_MINUTE+"-"+TIME_SECOND+".map","wb");
 f.write(maptext);
 f.close();
 }

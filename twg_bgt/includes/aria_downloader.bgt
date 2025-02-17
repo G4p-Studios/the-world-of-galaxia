@@ -1,6 +1,6 @@
 void download(string url)
 {
-file_copy("lib/aria2c.exe","aria2c.exe",true);
+file_copy("libraries/aria2c.exe","aria2c.exe",true);
 sound_beep();
 run("aria2c.exe","--allow-overwrite=true "+url,true,true);
 file_delete("aria2c.exe");

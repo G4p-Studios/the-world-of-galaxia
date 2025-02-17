@@ -411,8 +411,9 @@ telefone tel;
 phone fone;
 string placemap;
 string currentcameratile;
-const string version="1.0";
+const string version="0.5";
 string sndversion;
+string sndchanges;
 string langver;
 string lbver;
 string keyboardlangver;
@@ -431,6 +432,7 @@ void main()
 {
 pf.open("sounds.dat");
 sndversion=read_from_file_in_pack("!version.txt");
+sndchanges=read_from_file_in_pack("!changelog.txt");
 tiletypes=read_from_file_in_pack("!tiletypes.txt");
 srctypes=read_from_file_in_pack("!srctypes.txt");
 musictypes=read_from_file_in_pack("!musictypes.txt");
@@ -461,6 +463,13 @@ dreamtypes=read_from_file_in_pack("!dreamtypes.txt");
 allsounds=read_from_file_in_pack("!allsounds.txt");
 drawsounds=read_from_file_in_pack("!drawsounds.txt");
 screen_reader_set_library_path(4, "libraries/nvdaControllerClient32.dll");
+if(file_exists("sounds_changelog.txt") and file_exists("sounds.dat") and SCRIPT_COMPILED)
+{
+file f;
+f.open("sounds_changelog.txt","w");
+f.write(sndchanges);
+f.close();
+}
 if(!directory_exists("logs")) directory_create("logs");
 df_s.filename="speech.dat";
 df_s.buffer="logs/log "+name+".txt";

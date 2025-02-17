@@ -1,6 +1,7 @@
 #include"form.bgt"
 void cfu()
 {
+if(file_exists("unzip.exe")) file_delete("unzip.exe");
 string l=url_get("http://files.mad-gamer.com/twg/version.txt");
 string desc_text=url_get("http://files.mad-gamer.com/twg/description.txt");
 if(get_last_error()!=0)
@@ -42,26 +43,10 @@ form.monitor();
 if(form.is_pressed(ok))
 {
 speak("Downloading update.");
-download("https://mad-gamer.com/twg/twg.zip");
-if(!file_exists("twg.zip"))
-{
-download_beep.stop();
-alert("Error","The DL zip file could not be downloaded. Please redownload the game manually.");
-exit();
-}
-speak("Extracting.");
-download("http://files.mad-gamer.com/twg/autoupdate/unzip.exe");
-run("unzip.exe","",true,true);
-if(!directory_exists("twg"))
-{
-download_beep.stop();
-file_delete("unzip.exe");
-alert("Error","The DL zip file could not be extracted. Please extract twg.zip.");
-exit();
-}
+download("https://mad-gamer.com/games/twg/twg.zip");
 speak("Updating files.");
-download("http://files.mad-gamer.com/twg/autoupdate/replacer.exe");
-run("replacer.exe","",false,false);
+download("http://files.mad-gamer.com/twg/unzip.exe");
+run("unzip.exe","",false,false);
 exit();
 }
 if(form.is_pressed(cancel))
@@ -91,7 +76,7 @@ int q=yesno("You do not currently have a sounds.dat file. Would you like to down
 if(q==1)
 {
 speak("Downloading sounds version "+latest+".");
-download("https://mad-gamer.com/twg/sounds.dat");
+download("https://mad-gamer.com/games/twg/sounds.dat");
 if(!file_exists("sounds.dat"))
 {
 download_beep.stop();
@@ -137,7 +122,7 @@ form.monitor();
 if(form.is_pressed(ok))
 {
 speak("Updating sounds.");
-download("https://mad-gamer.com/twg/sounds.dat");
+download("https://mad-gamer.com/games/twg/sounds.dat");
 if(!file_exists("sounds.dat"))
 {
 download_beep.stop();
@@ -160,26 +145,10 @@ void redownload()
 writeprefs();
 string l=url_get("http://files.mad-gamer.com/twg/version.txt");
 speak("Redownloading game version "+l+".");
-download("https://mad-gamer.com/twg/twg.zip");
-if(!file_exists("twg.zip"))
-{
-download_beep.stop();
-alert("Error","The DL zip file could not be downloaded. Please redownload the game manually.");
-exit();
-}
-speak("Extracting.");
-download("http://files.mad-gamer.com/twg/autoupdate/unzip.exe");
-run("unzip.exe","",true,true);
-if(!directory_exists("twg"))
-{
-download_beep.stop();
-file_delete("unzip.exe");
-alert("Error","The DL zip file could not be extracted. Please extract twg.zip.");
-exit();
-}
+download("https://mad-gamer.com/games/twg/twg.zip");
 speak("Updating files.");
-download("http://files.mad-gamer.com/twg/autoupdate/replacer.exe");
-run("replacer.exe","",false,false);
+download("http://files.mad-gamer.com/twg/unzip.exe");
+run("unzip.exe","",false,false);
 exit();
 }
 void redownload_sounds()
@@ -187,7 +156,7 @@ void redownload_sounds()
 writeprefs();
 string latest=url_get("http://files.mad-gamer.com/twg/sounds_version.txt");
 speak("Redownloading sounds version "+latest+".");
-download("https://mad-gamer.com/twg/sounds.dat");
+download("https://mad-gamer.com/games/twg/sounds.dat");
 run(get_script_path(),"",false,false);
 exit();
 }

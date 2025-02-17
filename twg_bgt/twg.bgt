@@ -411,7 +411,7 @@ telefone tel;
 phone fone;
 string placemap;
 string currentcameratile;
-const string version="0.5";
+const string version="1.0";
 string sndversion;
 string sndchanges;
 string langver;

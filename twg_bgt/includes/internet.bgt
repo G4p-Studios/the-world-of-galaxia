@@ -1,4 +1,4 @@
-string webdir="http://files.mad-gamer22.com/tk/motd";
+string webdir="http://files.mad-gamer.com/twg/motd";
 string motdhash;
 string mmode;
 string motdtext;

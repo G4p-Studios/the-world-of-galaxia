@@ -1,3 +1,5 @@
+#include"includes/dlgplay.bgt"
+#include"includes/internet.bgt"
 #include"includes/checkpoint.bgt"
 #include"includes/sd.bgt"
 #include"includes/guessnum.bgt"
@@ -85,6 +87,7 @@
 #include"includes/sound_pool.bgt"
 #include"includes/m_pro.bgt"
 #include"includes/map.bgt"
+int internet=1;
 int randping;
 int pingsound;
 double airtime=220;
@@ -409,7 +412,7 @@ phone fone;
 string placemap;
 string currentcameratile;
 const string version="1.0";
-const string sndversion="1.0";
+string sndversion;
 string langver;
 string lbver;
 string keyboardlangver;
@@ -426,6 +429,37 @@ network@ n;
 network_event e;
 void main()
 {
+pf.open("sounds.dat");
+sndversion=read_from_file_in_pack("!version.txt");
+tiletypes=read_from_file_in_pack("!tiletypes.txt");
+srctypes=read_from_file_in_pack("!srctypes.txt");
+musictypes=read_from_file_in_pack("!musictypes.txt");
+ds1types=read_from_file_in_pack("!ds1types.txt");
+ds2types=read_from_file_in_pack("!ds2types.txt");
+ds3types=read_from_file_in_pack("!ds3types.txt");
+ds4types=read_from_file_in_pack("!ds4types.txt");
+signtypes=read_from_file_in_pack("!signtypes.txt");
+nrainsoundtypes=read_from_file_in_pack("!nrainsoundtypes.txt");
+nonesoundtypes=read_from_file_in_pack("!nonesoundtypes.txt");
+msocialtypes=read_from_file_in_pack("!msocialtypes.txt");
+fsocialtypes=read_from_file_in_pack("!fsocialtypes.txt");
+chatsoundtypes=read_from_file_in_pack("!chatsoundtypes.txt");
+onlinesoundtypes=read_from_file_in_pack("!onlinesoundtypes.txt");
+offlinesoundtypes=read_from_file_in_pack("!offlinesoundtypes.txt");
+pmsoundtypes=read_from_file_in_pack("!pmsoundtypes.txt");
+localchatsoundtypes=read_from_file_in_pack("!localchatsoundtypes.txt");
+jumpsoundtypes=read_from_file_in_pack("!jumpsoundtypes.txt");
+forcefieldsounds=read_from_file_in_pack("!forcefieldsounds.txt");
+menuclicks=read_from_file_in_pack("!menuclicks.txt");
+menucloses=read_from_file_in_pack("!menucloses.txt");
+menuedges=read_from_file_in_pack("!menuedges.txt");
+menuenters=read_from_file_in_pack("!menuenters.txt");
+menuopens=read_from_file_in_pack("!menuopens.txt");
+menuwraps=read_from_file_in_pack("!menuwraps.txt");
+forcefieldhitsounds=read_from_file_in_pack("!forcefieldhitsounds.txt");
+dreamtypes=read_from_file_in_pack("!dreamtypes.txt");
+allsounds=read_from_file_in_pack("!allsounds.txt");
+drawsounds=read_from_file_in_pack("!drawsounds.txt");
 screen_reader_set_library_path(4, "libraries/nvdaControllerClient32.dll");
 if(!directory_exists("logs")) directory_create("logs");
 df_s.filename="speech.dat";
@@ -489,7 +523,17 @@ df_s.set_voice(ttsvoice);
 capbeep.load("cap.ogg");
 readprefs();
 show_game_window("The World of Galaxia: by G4P Studios ("+version+")");
+if(internet==1)
+{
 push();
+getmotd();
+if(SCRIPT_COMPILED)
+{
+cfu();
+sndcheck();
+}
+}
+writeprefs();
 df_s.load();
 setgkey(packname,keygen(decription_key),keygen(decryption_key),random(100,1000),true,true);
 small jcheck=find_joy(defjoyname);
@@ -2120,6 +2164,7 @@ if(key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KE
 {
 send_reliable(peer_id, "playermapmenu", 0);
 }
+/* We don't need this.
 if(alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_F5))
 {
 if (screen_reader_is_running(1))
@@ -2192,6 +2237,7 @@ break;
 }
 }
 }
+*/
 if(shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F5))
 {
 send_reliable(peer_id, "playermenu", 0);
@@ -3848,6 +3894,10 @@ if(peramitors.find("password")!=-1)
 {
 password=values[peramitors.find("password")];
 }
+if(peramitors.find("motdhash")!=-1)
+{
+motdhash=values[peramitors.find("motdhash")];
+}
 if(peramitors.find("voicechat")!=-1)
 {
 voicechat=string_to_number(values[peramitors.find("voicechat")]);
@@ -4434,11 +4484,8 @@ volumestream="+volumestream+"
 mmusic_volume="+mmusic_volume+"
 volume="+volume+"
 pitch="+pitch+"
+motdhash="+motdhash+"
 have_cycle_inventory="+have_cycle_inventory+"
-checkcfu="+checkcfu+"
-checkcmotd="+checkcmotd+"
-motdshow="+motdshow+"
-motdmotd="+motdmotd+"
 behind_pitch_decrease="+behind_pitch_decrease+"
 xx="+xx+"
 scuffs="+scuffs+"
@@ -5611,7 +5658,6 @@ int x=string_to_number(parsed[1]);
 int y=string_to_number(parsed[2]);
 int z=string_to_number(parsed[3]);
 string map=parsed[4];
-pf.open("sounds.dat");
 if(pf.file_exists((get_tile_at(x, y, z)+"trip.ogg")))
 {
 if(get_tile_at(me.x, me.y, me.z)!="chair")
@@ -5632,7 +5678,6 @@ else
 p.play_3d(get_tile_at2(x, y, z)+"fall.ogg", me.x, me.y, me.z, x, y, z, calculate_theta(facing),0,0,0,0,0,0,false,0,0,tilevolume,tilepitch);
 send_reliable(peer_id,"draw2 "+get_tile_at2(x, y, z)+"fall.ogg  tilevolume tilepitch", 7);
 }
-pf.close();
 }
 else if(parsed[0]=="playscuffsound")
 {
@@ -16142,4 +16187,17 @@ tst.close();
 return;
 }
 }
+}
+string read_from_file_in_pack(string filename)
+{
+file f;
+if(pf.file_exists(filename)==false) return "File not found";
+pf.extract_file(filename,DIRECTORY_TEMP+"\\"+filename);
+file_decrypt(DIRECTORY_TEMP+"\\"+filename,DIRECTORY_TEMP+"\\dec_"+filename,keygen(decryption_key));
+f.open(DIRECTORY_TEMP+"\\dec_"+filename,"rb");
+string ret=f.read();
+f.close();
+file_delete(DIRECTORY_TEMP+"\\"+filename);
+file_delete(DIRECTORY_TEMP+"\\dec_"+filename);
+return ret;
 }

@@ -1,8 +1,8 @@
 #include"form.bgt"
 void cfu()
 {
-string l=url_get("http://files.mad-gamer22.com/tk/version.txt");
-string desc_text=url_get("http://files.mad-gamer22.com/tk/description.txt");
+string l=url_get("http://files.mad-gamer.com/twg/version.txt");
+string desc_text=url_get("http://files.mad-gamer.com/twg/description.txt");
 if(get_last_error()!=0)
 {
 sound error;
@@ -14,6 +14,22 @@ exit();
 if(version<l)
 {
 audio_form form;
+if (screen_reader_is_running(1))
+{
+form.set_output_mode(JAWS);
+}
+if (screen_reader_is_running(2))
+{
+form.set_output_mode(WINDOW_EYES);
+}
+if (screen_reader_is_running(3))
+{
+form.set_output_mode(SYSTEM_ACCESS);
+}
+if (screen_reader_is_running(4))
+{
+form.set_output_mode(NVDA);
+}
 form.create_window("Update Available",false);
 int ver=form.create_input_box("Version",l,read_only=true);
 int desc=form.create_input_box("Description",desc_text,multiline=true,read_only=true);
@@ -26,31 +42,31 @@ form.monitor();
 if(form.is_pressed(ok))
 {
 speak("Downloading update.");
-download("https://mad-gamer22.com/tk/tk.zip");
-if(!file_exists("tk.zip"))
+download("https://mad-gamer.com/twg/twg.zip");
+if(!file_exists("twg.zip"))
 {
 download_beep.stop();
 alert("Error","The DL zip file could not be downloaded. Please redownload the game manually.");
 exit();
 }
 speak("Extracting.");
-download("http://files.mad-gamer22.com/tk/autoupdate/unzip.exe");
+download("http://files.mad-gamer.com/twg/autoupdate/unzip.exe");
 run("unzip.exe","",true,true);
-if(!directory_exists("tk"))
+if(!directory_exists("twg"))
 {
 download_beep.stop();
 file_delete("unzip.exe");
-alert("Error","The DL zip file could not be extracted. Please extract tk.zip.");
+alert("Error","The DL zip file could not be extracted. Please extract twg.zip.");
 exit();
 }
 speak("Updating files.");
-download("http://files.mad-gamer22.com/tk/autoupdate/replacer.exe");
+download("http://files.mad-gamer.com/twg/autoupdate/replacer.exe");
 run("replacer.exe","",false,false);
 exit();
 }
 if(form.is_pressed(cancel))
 {
-reset_network();
+form.reset();
 sndcheck();
 mainmenu();
 }
@@ -59,8 +75,8 @@ mainmenu();
 }
 void sndcheck()
 {
-string latest=url_get("http://files.mad-gamer22.com/tk/sounds_version.txt");
-string desc_text=url_get("http://files.mad-gamer22.com/tk/snddescription.txt");
+string latest=url_get("http://files.mad-gamer.com/twg/sounds_version.txt");
+string desc_text=url_get("http://files.mad-gamer.com/twg/snddescription.txt");
 if(get_last_error()!=0)
 {
 sound error;
@@ -75,7 +91,7 @@ int q=yesno("You do not currently have a sounds.dat file. Would you like to down
 if(q==1)
 {
 speak("Downloading sounds version "+latest+".");
-download("https://mad-gamer22.com/tk/sounds.dat");
+download("https://mad-gamer.com/twg/sounds.dat");
 if(!file_exists("sounds.dat"))
 {
 download_beep.stop();
@@ -87,7 +103,6 @@ exit();
 }
 if(q==2)
 {
-reset_network();
 mainmenu();
 }
 }
@@ -95,6 +110,22 @@ if(sndversion<latest)
 {
 audio_form form;
 form.create_window("Sounds Update Available",false);
+if (screen_reader_is_running(1))
+{
+form.set_output_mode(JAWS);
+}
+if (screen_reader_is_running(2))
+{
+form.set_output_mode(WINDOW_EYES);
+}
+if (screen_reader_is_running(3))
+{
+form.set_output_mode(SYSTEM_ACCESS);
+}
+if (screen_reader_is_running(4))
+{
+form.set_output_mode(NVDA);
+}
 int ver=form.create_input_box("Version",latest,read_only=true);
 int desc=form.create_input_box("Description",desc_text,multiline=true,read_only=true);
 int ok=form.create_button("&Download Update",true,false);
@@ -106,7 +137,7 @@ form.monitor();
 if(form.is_pressed(ok))
 {
 speak("Updating sounds.");
-download("https://mad-gamer22.com/tk/sounds.dat");
+download("https://mad-gamer.com/twg/sounds.dat");
 if(!file_exists("sounds.dat"))
 {
 download_beep.stop();
@@ -118,7 +149,7 @@ exit();
 }
 if(form.is_pressed(cancel))
 {
-reset_network();
+form.reset();
 mainmenu();
 }
 }
@@ -127,36 +158,36 @@ mainmenu();
 void redownload()
 {
 writeprefs();
-string l=url_get("http://files.mad-gamer22.com/tk/version.txt");
+string l=url_get("http://files.mad-gamer.com/twg/version.txt");
 speak("Redownloading game version "+l+".");
-download("https://mad-gamer22.com/tk/tk.zip");
-if(!file_exists("tk.zip"))
+download("https://mad-gamer.com/twg/twg.zip");
+if(!file_exists("twg.zip"))
 {
 download_beep.stop();
 alert("Error","The DL zip file could not be downloaded. Please redownload the game manually.");
 exit();
 }
 speak("Extracting.");
-download("http://files.mad-gamer22.com/tk/autoupdate/unzip.exe");
+download("http://files.mad-gamer.com/twg/autoupdate/unzip.exe");
 run("unzip.exe","",true,true);
-if(!directory_exists("tk"))
+if(!directory_exists("twg"))
 {
 download_beep.stop();
 file_delete("unzip.exe");
-alert("Error","The DL zip file could not be extracted. Please extract tk.zip.");
+alert("Error","The DL zip file could not be extracted. Please extract twg.zip.");
 exit();
 }
 speak("Updating files.");
-download("http://files.mad-gamer22.com/tk/autoupdate/replacer.exe");
+download("http://files.mad-gamer.com/twg/autoupdate/replacer.exe");
 run("replacer.exe","",false,false);
 exit();
 }
 void redownload_sounds()
 {
 writeprefs();
-string latest=url_get("http://files.mad-gamer22.com/tk/sounds_version.txt");
+string latest=url_get("http://files.mad-gamer.com/twg/sounds_version.txt");
 speak("Redownloading sounds version "+latest+".");
-download("https://mad-gamer22.com/tk/sounds.dat");
+download("https://mad-gamer.com/twg/sounds.dat");
 run(get_script_path(),"",false,false);
 exit();
 }

@@ -1,0 +1,5 @@
+raininterior
+telha1
+telha2
+telhado
+none

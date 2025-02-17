@@ -1,7 +1,7 @@
-#include"mapdata.bgt"
 #include"m_pro.bgt"
 #include"form.bgt"
 #include"submenu_system.bgt"
+#include"mapdata.bgt"
 dynamic_menu_pro m;
 audio_form form;
 sub_menu_system s;

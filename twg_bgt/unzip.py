@@ -3,8 +3,32 @@ import os
 import shutil
 import sys
 import subprocess
+import time
+import psutil
+
+def is_process_running(process_name):
+    """Check if there is any running process that contains the given name."""
+    for proc in psutil.process_iter(['name']):
+        try:
+            if proc.info['name'].lower() == process_name.lower():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    return False
+
+def wait_for_process_to_exit(process_name):
+    """Wait until the specified process is no longer running."""
+    print(f"Checking if {process_name} is running...")
+    while is_process_running(process_name):
+        print(f"{process_name} is running. Waiting...")
+        time.sleep(5)  # Wait for 5 seconds before checking again.
+    print(f"{process_name} is no longer running. Proceeding...")
 
 def main():
+    # Check and wait for twg.exe to exit if it's running
+    twg_executable = 'twg.exe'
+    wait_for_process_to_exit(twg_executable)
+
     # Unzip twg.zip to the current directory
     zip_filename = 'twg.zip'
     extract_dir = 'twg'
@@ -38,7 +62,6 @@ def main():
             shutil.copy2(s, d)
 
     # Run twg.exe without waiting
-    twg_executable = 'twg.exe'
     if os.path.isfile(twg_executable):
         print(f"Launching {twg_executable}...")
         try:

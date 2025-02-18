@@ -1,3 +1,4 @@
+#include"includes/keyconfig.bgt"
 #include"includes/dlgplay.bgt"
 #include"includes/internet.bgt"
 #include"includes/checkpoint.bgt"
@@ -46,7 +47,6 @@
 #include"includes/sizer.bgt"
 #include"includes/txt.bgt"
 #include"includes/fire_starter.bgt"
-#include"includes/keyconfig.bgt"
 #include"includes/silent.bgt"
 #include"includes/preloader.bgt"
 #include"includes/sndloader.bgt"
@@ -475,13 +475,6 @@ df_s.filename="speech.dat";
 df_s.buffer="logs/log "+name+".txt";
 stream.init_bass();
 if(!directory_exists("voices")) directory_create("voices");
-@keyc = load_keyconfig("keyconfig.ini");
-langver=string_to_number(decrypt_and_read("languages/version.dat"));
-lbver=string_to_number(decrypt_and_read("libraries/version.dat"));
-keyboardlangver=string_to_number(decrypt_and_read("keyboard_languages/version.dat"));
-readmever=string_to_number(decrypt_and_read("readme/version.dat"));
-rulesver=string_to_number(decrypt_and_read("rules/version.dat"));
-cver=string_to_number(decrypt_and_read("changelog/version.dat"));
 invcat.insert_last("all");
 invcat.insert_last("weapons");
 invcat.insert_last("bullets");

@@ -2,3 +2,5 @@ New in 1.0.1:
 Fixed a bug where if an update was declined, sounds will not play.
 Fixed a runtime error with the "Set up an account first" dialog.
 Fixed an issue where the sounds_changelog.txt file wasn't being created.
+New in 1.0:
+The first public release.

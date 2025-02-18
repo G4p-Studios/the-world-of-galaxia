@@ -411,7 +411,7 @@ telefone tel;
 phone fone;
 string placemap;
 string currentcameratile;
-const string version="1.0";
+const string version="1.0.1";
 string sndversion;
 string sndchanges;
 string langver;
@@ -463,7 +463,7 @@ dreamtypes=read_from_file_in_pack("!dreamtypes.txt");
 allsounds=read_from_file_in_pack("!allsounds.txt");
 drawsounds=read_from_file_in_pack("!drawsounds.txt");
 screen_reader_set_library_path(4, "libraries/nvdaControllerClient32.dll");
-if(file_exists("sounds_changelog.txt") and file_exists("sounds.dat") and SCRIPT_COMPILED)
+if(!file_exists("sounds_changelog.txt") and file_exists("sounds.dat") and SCRIPT_COMPILED)
 {
 file f;
 f.open("sounds_changelog.txt","w");
@@ -532,6 +532,7 @@ df_s.set_voice(ttsvoice);
 capbeep.load("cap.ogg");
 readprefs();
 show_game_window("The World of Galaxia: by G4P Studios ("+version+")");
+setgkey(packname,keygen(decription_key),keygen(decryption_key),random(100,1000),true,true);
 if(internet==1)
 {
 push();
@@ -544,7 +545,6 @@ sndcheck();
 }
 writeprefs();
 df_s.load();
-setgkey(packname,keygen(decription_key),keygen(decryption_key),random(100,1000),true,true);
 small jcheck=find_joy(defjoyname);
 if (jcheck==-1 and defjoyname!=j.name) {
 if (j.joysticks>0)
@@ -16203,7 +16203,7 @@ file f;
 if(pf.file_exists(filename)==false) return "File not found";
 pf.extract_file(filename,DIRECTORY_TEMP+"\\"+filename);
 file_decrypt(DIRECTORY_TEMP+"\\"+filename,DIRECTORY_TEMP+"\\dec_"+filename,keygen(decryption_key));
-f.open(DIRECTORY_TEMP+"\\dec_"+filename,"rb");
+f.open(DIRECTORY_TEMP+"\\dec_"+filename,"r");
 string ret=f.read();
 f.close();
 file_delete(DIRECTORY_TEMP+"\\"+filename);

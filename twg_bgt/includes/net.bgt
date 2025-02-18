@@ -7,7 +7,6 @@ void login()
 if(name==""||password=="")
 {
 dlg("setup an account first");
-reset_network();
 mainmenu();
 }
 speak("establishing connection... please wait");

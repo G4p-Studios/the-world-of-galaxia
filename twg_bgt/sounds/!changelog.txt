@@ -1,2 +1,4 @@
+New in 1.0.1:
+Actually adds the sounds changelog into the pack.
 New in 1.0:
 The first public release.
